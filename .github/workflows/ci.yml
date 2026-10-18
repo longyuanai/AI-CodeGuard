@@ -26,6 +26,24 @@ jobs:
       - run: npm test -w app
       - run: npm run precision
 
+  github-app-container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f app/Dockerfile -t ai-codeguard-app:ci .
+      - name: Container health smoke (synthetic credentials, no external API)
+        run: |
+          docker run -d --name codeguard-app -p 127.0.0.1:3000:3000 \
+            -e APP_ID=1 -e PRIVATE_KEY=offline-test -e WEBHOOK_SECRET=offline-secret \
+            -e ALLOWED_REPOSITORIES=owner/repo ai-codeguard-app:ci
+          for attempt in $(seq 1 20); do
+            if curl --fail http://127.0.0.1:3000/healthz; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - if: always()
+        run: docker rm -f codeguard-app || true
+
   build-and-test:
     runs-on: ubuntu-latest
     strategy:

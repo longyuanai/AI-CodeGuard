@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { scan, ConfigSchema } from 'ai-codeguard';
 
 describe('built library with bundled wasm', () => {
-  it('scans six fixture languages from an explicit root without changing cwd', async () => {
+  it('scans fixture languages from an explicit root without changing cwd', async () => {
     const cwd = process.cwd();
     const rootDir = fileURLToPath(new URL('../../tests/fixtures', import.meta.url));
     const result = await scan({

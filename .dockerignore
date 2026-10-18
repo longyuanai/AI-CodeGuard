@@ -1,0 +1,14 @@
+**
+!package.json
+!package-lock.json
+!tsconfig.json
+!tsup.config.ts
+!src/
+!src/**
+!app/
+!app/package.json
+!app/tsconfig.json
+!app/tsup.config.ts
+!app/src/
+!app/src/**
+!app/Dockerfile
