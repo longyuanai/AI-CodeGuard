@@ -28,6 +28,9 @@ export interface AnalyzeFindingsOptions {
 export interface AnalyzeFindingsDependencies {
   providers?: Partial<Record<LLMProvider, AnalyzeWithLLM>>;
   cache?: CacheStore;
+  /** Hosted callers reserve a conservative per-request upper cost before sending. */
+  reserveBudget?: boolean;
+  onBudgetSkipped?: (finding: Finding) => void;
 }
 
 export interface AnalyzeFindingsResult {
@@ -141,6 +144,7 @@ export async function analyzeFindings(
   let cacheHits = 0;
   let estimatedCost = 0;
   let budgetReached = false;
+  let reservedCost = 0;
 
   async function runWorker(): Promise<void> {
     while (true) {
@@ -152,6 +156,7 @@ export async function analyzeFindings(
       const candidate = candidates[index];
 
       if (budgetReached) {
+        dependencies.onBudgetSkipped?.(candidate.finding);
         findingsByIndex[index] = candidate.finding;
         continue;
       }
@@ -181,8 +186,23 @@ export async function analyzeFindings(
 
         // Re-check after prompt build — another worker may have exhausted the budget
         if (budgetReached) {
+          dependencies.onBudgetSkipped?.(candidate.finding);
           findingsByIndex[index] = candidate.finding;
           continue;
+        }
+
+        if (dependencies.reserveBudget && options.llm.maxCostUSD !== undefined) {
+          // UTF-8 bytes conservatively bound byte-tokenized prompt tokens.
+          // Include protocol overhead and the providers' 600-token output cap.
+          // Reservations stay consumed on errors (billing may be unknown).
+          const inputBound = Buffer.byteLength(systemPrompt + userPrompt, 'utf8') + 1024;
+          const reservation = estimateUsageCost(pricing, inputBound, 600);
+          if (reservedCost + reservation > options.llm.maxCostUSD) {
+            dependencies.onBudgetSkipped?.(candidate.finding);
+            findingsByIndex[index] = candidate.finding;
+            continue;
+          }
+          reservedCost += reservation;
         }
 
         const response = await provider({
@@ -239,6 +259,14 @@ export async function analyzeFindings(
     llmCalls,
     estimatedCost,
     cacheHits,
+  };
+}
+
+/** Fixed official endpoints, no redirects/retries; used by the hosted App. */
+export function createHostedProviders(): Record<LLMProvider, AnalyzeWithLLM> {
+  return {
+    claude: request => analyzeWithClaude(request, true),
+    openai: request => analyzeWithOpenAI(request, true),
   };
 }
 

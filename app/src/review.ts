@@ -66,7 +66,8 @@ export async function publishReview(client: GitHubClient, job: PRJob, scan: PRSc
       fallback.push(`${escapeText(finding.file)}:${finding.location.start.line} — ${escapeText(finding.ruleId)} (${finding.severity})`);
       return [];
     }
-    return [{ ...comment, line, body: comment.body.slice(0, 58_000) + `\n\n<!-- codeguard-fp: ${fp} -->` }];
+    const mode = scan.dryRun ? '**Stage 1 only — 未经 AI 分诊.**\n\n' : '';
+    return [{ ...comment, line, body: mode + comment.body.slice(0, 58_000) + `\n\n<!-- codeguard-fp: ${fp} -->` }];
   });
   // The PR might have moved while scanning; don't attach an old scan to a new head.
   const { data: current } = await client.request('GET /repos/{owner}/{repo}/pulls/{pull_number}', base);
@@ -131,5 +132,9 @@ function summaryBody(scan: PRScan, fallback: string[], headSha: string) {
   if (fallback.length) lines.push('<details><summary>Findings without inline comments</summary>\n', ...fallback, '\n</details>');
   if (scan.result.dismissedFindings?.length) lines.push('<details><summary>Stage 2 dismissed</summary>\n',
     ...scan.result.dismissedFindings.map(f => `${escapeText(f.file)}:${f.location.start.line} ${f.ruleId} — ${escapeText(f.llmAnalysis?.reasoning ?? '')}`), '\n</details>');
+  for (const [label, findings] of [['dismissed-by-budget (not AI dismissed)', scan.budgetDeferred], ['Untriaged after provider errors', scan.untriaged]] as const) {
+    if (findings?.length) lines.push(`<details><summary>${label}: ${findings.length}</summary>\n`,
+      ...findings.map(f => `${escapeText(f.file)}:${f.location.start.line} ${f.ruleId}`), '\n</details>');
+  }
   return lines.join('\n\n').slice(0, 60_000) + `\n\n${SUMMARY_MARK}`;
 }

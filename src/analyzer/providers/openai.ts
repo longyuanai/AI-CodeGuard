@@ -1,14 +1,20 @@
 import OpenAI from 'openai';
+import { hostedFetch } from './hosted-fetch.js';
 
 let cachedClient: OpenAI | null = null;
 let cachedApiKey: string | null = null;
+let cachedHosted = false;
 
-function getClient(apiKey: string): OpenAI {
-  if (cachedClient && cachedApiKey === apiKey) {
+function getClient(apiKey: string, hosted: boolean): OpenAI {
+  if (cachedClient && cachedApiKey === apiKey && cachedHosted === hosted) {
     return cachedClient;
   }
-  cachedClient = new OpenAI({ apiKey });
+  cachedClient = new OpenAI({ apiKey, ...(hosted ? {
+    baseURL: 'https://api.openai.com/v1', maxRetries: 0, timeout: 30_000,
+    fetch: hostedFetch('https://api.openai.com'),
+  } : {}) });
   cachedApiKey = apiKey;
+  cachedHosted = hosted;
   return cachedClient;
 }
 
@@ -17,12 +23,12 @@ export async function analyzeWithOpenAI(request: {
   apiKey: string;
   systemPrompt: string;
   userPrompt: string;
-}): Promise<{
+}, hosted = false): Promise<{
   text: string;
   inputTokens: number;
   outputTokens: number;
 }> {
-  const client = getClient(request.apiKey);
+  const client = getClient(request.apiKey, hosted);
 
   const response = await client.chat.completions.create({
     model: request.model,

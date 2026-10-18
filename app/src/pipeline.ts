@@ -2,7 +2,8 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve, sep } from 'node:path';
 import { parseDocument, visit } from 'yaml';
-import { ConfigSchema, detectLanguage, parseUnifiedDiff, scan, type ScanResult, type ChangedLines } from 'ai-codeguard';
+import { ConfigSchema, resolveConfig, createHostedProviders, detectLanguage, parseUnifiedDiff, scan,
+  type ScanResult, type ChangedLines, type Finding, type AnalyzeFindingsDependencies } from 'ai-codeguard';
 import type { GitHubClient, PRJob } from './types.js';
 
 const MAX_FILES = 300;
@@ -15,8 +16,15 @@ export interface PRScan {
   notes: string[];
   incomplete: boolean;
   largePR: boolean;
+  budgetDeferred?: Finding[];
+  untriaged?: Finding[];
 }
-export interface PipelineDependencies { scan?: typeof scan }
+export interface PipelineDependencies {
+  scan?: typeof scan;
+  /** Explicit trusted deployment environment; tests default to no credentials. */
+  env?: NodeJS.ProcessEnv;
+  analyzer?: AnalyzeFindingsDependencies;
+}
 
 export async function scanPR(client: GitHubClient, job: PRJob, deps: PipelineDependencies = {}): Promise<PRScan | undefined> {
   const base = { owner: job.owner, repo: job.repo, pull_number: job.number };
@@ -77,26 +85,33 @@ export async function scanPR(client: GitHubClient, job: PRJob, deps: PipelineDep
     }
     const yaml = await download('.codeguard.yml', 64 * 1024, true);
     const baseline = await download('.codeguard-baseline.json', MAX_FILE, true);
-    const config = repositoryConfig(yaml);
+    const config = repositoryConfig(yaml, deps.env ?? {});
+    const dryRun = !config.llm.apiKey;
+    const budgetDeferred: Finding[] = [];
     const diffPath = join(temp, 'pr.diff');
     await writeFile(diffPath, diff);
     // Do not expand empty paths into a whole-directory scan.
     const result = paths.length ? await (deps.scan ?? scan)({
       paths, rootDir, config, diffPath,
       baselinePath: baseline === undefined ? undefined : join(rootDir, '.codeguard-baseline.json'),
-      dryRun: true, fix: false, output: 'json', verbose: false, report: false,
-    }) : emptyResult();
+      dryRun, fix: false, output: 'json', verbose: false, report: false,
+    }, { ...deps.analyzer, providers: deps.analyzer?.providers ?? createHostedProviders(),
+      reserveBudget: true, onBudgetSkipped: finding => budgetDeferred.push(finding) }) : emptyResult();
+    const deferred = new Set(budgetDeferred.map(f => f.id));
+    const untriaged = dryRun ? [] : result.findings.filter(f => !f.llmAnalysis && !deferred.has(f.id));
+    if (!dryRun) result.findings = result.findings.filter(f => f.llmAnalysis?.confirmed === true);
+    if (budgetDeferred.length || untriaged.length) incomplete = true;
     if (result.skipped.length) incomplete = true;
     const { data: latest } = await client.request('GET /repos/{owner}/{repo}/pulls/{pull_number}', base);
     if (latest.state !== 'open' || latest.head.sha !== job.headSha) return;
-    return { result, changed, notes, incomplete, largePR, dryRun: true };
+    return { result, changed, notes, incomplete, largePR, dryRun, budgetDeferred, untriaged };
   } finally {
     // Only this freshly created, absolute temporary directory is removed.
     await rm(temp, { recursive: true, force: true });
   }
 }
 
-function repositoryConfig(source?: string) {
+export function repositoryConfig(source?: string, env: NodeJS.ProcessEnv = {}) {
   const doc = parseDocument(source ?? '', { uniqueKeys: true });
   if (doc.errors.length || doc.warnings.length) throw new Error('Invalid repository YAML.');
   visit(doc, { Alias() { throw new Error('YAML aliases are not supported.'); } });
@@ -106,7 +121,19 @@ function repositoryConfig(source?: string) {
   // output paths or persistent cache directories. JS/TS configs are never loaded.
   const parsed = ConfigSchema.parse({ scan: raw?.scan, rules: raw?.rules });
   parsed.rules.custom = undefined;
-  return parsed;
+  const serverCap = Number(env.CODEGUARD_MAX_COST ?? '1');
+  const repoLLM = raw?.llm as { maxCostUSD?: unknown } | undefined;
+  const repoCap = repoLLM?.maxCostUSD ?? serverCap;
+  if (!Number.isFinite(serverCap) || serverCap < 0 || typeof repoCap !== 'number'
+    || !Number.isFinite(repoCap) || repoCap < 0) throw new Error('Invalid cost limit.');
+  const provider = env.CODEGUARD_PROVIDER ?? 'claude';
+  if (!['claude', 'openai'].includes(provider)) throw new Error('Invalid deployment provider.');
+  const config = resolveConfig({ ...parsed, llm: {
+    provider, model: provider === 'openai' ? 'gpt-4o-mini' : parsed.llm.model,
+  } }, env);
+  config.llm.maxConcurrency = 1;
+  config.llm.maxCostUSD = Math.min(serverCap, repoCap);
+  return config;
 }
 
 export function safePath(root: string, path: string): string {

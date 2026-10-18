@@ -29,8 +29,13 @@ export async function loadConfig(configPath?: string): Promise<CodeGuardConfig> 
     }
   }
 
-  // Apply environment variable overrides
-  applyEnvOverrides(rawConfig);
+  return resolveConfig(rawConfig);
+}
+
+/** Parse data-only configuration; callers choose the trusted environment. */
+export function resolveConfig(raw: Record<string, unknown> = {}, env: NodeJS.ProcessEnv = process.env): CodeGuardConfig {
+  const rawConfig = structuredClone(raw);
+  applyEnvOverrides(rawConfig, env);
 
   // Validate and apply defaults via Zod
   const parsed = ConfigSchema.parse(rawConfig);
@@ -38,29 +43,29 @@ export async function loadConfig(configPath?: string): Promise<CodeGuardConfig> 
   return parsed as CodeGuardConfig;
 }
 
-function applyEnvOverrides(config: Record<string, unknown>): void {
+function applyEnvOverrides(config: Record<string, unknown>, env: NodeJS.ProcessEnv): void {
   const llm = (config.llm ?? {}) as Record<string, unknown>;
   const provider = (llm.provider as string) ?? 'claude';
 
   const providerKey = provider === 'openai'
-    ? process.env.OPENAI_API_KEY
-    : process.env.ANTHROPIC_API_KEY;
-  const apiKey = process.env.CODEGUARD_API_KEY || providerKey;
+    ? env.OPENAI_API_KEY
+    : env.ANTHROPIC_API_KEY;
+  const apiKey = env.CODEGUARD_API_KEY || providerKey;
 
   if (apiKey) {
     llm.apiKey = apiKey;
     config.llm = llm;
   }
 
-  if (process.env.CODEGUARD_MODEL) {
+  if (env.CODEGUARD_MODEL) {
     const llm = (config.llm ?? {}) as Record<string, unknown>;
-    llm.model = process.env.CODEGUARD_MODEL;
+    llm.model = env.CODEGUARD_MODEL;
     config.llm = llm;
   }
 
-  if (process.env.CODEGUARD_MAX_COST) {
+  if (env.CODEGUARD_MAX_COST) {
     const llm = (config.llm ?? {}) as Record<string, unknown>;
-    llm.maxCostUSD = parseFloat(process.env.CODEGUARD_MAX_COST);
+    llm.maxCostUSD = parseFloat(env.CODEGUARD_MAX_COST);
     config.llm = llm;
   }
 }

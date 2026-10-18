@@ -447,6 +447,25 @@ describe('analyzeFindings unknown model behavior', () => {
 
 // ── Budget overshoot under concurrency ──────────────────────────
 
+describe('hosted budget reservations', () => {
+  it('reserves before concurrent requests and reports skipped candidates at zero or exhausted budget', async () => {
+    for (const maxCostUSD of [0, 0.03]) {
+      let calls = 0;
+      const skipped: Finding[] = [];
+      const findings = ['1', '2', '3'].map(id => makeFinding({ id }));
+      const result = await analyzeFindings({ findings, suspiciousNodes: findings.map(() => makeSuspiciousNode()),
+        llm: makeLLM({ maxCostUSD, maxConcurrency: 3 }), fix: false }, {
+        reserveBudget: true, onBudgetSkipped: f => skipped.push(f), providers: { claude: async () => {
+          calls++; return { text: makeConfirmedResponse(), inputTokens: 100, outputTokens: 20 };
+        } },
+      });
+      expect(calls).toBe(maxCostUSD === 0 ? 0 : 1);
+      expect(skipped.length + calls).toBe(3);
+      expect(result.estimatedCost).toBeLessThanOrEqual(maxCostUSD);
+    }
+  });
+});
+
 describe('analyzeFindings budget overshoot', () => {
   it('lets in-flight calls finish, reports the honest overshoot, and stops new calls', async () => {
     let releaseAll: () => void = () => undefined;
