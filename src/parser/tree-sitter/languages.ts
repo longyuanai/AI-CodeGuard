@@ -18,15 +18,15 @@ const BUNDLED_GRAMMAR_WASM_PATHS: Record<Language, string> = {
 };
 
 const FALLBACK_GRAMMAR_WASM_PATHS: Record<Language, string> = {
-  javascript: require.resolve('tree-sitter-javascript/tree-sitter-javascript.wasm'),
-  typescript: require.resolve('tree-sitter-typescript/tree-sitter-tsx.wasm'),
-  python: require.resolve('tree-sitter-python/tree-sitter-python.wasm'),
-  go: require.resolve('tree-sitter-go/tree-sitter-go.wasm'),
-  java: require.resolve('tree-sitter-java/tree-sitter-java.wasm'),
+  javascript: 'tree-sitter-javascript/tree-sitter-javascript.wasm',
+  typescript: 'tree-sitter-typescript/tree-sitter-tsx.wasm',
+  python: 'tree-sitter-python/tree-sitter-python.wasm',
+  go: 'tree-sitter-go/tree-sitter-go.wasm',
+  java: 'tree-sitter-java/tree-sitter-java.wasm',
   // The php grammar package also ships `php_only` (fragments without <?php
   // tags); we want the full `php` grammar since real .php files mix HTML
   // and PHP tags.
-  php: require.resolve('tree-sitter-php/tree-sitter-php.wasm'),
+  php: 'tree-sitter-php/tree-sitter-php.wasm',
 };
 
 export function resolveCoreWasmPath(): string {
@@ -38,7 +38,7 @@ export function resolveCoreWasmPath(): string {
 export function resolveGrammarWasmPath(language: Language): string {
   return existsSync(BUNDLED_GRAMMAR_WASM_PATHS[language])
     ? BUNDLED_GRAMMAR_WASM_PATHS[language]
-    : FALLBACK_GRAMMAR_WASM_PATHS[language];
+    : require.resolve(FALLBACK_GRAMMAR_WASM_PATHS[language]);
 }
 
 function findPackageRoot(startDir: string): string {

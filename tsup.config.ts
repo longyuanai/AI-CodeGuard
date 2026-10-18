@@ -36,7 +36,7 @@ const WASM_ASSETS = [
 ];
 
 export default defineConfig({
-  entry: ['src/cli/index.ts'],
+  entry: { index: 'src/cli/index.ts', lib: 'src/lib.ts' },
   format: ['esm'],
   dts: true,
   clean: true,
