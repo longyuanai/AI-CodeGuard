@@ -3,34 +3,13 @@ import type { Finding } from 'ai-codeguard';
 import { checkConclusion, processPR, publishReview } from '../src/review.js';
 import { emptyResult, type PRScan } from '../src/pipeline.js';
 import type { GitHubClient } from '../src/types.js';
-import { job, mockGitHub } from './helpers.js';
+import { job, reviewClient } from './helpers.js';
 
 const finding: Finding = { id: '1', ruleId: 'CG-003', title: 'Eval', description: 'Unsafe eval', severity: 'critical',
   file: 'src/code.ts', snippet: 'eval(x)', location: { start: { line: 1, column: 0 }, end: { line: 2, column: 5 } } };
 function scanned(): PRScan {
   return { result: { ...emptyResult(), findings: [finding] }, changed: new Map([['src/code.ts', new Set([2])]]),
     dryRun: true, notes: [], incomplete: false, largePR: false };
-}
-export function reviewClient() {
-  const inline: Array<{ id: number; body: string; user: { login: string } }> = [];
-  const summaries: typeof inline = [];
-  const gh = mockGitHub('eval(req.query.new);', '--- a/src/code.ts\n+++ b/src/code.ts\n@@ -0,0 +1 @@\n+eval(req.query.new);\n');
-  const request = vi.fn(async (route: string, args: Record<string, any>) => {
-    if (route.endsWith('/check-runs') && route.startsWith('GET')) return { data: { check_runs: [] } };
-    if (route.includes('/check-runs')) return { data: { id: 9 } };
-    if (route.endsWith('/reviews')) {
-      inline.push(...args.comments.map((c: { body: string }) => ({ ...c, id: inline.length + 1, user: { login: 'guard[bot]' } })));
-      return { data: {} };
-    }
-    if (route === 'GET /repos/{owner}/{repo}/pulls/{pull_number}/comments') return { data: inline };
-    if (route === 'GET /repos/{owner}/{repo}/issues/{issue_number}/comments') return { data: summaries };
-    if (route.startsWith('POST') && route.endsWith('/comments')) {
-      summaries.push({ id: 5, body: args.body, user: { login: 'guard[bot]' } }); return { data: {} };
-    }
-    if (route.startsWith('PATCH') && route.includes('/issues/comments/')) { summaries[0].body = args.body; return { data: {} }; }
-    return gh.request(route, args);
-  });
-  return { request, inline, summaries, client: { request } as unknown as GitHubClient };
 }
 it('deduplicates fingerprints, updates a single summary, and posts only new findings', async () => {
   const gh = reviewClient(); const s = scanned();

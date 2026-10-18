@@ -1,19 +1,6 @@
-import { createHmac } from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
 import { createServer } from '../src/server.js';
-
-export const event = {
-  action: 'opened', number: 1, installation: { id: 42 },
-  repository: { name: 'repo', owner: { login: 'owner' } },
-  pull_request: { head: { sha: 'a'.repeat(40), repo: { name: 'repo', owner: { login: 'owner' } } } },
-};
-export function signed(body: unknown = event, id = 'delivery-1', type = 'pull_request') {
-  const raw = JSON.stringify(body);
-  return { method: 'POST', body: raw, headers: {
-    'x-hub-signature-256': 'sha256=' + createHmac('sha256', 'secret').update(raw).digest('hex'),
-    'x-github-event': type, 'x-github-delivery': id,
-  } };
-}
+import { event, signed } from './webhook.js';
 function setup(handle = vi.fn().mockResolvedValue(undefined)) {
   return { ...createServer({ secret: 'secret', allowedRepositories: new Set(['owner/repo']), handle }), handle };
 }

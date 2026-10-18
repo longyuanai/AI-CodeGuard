@@ -14,7 +14,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@hono/node-server": "1.19.11",
+    "@hono/node-server": "1.19.17",
     "@octokit/app": "15.1.6",
     "@octokit/core": "6.1.6",
     "@octokit/webhooks": "13.9.1",

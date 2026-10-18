@@ -223,7 +223,7 @@ async function discoverFiles(
         const normalizedPath = p.replace(/\\/g, '/');
         try {
           const info = await stat(resolve(rootDir, p));
-          if (info.isFile()) return [normalizedPath];
+          if (info.isFile()) return [fg.escapePath(normalizedPath)];
         } catch {
           // Path doesn't exist yet — treat as glob pattern
           return [normalizedPath];

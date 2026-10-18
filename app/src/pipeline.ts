@@ -90,6 +90,8 @@ export async function scanPR(client: GitHubClient, job: PRJob, deps: PipelineDep
     const budgetDeferred: Finding[] = [];
     const diffPath = join(temp, 'pr.diff');
     await writeFile(diffPath, diff);
+    const { data: beforeScan } = await client.request('GET /repos/{owner}/{repo}/pulls/{pull_number}', base);
+    if (beforeScan.state !== 'open' || beforeScan.head.sha !== job.headSha) return;
     // Do not expand empty paths into a whole-directory scan.
     const result = paths.length ? await (deps.scan ?? scan)({
       paths, rootDir, config, diffPath,
@@ -121,6 +123,13 @@ export function repositoryConfig(source?: string, env: NodeJS.ProcessEnv = {}) {
   // output paths or persistent cache directories. JS/TS configs are never loaded.
   const parsed = ConfigSchema.parse({ scan: raw?.scan, rules: raw?.rules });
   parsed.rules.custom = undefined;
+  // Explicit changed-file paths make include globs unnecessary. Limit exclude
+  // patterns to simple stars/questions; don't expose brace/extglob expansion
+  // in the core's existing glob dependencies to untrusted repository config.
+  parsed.scan.include = [];
+  if (parsed.scan.exclude.length > 100 || parsed.scan.exclude.some(p => p.length > 256 || /[{}()[\]!]/.test(p))) {
+    throw new Error('Repository excludes must use simple glob patterns.');
+  }
   const serverCap = Number(env.CODEGUARD_MAX_COST ?? '1');
   const repoLLM = raw?.llm as { maxCostUSD?: unknown } | undefined;
   const repoCap = repoLLM?.maxCostUSD ?? serverCap;

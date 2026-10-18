@@ -44,3 +44,8 @@ it('keeps provider failures untriaged rather than presenting them as AI confirma
   expect(result?.incomplete).toBe(true); expect(result?.untriaged).toHaveLength(3);
   expect(result?.result.findings).toHaveLength(0); expect(JSON.stringify(result)).not.toContain(env.CODEGUARD_API_KEY);
 });
+it('rejects expansive untrusted exclude globs before scanning', () => {
+  for (const pattern of ['{1..100000000}', '**/@(a|b)', 'x'.repeat(257)]) {
+    expect(() => repositoryConfig(`scan:\n  exclude: [${JSON.stringify(pattern)}]`)).toThrow();
+  }
+});

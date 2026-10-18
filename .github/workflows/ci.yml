@@ -7,6 +7,25 @@ on:
   pull_request:
 
 jobs:
+  github-app:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm run typecheck -w app
+      - run: npm run lint -w app
+      - run: npm run build -w app
+      - run: npm test -w app
+      - run: npm run precision
+
   build-and-test:
     runs-on: ubuntu-latest
     strategy:
