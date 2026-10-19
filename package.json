@@ -69,6 +69,9 @@
     "tsup": "^8.3.6",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.62.1",
-    "vitest": "^3.0.5"
+    "vitest": "^3.2.7"
+  },
+  "overrides": {
+    "vite": "6.4.4"
   }
 }
