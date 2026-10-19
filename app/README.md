@@ -4,7 +4,7 @@ Single-tenant, self-hosted PR scanning service. Hono receives signed webhooks;
 Octokit authenticates as a GitHub App installation. The existing scanner runs
 in-process against head-SHA content, without cloning or executing repository code.
 
-Local verification (2026-10-18): 28 app tests pass, including a real Node HTTP
+Local verification (2026-10-19): 28 app tests pass, including a real loopback Node HTTP
 `/healthz` request and signature rejection. GitHub API and LLM tests use mocks.
 Docker build/container health and real GitHub/paid-provider integration are **not verified**.
 See [acceptance evidence](../docs/dev/M8-VALIDATION.md).
@@ -126,7 +126,10 @@ drains the worker; set an adequate stop grace period for active LLM calls.
 ## Container (local build not yet verified)
 
 Build context must be the repository root. The runtime contains production
-dependencies and built dist/wasm assets, with no source/tests/build tools or secrets.
+dependencies and built dist/wasm assets; project source/tests and secrets are not
+copied. A local production-only install excludes Vitest, tsup, Vite and esbuild,
+but retains TypeScript as cosmiconfig's optional runtime peer. This package-layout
+check does not establish that the Docker image builds or runs.
 
 ```sh
 docker build -f app/Dockerfile -t ai-codeguard-app:local .
@@ -144,6 +147,7 @@ deployment environment securely before replacing anything. Roll back by starting
 the previous image with the same environment and redelivering interrupted events.
 No database migration is required. This repository does not deploy automatically.
 
-Existing dependency audit alerts remain (see acceptance evidence); this local MVP
+Compatible dependency repairs leave 3 high production audit entries from one
+braces issue, plus development alerts including critical Tinypool (see acceptance evidence); this local MVP
 has not passed a production security review. No live GitHub or paid API validation
 is implied by the mock tests or liveness probe.

@@ -1,0 +1,1718 @@
+AI-CodeGuard dependency delivery regression | client date 2026-10-19 Asia/Shanghai | Node v24.18.0 | npm 11.16.0
+COMMAND: npm run build
+
+> ai-codeguard@0.4.0 build
+> tsup
+
+CLI Building entry: {"index":"src/cli/index.ts","lib":"src/lib.ts"}
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: E:\001项目\001Github\000开源项目\001AI-CodeGuard\tsup.config.ts
+CLI Target: node18
+CLI Cleaning output folder
+ESM Build start
+ESM dist\index.js              11.40 KB
+ESM dist\lib.js                542.00 B
+ESM dist\chunk-NZS42T4V.js     121.37 KB
+ESM dist\lib.js.map            71.00 B
+ESM dist\index.js.map          22.38 KB
+ESM dist\chunk-NZS42T4V.js.map 273.91 KB
+ESM ⚡️ Build success in 34ms
+DTS Build start
+DTS ⚡️ Build success in 2217ms
+DTS dist\index.d.ts 13.00 B
+DTS dist\lib.d.ts   9.79 KB
+EXIT: 0
+COMMAND: npm run test:run
+
+> ai-codeguard@0.4.0 test:run
+> vitest run
+
+
+ RUN  v3.2.7 E:/001项目/001Github/000开源项目/001AI-CodeGuard
+
+ ✓ tests/unit/suppression.test.ts (11 tests) 6ms
+ ✓ tests/unit/version.test.ts (1 test) 3ms
+ ✓ tests/unit/baseline.test.ts (18 tests) 51ms
+ ✓ tests/unit/cache.test.ts (12 tests) 59ms
+ ✓ tests/unit/config.test.ts (13 tests) 64ms
+ ✓ tests/unit/reporter.test.ts (42 tests) 19ms
+ ✓ tests/unit/hosted-providers.test.ts (1 test) 17ms
+ ↓ tests/integration/llm-provider.test.ts (1 test | 1 skipped)
+ ✓ tests/unit/analyzer.test.ts (22 tests) 48ms
+ ✓ tests/unit/parser.test.ts (72 tests) 82ms
+stdout | tests/precision/precision.test.ts > precision corpus > meets the precision/recall ratchet
+
+── precision corpus report ──
+expected: 25  reported: 24
+TP: 23  FN: 2  FP: 1
+precision: 95.8%  recall: 92.0%
+missed (FN): handler.go:33:CG-002, webapp.ts:41:CG-001
+spurious (FP): service.py:42:CG-024
+
+ ✓ tests/precision/precision.test.ts (1 test) 92ms
+ ✓ tests/unit/scan-command.test.ts (8 tests) 4ms
+ ✓ tests/unit/rules-command.test.ts (6 tests) 80ms
+ ✓ tests/integration/rules-command.test.ts (1 test) 111ms
+ ✓ tests/triage/triage.test.ts (3 tests | 1 skipped) 89ms
+ ✓ tests/unit/diff.test.ts (14 tests) 85ms
+ ✓ tests/unit/rules-builtin.test.ts (292 tests) 214ms
+ ✓ tests/unit/rules-engine.test.ts (42 tests) 247ms
+ ✓ tests/integration/scanner.test.ts (16 tests) 302ms
+
+ Test Files  18 passed | 1 skipped (19)
+      Tests  574 passed | 2 skipped (576)
+   Start at  10:24:09
+   Duration  1.49s (transform 1.67s, setup 0ms, collect 8.98s, tests 1.57s, environment 4ms, prepare 2.96s)
+
+EXIT: 0
+COMMAND: npm run precision
+
+> ai-codeguard@0.4.0 precision
+> vitest run tests/precision
+
+
+ RUN  v3.2.7 E:/001项目/001Github/000开源项目/001AI-CodeGuard
+
+stdout | tests/precision/precision.test.ts > precision corpus > meets the precision/recall ratchet
+
+── precision corpus report ──
+expected: 25  reported: 24
+TP: 23  FN: 2  FP: 1
+precision: 95.8%  recall: 92.0%
+missed (FN): handler.go:33:CG-002, webapp.ts:41:CG-001
+spurious (FP): service.py:42:CG-024
+
+ ✓ tests/precision/precision.test.ts (1 test) 56ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  10:24:12
+   Duration  639ms (transform 134ms, setup 0ms, collect 270ms, tests 56ms, environment 0ms, prepare 128ms)
+
+EXIT: 0
+COMMAND: npm run typecheck
+
+> ai-codeguard@0.4.0 typecheck
+> tsc --noEmit
+
+EXIT: 0
+COMMAND: npm run lint
+
+> ai-codeguard@0.4.0 lint
+> eslint src/
+
+EXIT: 0
+COMMAND: npm run build -w app
+
+> @ai-codeguard/github-app@0.1.0 build
+> tsup
+
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: E:\001项目\001Github\000开源项目\001AI-CodeGuard\app\tsup.config.ts
+CLI Target: node18
+CLI Cleaning output folder
+ESM Build start
+ESM dist\index.js     21.33 KB
+ESM dist\index.js.map 40.26 KB
+ESM ⚡️ Build success in 17ms
+EXIT: 0
+COMMAND: npm test -w app
+
+> @ai-codeguard/github-app@0.1.0 test
+> vitest run
+
+
+ RUN  v3.2.7 E:/001项目/001Github/000开源项目/001AI-CodeGuard/app
+
+ ✓ tests/server.test.ts (5 tests) 22ms
+ ✓ tests/auth.test.ts (1 test) 51ms
+ ✓ tests/review.test.ts (5 tests) 23ms
+ ✓ tests/runtime.test.ts (1 test) 444ms
+   ✓ starts the built Node HTTP service and answers health and signature rejection over loopback  443ms
+ ✓ tests/integration.test.ts (1 test) 105ms
+ ✓ tests/config-cost.test.ts (5 tests) 136ms
+ ✓ tests/library.test.ts (2 tests) 113ms
+ ✓ tests/pipeline.test.ts (8 tests) 144ms
+
+ Test Files  8 passed (8)
+      Tests  28 passed (28)
+   Start at  10:24:18
+   Duration  919ms (transform 404ms, setup 0ms, collect 2.44s, tests 1.04s, environment 1ms, prepare 1.04s)
+
+EXIT: 0
+COMMAND: npm run typecheck -w app
+
+> @ai-codeguard/github-app@0.1.0 typecheck
+> tsc --noEmit
+
+EXIT: 0
+COMMAND: npm run lint -w app
+
+> @ai-codeguard/github-app@0.1.0 lint
+> eslint src/
+
+EXIT: 0
+ALL NINE REQUIRED CHECKS PASSED
+
+
+LOCAL CLI COMPATIBILITY SMOKE (trusted fixtures, no API calls)
+COMMANDS: node dist/index.js scan tests/fixtures/{vulnerable,safe} --config .artifacts/m8-security/cli-config.yml --dry-run --fail-on none --output json --output-file <corresponding ignored report>
+[
+  {
+    "mode": "vulnerable",
+    "config": "trusted YAML merge alias loaded through cosmiconfig/js-yaml",
+    "files": 14,
+    "findings": 97,
+    "skipped": 0,
+    "llmCalls": 0,
+    "estimatedCost": 0
+  },
+  {
+    "mode": "safe",
+    "config": "trusted YAML merge alias loaded through cosmiconfig/js-yaml",
+    "files": 8,
+    "findings": 0,
+    "skipped": 0,
+    "llmCalls": 0,
+    "estimatedCost": 0
+  }
+]
+
+
+ISOLATED PRODUCTION PACKAGE CHECK -- NOT A DOCKER IMAGE
+INSTALL: npm ci --omit=dev --ignore-scripts --no-audit --no-fund --prefix .artifacts/m8-security/production-runtime
+CHECK: node .artifacts/m8-security/check-production.mjs (filesystem package inventory + built library PHP scan)
+{
+  "kind": "local production package check; NOT a Docker image",
+  "tools": {
+    "vitest": "absent",
+    "tsup": "absent",
+    "vite": "absent",
+    "esbuild": "absent",
+    "typescript": "present"
+  },
+  "wasm": [
+    {
+      "file": "tree-sitter-go.wasm",
+      "bytes": 217182
+    },
+    {
+      "file": "tree-sitter-java.wasm",
+      "bytes": 414641
+    },
+    {
+      "file": "tree-sitter-javascript.wasm",
+      "bytes": 411770
+    },
+    {
+      "file": "tree-sitter-php.wasm",
+      "bytes": 1058041
+    },
+    {
+      "file": "tree-sitter-python.wasm",
+      "bytes": 457883
+    },
+    {
+      "file": "tree-sitter-tsx.wasm",
+      "bytes": 1445638
+    },
+    {
+      "file": "web-tree-sitter.wasm",
+      "bytes": 196763
+    }
+  ],
+  "scan": {
+    "files": 1,
+    "findings": 1,
+    "skipped": 0,
+    "llmCalls": 0
+  },
+  "form-data": "4.0.6",
+  "js-yaml": "4.3.2",
+  "braces": "3.0.3"
+}
+
+
+DOCKER ENGINE CHECK: docker version
+Client:
+ Version:           29.8.2
+ API version:       1.56
+ Go version:        go1.26.8
+ Git commit:        7fc2dff
+ Built:             Wed Sep 30 19:35:42 2026
+ OS/Arch:           windows/amd64
+ Context:           desktop-linux
+failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.
+DOCKER EXIT: 1
+
+Engine unavailable: no image built, no container created, no system changes.
+Image health/401 and running-image dependencies/wasm UNVERIFIED.
+
+
+LOCKFILE VERSION DIFF AGAINST 75602a8
+{
+  "changed": [
+    {
+      "path": "node_modules/@humanfs/core",
+      "from": "0.19.1",
+      "to": "0.19.2"
+    },
+    {
+      "path": "node_modules/@humanfs/node",
+      "from": "0.16.7",
+      "to": "0.16.8"
+    },
+    {
+      "path": "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion",
+      "from": "5.0.7",
+      "to": "5.0.12"
+    },
+    {
+      "path": "node_modules/@vitest/expect",
+      "from": "3.2.4",
+      "to": "3.2.7"
+    },
+    {
+      "path": "node_modules/@vitest/mocker",
+      "from": "3.2.4",
+      "to": "3.2.7"
+    },
+    {
+      "path": "node_modules/@vitest/pretty-format",
+      "from": "3.2.4",
+      "to": "3.2.7"
+    },
+    {
+      "path": "node_modules/@vitest/runner",
+      "from": "3.2.4",
+      "to": "3.2.7"
+    },
+    {
+      "path": "node_modules/@vitest/snapshot",
+      "from": "3.2.4",
+      "to": "3.2.7"
+    },
+    {
+      "path": "node_modules/@vitest/spy",
+      "from": "3.2.4",
+      "to": "3.2.7"
+    },
+    {
+      "path": "node_modules/@vitest/utils",
+      "from": "3.2.4",
+      "to": "3.2.7"
+    },
+    {
+      "path": "node_modules/brace-expansion",
+      "from": "1.1.13",
+      "to": "1.1.21"
+    },
+    {
+      "path": "node_modules/form-data",
+      "from": "4.0.5",
+      "to": "4.0.6"
+    },
+    {
+      "path": "node_modules/hasown",
+      "from": "2.0.2",
+      "to": "2.0.4"
+    },
+    {
+      "path": "node_modules/js-yaml",
+      "from": "4.1.1",
+      "to": "4.3.2"
+    },
+    {
+      "path": "node_modules/nanoid",
+      "from": "3.3.11",
+      "to": "3.3.20"
+    },
+    {
+      "path": "node_modules/postcss",
+      "from": "8.5.9",
+      "to": "8.5.31"
+    },
+    {
+      "path": "node_modules/source-map-js",
+      "from": "1.2.1",
+      "to": "1.2.2"
+    },
+    {
+      "path": "node_modules/tinyspy",
+      "from": "4.0.4",
+      "to": "4.0.6"
+    },
+    {
+      "path": "node_modules/vite",
+      "from": "7.3.2",
+      "to": "6.4.4"
+    },
+    {
+      "path": "node_modules/vite/node_modules/picomatch",
+      "from": "4.0.4",
+      "to": "4.0.7"
+    },
+    {
+      "path": "node_modules/vitest",
+      "from": "3.2.4",
+      "to": "3.2.7"
+    }
+  ],
+  "added": [
+    "node_modules/@humanfs/types",
+    "node_modules/vite/node_modules/@esbuild/aix-ppc64",
+    "node_modules/vite/node_modules/@esbuild/android-arm",
+    "node_modules/vite/node_modules/@esbuild/android-arm64",
+    "node_modules/vite/node_modules/@esbuild/android-x64",
+    "node_modules/vite/node_modules/@esbuild/darwin-arm64",
+    "node_modules/vite/node_modules/@esbuild/darwin-x64",
+    "node_modules/vite/node_modules/@esbuild/freebsd-arm64",
+    "node_modules/vite/node_modules/@esbuild/freebsd-x64",
+    "node_modules/vite/node_modules/@esbuild/linux-arm",
+    "node_modules/vite/node_modules/@esbuild/linux-arm64",
+    "node_modules/vite/node_modules/@esbuild/linux-ia32",
+    "node_modules/vite/node_modules/@esbuild/linux-loong64",
+    "node_modules/vite/node_modules/@esbuild/linux-mips64el",
+    "node_modules/vite/node_modules/@esbuild/linux-ppc64",
+    "node_modules/vite/node_modules/@esbuild/linux-riscv64",
+    "node_modules/vite/node_modules/@esbuild/linux-s390x",
+    "node_modules/vite/node_modules/@esbuild/linux-x64",
+    "node_modules/vite/node_modules/@esbuild/netbsd-arm64",
+    "node_modules/vite/node_modules/@esbuild/netbsd-x64",
+    "node_modules/vite/node_modules/@esbuild/openbsd-arm64",
+    "node_modules/vite/node_modules/@esbuild/openbsd-x64",
+    "node_modules/vite/node_modules/@esbuild/openharmony-arm64",
+    "node_modules/vite/node_modules/@esbuild/sunos-x64",
+    "node_modules/vite/node_modules/@esbuild/win32-arm64",
+    "node_modules/vite/node_modules/@esbuild/win32-ia32",
+    "node_modules/vite/node_modules/@esbuild/win32-x64",
+    "node_modules/vite/node_modules/esbuild"
+  ]
+}
+
+
+AUDIT SNAPSHOTS (official npm registry; all commands exited 1 due to findings)
+
+COMMAND: npm audit --json (before)
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@humanfs/node": {
+      "name": "@humanfs/node",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1158499,
+          "name": "@humanfs/node",
+          "dependency": "@humanfs/node",
+          "title": "humanfs: Recursive copy follows symlinked files and copies data from outside the source tree",
+          "url": "https://github.com/advisories/GHSA-p498-v437-472g",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<0.16.8"
+        }
+      ],
+      "effects": [],
+      "range": "<0.16.8",
+      "nodes": [
+        "node_modules/@humanfs/node"
+      ],
+      "fixAvailable": true
+    },
+    "@vitest/mocker": {
+      "name": "@vitest/mocker",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1193684,
+          "name": "@vitest/mocker",
+          "dependency": "@vitest/mocker",
+          "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+          "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N"
+          },
+          "range": ">=2.1.0 <4.1.11"
+        }
+      ],
+      "effects": [
+        "vitest"
+      ],
+      "range": "2.1.0 - 4.1.10",
+      "nodes": [
+        "node_modules/@vitest/mocker"
+      ],
+      "fixAvailable": true
+    },
+    "brace-expansion": {
+      "name": "brace-expansion",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1123897,
+          "name": "brace-expansion",
+          "dependency": "brace-expansion",
+          "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+          "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+          "severity": "high",
+          "cwe": [
+            "CWE-400",
+            "CWE-407"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": "<1.1.16"
+        },
+        {
+          "source": 1130588,
+          "name": "brace-expansion",
+          "dependency": "brace-expansion",
+          "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+          "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+          "severity": "high",
+          "cwe": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<1.1.17"
+        },
+        {
+          "source": 1130591,
+          "name": "brace-expansion",
+          "dependency": "brace-expansion",
+          "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+          "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+          "severity": "high",
+          "cwe": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=4.0.0 <5.0.8"
+        },
+        {
+          "source": 1130734,
+          "name": "brace-expansion",
+          "dependency": "brace-expansion",
+          "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+          "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+          "severity": "high",
+          "cwe": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=4.0.0 <5.0.9"
+        },
+        {
+          "source": 1130737,
+          "name": "brace-expansion",
+          "dependency": "brace-expansion",
+          "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+          "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+          "severity": "high",
+          "cwe": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<1.1.18"
+        },
+        {
+          "source": 1240100,
+          "name": "brace-expansion",
+          "dependency": "brace-expansion",
+          "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+          "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-400",
+            "CWE-407"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": "<1.1.21"
+        },
+        {
+          "source": 1240103,
+          "name": "brace-expansion",
+          "dependency": "brace-expansion",
+          "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+          "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-400",
+            "CWE-407"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=4.0.0 <5.0.12"
+        },
+        {
+          "source": 1240104,
+          "name": "brace-expansion",
+          "dependency": "brace-expansion",
+          "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+          "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+          "severity": "high",
+          "cwe": [
+            "CWE-400",
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<1.1.20"
+        },
+        {
+          "source": 1240107,
+          "name": "brace-expansion",
+          "dependency": "brace-expansion",
+          "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+          "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+          "severity": "high",
+          "cwe": [
+            "CWE-400",
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=4.0.0 <5.0.11"
+        },
+        {
+          "source": 1240108,
+          "name": "brace-expansion",
+          "dependency": "brace-expansion",
+          "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+          "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+          "severity": "high",
+          "cwe": [
+            "CWE-400",
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<1.1.19"
+        },
+        {
+          "source": 1240111,
+          "name": "brace-expansion",
+          "dependency": "brace-expansion",
+          "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+          "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+          "severity": "high",
+          "cwe": [
+            "CWE-400",
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=4.0.0 <5.0.10"
+        }
+      ],
+      "effects": [],
+      "range": "<=1.1.20 || 4.0.0 - 5.0.11",
+      "nodes": [
+        "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion",
+        "node_modules/brace-expansion"
+      ],
+      "fixAvailable": true
+    },
+    "braces": {
+      "name": "braces",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1240992,
+          "name": "braces",
+          "dependency": "braces",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "severity": "high",
+          "cwe": [
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=3.0.3"
+        }
+      ],
+      "effects": [
+        "micromatch"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/braces"
+      ],
+      "fixAvailable": false
+    },
+    "esbuild": {
+      "name": "esbuild",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1120680,
+          "name": "esbuild",
+          "dependency": "esbuild",
+          "title": "esbuild allows arbitrary file read when running the development server on Windows",
+          "url": "https://github.com/advisories/GHSA-g7r4-m6w7-qqqr",
+          "severity": "low",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 2.5,
+            "vectorString": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N"
+          },
+          "range": ">=0.27.3 <0.28.1"
+        }
+      ],
+      "effects": [],
+      "range": "0.27.3 - 0.28.0",
+      "nodes": [
+        "node_modules/esbuild"
+      ],
+      "fixAvailable": true
+    },
+    "fast-glob": {
+      "name": "fast-glob",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "micromatch"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/fast-glob"
+      ],
+      "fixAvailable": false
+    },
+    "form-data": {
+      "name": "form-data",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1120743,
+          "name": "form-data",
+          "dependency": "form-data",
+          "title": "form-data: CRLF injection in form-data via unescaped multipart field names and filenames",
+          "url": "https://github.com/advisories/GHSA-hmw2-7cc7-3qxx",
+          "severity": "high",
+          "cwe": [
+            "CWE-93"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+          },
+          "range": ">=4.0.0 <4.0.6"
+        }
+      ],
+      "effects": [],
+      "range": "4.0.0 - 4.0.5",
+      "nodes": [
+        "node_modules/form-data"
+      ],
+      "fixAvailable": true
+    },
+    "js-yaml": {
+      "name": "js-yaml",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1121860,
+          "name": "js-yaml",
+          "dependency": "js-yaml",
+          "title": "JS-YAML: Quadratic-complexity DoS in merge key handling via repeated aliases",
+          "url": "https://github.com/advisories/GHSA-h67p-54hq-rp68",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-407"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=4.0.0 <=4.1.1"
+        },
+        {
+          "source": 1123911,
+          "name": "js-yaml",
+          "dependency": "js-yaml",
+          "title": "js-yaml: YAML merge-key chains can force quadratic CPU consumption",
+          "url": "https://github.com/advisories/GHSA-52cp-r559-cp3m",
+          "severity": "high",
+          "cwe": [
+            "CWE-400",
+            "CWE-407"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=4.0.0 <4.3.0"
+        },
+        {
+          "source": 1138115,
+          "name": "js-yaml",
+          "dependency": "js-yaml",
+          "title": "JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) — CVE-2026-59870 fix not backported",
+          "url": "https://github.com/advisories/GHSA-5p4m-2wfm-xmqj",
+          "severity": "high",
+          "cwe": [
+            "CWE-407"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=4.0.0 <4.3.1"
+        },
+        {
+          "source": 1193727,
+          "name": "js-yaml",
+          "dependency": "js-yaml",
+          "title": "js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources",
+          "url": "https://github.com/advisories/GHSA-2883-xcg3-v3hh",
+          "severity": "high",
+          "cwe": [
+            "CWE-400",
+            "CWE-407"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=4.0.0 <4.3.2"
+        }
+      ],
+      "effects": [],
+      "range": "4.0.0 - 4.3.1",
+      "nodes": [
+        "node_modules/js-yaml"
+      ],
+      "fixAvailable": true
+    },
+    "micromatch": {
+      "name": "micromatch",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "braces"
+      ],
+      "effects": [
+        "fast-glob"
+      ],
+      "range": ">=0.2.0",
+      "nodes": [
+        "node_modules/micromatch"
+      ],
+      "fixAvailable": false
+    },
+    "nanoid": {
+      "name": "nanoid",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1138811,
+          "name": "nanoid",
+          "dependency": "nanoid",
+          "title": "nanoid: non-secure generators can loop indefinitely with negative size",
+          "url": "https://github.com/advisories/GHSA-28wg-ghj8-5hjv",
+          "severity": "high",
+          "cwe": [
+            "CWE-835"
+          ],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<3.3.16"
+        },
+        {
+          "source": 1139427,
+          "name": "nanoid",
+          "dependency": "nanoid",
+          "title": "nanoid: custom generators can loop indefinitely when size is zero",
+          "url": "https://github.com/advisories/GHSA-2v37-7h3g-55p8",
+          "severity": "high",
+          "cwe": [
+            "CWE-835"
+          ],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<3.3.18"
+        },
+        {
+          "source": 1153189,
+          "name": "nanoid",
+          "dependency": "nanoid",
+          "title": "nanoid: Integer Overflow or Wraparound",
+          "url": "https://github.com/advisories/GHSA-xwg4-73v4-xw9w",
+          "severity": "high",
+          "cwe": [
+            "CWE-190"
+          ],
+          "cvss": {
+            "score": 7.4,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N"
+          },
+          "range": "<3.3.12"
+        }
+      ],
+      "effects": [],
+      "range": "<=3.3.17",
+      "nodes": [
+        "node_modules/nanoid"
+      ],
+      "fixAvailable": true
+    },
+    "postcss": {
+      "name": "postcss",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1117015,
+          "name": "postcss",
+          "dependency": "postcss",
+          "title": "PostCSS has XSS via Unescaped </style> in its CSS Stringify Output",
+          "url": "https://github.com/advisories/GHSA-qx2v-qp2m-jg93",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-79"
+          ],
+          "cvss": {
+            "score": 6.1,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N"
+          },
+          "range": "<8.5.10"
+        },
+        {
+          "source": 1124252,
+          "name": "postcss",
+          "dependency": "postcss",
+          "title": "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments",
+          "url": "https://github.com/advisories/GHSA-6g55-p6wh-862q",
+          "severity": "high",
+          "cwe": [
+            "CWE-22",
+            "CWE-200"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+          },
+          "range": "<=8.5.11"
+        },
+        {
+          "source": 1130709,
+          "name": "postcss",
+          "dependency": "postcss",
+          "title": "PostCSS: incomplete fix of GHSA-6g55-p6wh-862q — attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset",
+          "url": "https://github.com/advisories/GHSA-fxqj-rqcc-2cmp",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-22",
+            "CWE-200"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<=8.5.22"
+        },
+        {
+          "source": 1139510,
+          "name": "postcss",
+          "dependency": "postcss",
+          "title": "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure",
+          "url": "https://github.com/advisories/GHSA-r28c-9q8g-f849",
+          "severity": "high",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+          },
+          "range": "<=8.5.17"
+        }
+      ],
+      "effects": [],
+      "range": "<=8.5.22",
+      "nodes": [
+        "node_modules/postcss"
+      ],
+      "fixAvailable": true
+    },
+    "source-map-js": {
+      "name": "source-map-js",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1241209,
+          "name": "source-map-js",
+          "dependency": "source-map-js",
+          "title": "source-map-js allows event-loop denial of service through indexed source-map section offsets",
+          "url": "https://github.com/advisories/GHSA-68fv-2mgg-jv7q",
+          "severity": "high",
+          "cwe": [
+            "CWE-1284"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=1.0.0 <1.2.2"
+        }
+      ],
+      "effects": [],
+      "range": "1.0.0 - 1.2.1",
+      "nodes": [
+        "node_modules/source-map-js"
+      ],
+      "fixAvailable": true
+    },
+    "tinypool": {
+      "name": "tinypool",
+      "severity": "critical",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1241260,
+          "name": "tinypool",
+          "dependency": "tinypool",
+          "title": "Tinypool: Prototype Pollution gadget in worker options leads to Remote Code Execution",
+          "url": "https://github.com/advisories/GHSA-5gmw-xhrv-c9v3",
+          "severity": "critical",
+          "cwe": [
+            "CWE-1321"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<=2.1.0"
+        },
+        {
+          "source": 1241261,
+          "name": "tinypool",
+          "dependency": "tinypool",
+          "title": "Tinypool: Prototype Pollution Gadget to RCE in run() options",
+          "url": "https://github.com/advisories/GHSA-85c8-ppgw-ccpr",
+          "severity": "critical",
+          "cwe": [
+            "CWE-94",
+            "CWE-1321"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<2.1.2"
+        }
+      ],
+      "effects": [
+        "vitest"
+      ],
+      "range": "<=2.1.1",
+      "nodes": [
+        "node_modules/tinypool"
+      ],
+      "fixAvailable": true
+    },
+    "vite": {
+      "name": "vite",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1120785,
+          "name": "vite",
+          "dependency": "vite",
+          "title": "launch-editor: NTLMv2 hash disclosure via UNC path handling on Windows",
+          "url": "https://github.com/advisories/GHSA-v6wh-96g9-6wx3",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-73",
+            "CWE-522"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": ">=7.0.0 <=7.3.4"
+        },
+        {
+          "source": 1123526,
+          "name": "vite",
+          "dependency": "vite",
+          "title": "vite: `server.fs.deny` bypass on Windows alternate paths",
+          "url": "https://github.com/advisories/GHSA-fx2h-pf6j-xcff",
+          "severity": "high",
+          "cwe": [
+            "CWE-22",
+            "CWE-200"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+          },
+          "range": ">=7.0.0 <=7.3.4"
+        }
+      ],
+      "effects": [],
+      "range": "7.0.0 - 7.3.3",
+      "nodes": [
+        "node_modules/vite"
+      ],
+      "fixAvailable": true
+    },
+    "vitest": {
+      "name": "vitest",
+      "severity": "critical",
+      "isDirect": true,
+      "via": [
+        "@vitest/mocker",
+        {
+          "source": 1139528,
+          "name": "vitest",
+          "dependency": "vitest",
+          "title": "When Vitest UI server is listening, arbitrary file can be read and executed",
+          "url": "https://github.com/advisories/GHSA-5xrq-8626-4rwp",
+          "severity": "critical",
+          "cwe": [
+            "CWE-22",
+            "CWE-862"
+          ],
+          "cvss": {
+            "score": 9.8,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+          },
+          "range": "<3.2.6"
+        },
+        {
+          "source": 1193683,
+          "name": "vitest",
+          "dependency": "vitest",
+          "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+          "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N"
+          },
+          "range": ">=2.1.0 <4.1.11"
+        },
+        "tinypool"
+      ],
+      "effects": [],
+      "range": "<=4.1.10",
+      "nodes": [
+        "node_modules/vitest"
+      ],
+      "fixAvailable": true
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 1,
+      "moderate": 2,
+      "high": 10,
+      "critical": 2,
+      "total": 15
+    },
+    "dependencies": {
+      "prod": 125,
+      "dev": 223,
+      "optional": 52,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 347
+    }
+  }
+}
+
+EXIT: 1
+
+COMMAND: npm audit --omit=dev --json (before)
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "braces": {
+      "name": "braces",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1240992,
+          "name": "braces",
+          "dependency": "braces",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "severity": "high",
+          "cwe": [
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=3.0.3"
+        }
+      ],
+      "effects": [
+        "micromatch"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/braces"
+      ],
+      "fixAvailable": false
+    },
+    "fast-glob": {
+      "name": "fast-glob",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "micromatch"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/fast-glob"
+      ],
+      "fixAvailable": false
+    },
+    "form-data": {
+      "name": "form-data",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1120743,
+          "name": "form-data",
+          "dependency": "form-data",
+          "title": "form-data: CRLF injection in form-data via unescaped multipart field names and filenames",
+          "url": "https://github.com/advisories/GHSA-hmw2-7cc7-3qxx",
+          "severity": "high",
+          "cwe": [
+            "CWE-93"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+          },
+          "range": ">=4.0.0 <4.0.6"
+        }
+      ],
+      "effects": [],
+      "range": "4.0.0 - 4.0.5",
+      "nodes": [
+        "node_modules/form-data"
+      ],
+      "fixAvailable": true
+    },
+    "js-yaml": {
+      "name": "js-yaml",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1121860,
+          "name": "js-yaml",
+          "dependency": "js-yaml",
+          "title": "JS-YAML: Quadratic-complexity DoS in merge key handling via repeated aliases",
+          "url": "https://github.com/advisories/GHSA-h67p-54hq-rp68",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-407"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=4.0.0 <=4.1.1"
+        },
+        {
+          "source": 1123911,
+          "name": "js-yaml",
+          "dependency": "js-yaml",
+          "title": "js-yaml: YAML merge-key chains can force quadratic CPU consumption",
+          "url": "https://github.com/advisories/GHSA-52cp-r559-cp3m",
+          "severity": "high",
+          "cwe": [
+            "CWE-400",
+            "CWE-407"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=4.0.0 <4.3.0"
+        },
+        {
+          "source": 1138115,
+          "name": "js-yaml",
+          "dependency": "js-yaml",
+          "title": "JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) — CVE-2026-59870 fix not backported",
+          "url": "https://github.com/advisories/GHSA-5p4m-2wfm-xmqj",
+          "severity": "high",
+          "cwe": [
+            "CWE-407"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=4.0.0 <4.3.1"
+        },
+        {
+          "source": 1193727,
+          "name": "js-yaml",
+          "dependency": "js-yaml",
+          "title": "js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources",
+          "url": "https://github.com/advisories/GHSA-2883-xcg3-v3hh",
+          "severity": "high",
+          "cwe": [
+            "CWE-400",
+            "CWE-407"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=4.0.0 <4.3.2"
+        }
+      ],
+      "effects": [],
+      "range": "4.0.0 - 4.3.1",
+      "nodes": [
+        "node_modules/js-yaml"
+      ],
+      "fixAvailable": true
+    },
+    "micromatch": {
+      "name": "micromatch",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "braces"
+      ],
+      "effects": [
+        "fast-glob"
+      ],
+      "range": ">=0.2.0",
+      "nodes": [
+        "node_modules/micromatch"
+      ],
+      "fixAvailable": false
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 5,
+      "critical": 0,
+      "total": 5
+    },
+    "dependencies": {
+      "prod": 125,
+      "dev": 223,
+      "optional": 52,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 347
+    }
+  }
+}
+
+EXIT: 1
+
+COMMAND: npm audit --json (after)
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@vitest/mocker": {
+      "name": "@vitest/mocker",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1193684,
+          "name": "@vitest/mocker",
+          "dependency": "@vitest/mocker",
+          "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+          "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N"
+          },
+          "range": ">=2.1.0 <4.1.11"
+        }
+      ],
+      "effects": [
+        "vitest"
+      ],
+      "range": "2.1.0 - 4.1.10",
+      "nodes": [
+        "node_modules/@vitest/mocker"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.0.5",
+        "isSemVerMajor": true
+      }
+    },
+    "braces": {
+      "name": "braces",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1240992,
+          "name": "braces",
+          "dependency": "braces",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "severity": "high",
+          "cwe": [
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=3.0.3"
+        }
+      ],
+      "effects": [
+        "micromatch"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/braces"
+      ],
+      "fixAvailable": false
+    },
+    "esbuild": {
+      "name": "esbuild",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1120680,
+          "name": "esbuild",
+          "dependency": "esbuild",
+          "title": "esbuild allows arbitrary file read when running the development server on Windows",
+          "url": "https://github.com/advisories/GHSA-g7r4-m6w7-qqqr",
+          "severity": "low",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 2.5,
+            "vectorString": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N"
+          },
+          "range": ">=0.27.3 <0.28.1"
+        }
+      ],
+      "effects": [],
+      "range": "0.27.3 - 0.28.0",
+      "nodes": [
+        "node_modules/esbuild"
+      ],
+      "fixAvailable": true
+    },
+    "fast-glob": {
+      "name": "fast-glob",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "micromatch"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/fast-glob"
+      ],
+      "fixAvailable": false
+    },
+    "micromatch": {
+      "name": "micromatch",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "braces"
+      ],
+      "effects": [
+        "fast-glob"
+      ],
+      "range": ">=0.2.0",
+      "nodes": [
+        "node_modules/micromatch"
+      ],
+      "fixAvailable": false
+    },
+    "tinypool": {
+      "name": "tinypool",
+      "severity": "critical",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1241260,
+          "name": "tinypool",
+          "dependency": "tinypool",
+          "title": "Tinypool: Prototype Pollution gadget in worker options leads to Remote Code Execution",
+          "url": "https://github.com/advisories/GHSA-5gmw-xhrv-c9v3",
+          "severity": "critical",
+          "cwe": [
+            "CWE-1321"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<=2.1.0"
+        },
+        {
+          "source": 1241261,
+          "name": "tinypool",
+          "dependency": "tinypool",
+          "title": "Tinypool: Prototype Pollution Gadget to RCE in run() options",
+          "url": "https://github.com/advisories/GHSA-85c8-ppgw-ccpr",
+          "severity": "critical",
+          "cwe": [
+            "CWE-94",
+            "CWE-1321"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<2.1.2"
+        }
+      ],
+      "effects": [
+        "vitest"
+      ],
+      "range": "<=2.1.1",
+      "nodes": [
+        "node_modules/tinypool"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.0.5",
+        "isSemVerMajor": true
+      }
+    },
+    "vitest": {
+      "name": "vitest",
+      "severity": "critical",
+      "isDirect": true,
+      "via": [
+        "@vitest/mocker",
+        {
+          "source": 1193683,
+          "name": "vitest",
+          "dependency": "vitest",
+          "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+          "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N"
+          },
+          "range": ">=2.1.0 <4.1.11"
+        },
+        "tinypool"
+      ],
+      "effects": [],
+      "range": "0.0.95 - 4.1.10",
+      "nodes": [
+        "node_modules/vitest"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.0.5",
+        "isSemVerMajor": true
+      }
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 1,
+      "moderate": 1,
+      "high": 3,
+      "critical": 2,
+      "total": 7
+    },
+    "dependencies": {
+      "prod": 125,
+      "dev": 251,
+      "optional": 78,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 375
+    }
+  }
+}
+
+EXIT: 1
+
+COMMAND: npm audit --omit=dev --json (after)
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "braces": {
+      "name": "braces",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1240992,
+          "name": "braces",
+          "dependency": "braces",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "severity": "high",
+          "cwe": [
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=3.0.3"
+        }
+      ],
+      "effects": [
+        "micromatch"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/braces"
+      ],
+      "fixAvailable": false
+    },
+    "fast-glob": {
+      "name": "fast-glob",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "micromatch"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/fast-glob"
+      ],
+      "fixAvailable": false
+    },
+    "micromatch": {
+      "name": "micromatch",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "braces"
+      ],
+      "effects": [
+        "fast-glob"
+      ],
+      "range": ">=0.2.0",
+      "nodes": [
+        "node_modules/micromatch"
+      ],
+      "fixAvailable": false
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 3,
+      "critical": 0,
+      "total": 3
+    },
+    "dependencies": {
+      "prod": 125,
+      "dev": 251,
+      "optional": 78,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 375
+    }
+  }
+}
+
+EXIT: 1

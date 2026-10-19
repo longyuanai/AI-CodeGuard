@@ -21,11 +21,10 @@ What is implemented today:
 - Disk cache for Stage 2 LLM results (`cache.enabled`), wired into the scan pipeline
 - GitHub composite Action (`action.yml`), CI / SARIF-upload workflows, and a BYO-key PR-review workflow example (`docs/examples/pr-review.yml`; design in `docs/design/GITHUB_APP.md`)
 - Self-hosted **GitHub App MVP** (`app/`): signed PR webhooks, installation authentication, head-SHA downloads, changed-line scanning, fingerprint-deduplicated inline reviews, one updated summary and Check Runs; BYO-key or labeled static fallback, bounded costs and temporary cleanup. [Run/deploy instructions](app/README.md)
-- Actual local validation (2026-10-18): **574 root tests passed, 2 opt-in tests skipped** (19 files total), **28 app tests passed** (8 files), including real Node HTTP health/signature rejection and fixture-driven mock GitHub integration. Docker and live GitHub/paid-provider integration remain unverified. [Evidence and residual risks](docs/dev/M8-VALIDATION.md)
+- Actual local validation (2026-10-19): **574 root tests passed, 2 opt-in tests skipped** (19 files total), **28 app tests passed** (8 files), including real loopback Node HTTP health/signature rejection and fixture-driven mock GitHub integration. All nine build/test/precision/type/lint checks pass. Compatible dependency repairs reduced audit entries **15 → 7** (production **5 → 3**); **2 critical development entries remain**, so the audit has not passed. Docker and live GitHub/paid-provider integration remain unverified. [Evidence and residual risks](docs/dev/M8-VALIDATION.md)
 
 What is **not** complete yet:
-- npm registry publish (GitHub tags exist via the release workflow, but the package is not on npm yet)
-- `v0.4.0` tag — code and CHANGELOG are release-ready; trigger the manual `release` workflow with tag `v0.4.0` after merging to `main`
+- Release preparation and npm registry publication remain separate operator work. This local validation did not publish, create a Release, merge or push; dependency and container acceptance gaps are recorded above.
 
 ### Completion Snapshot
 
@@ -36,7 +35,7 @@ What is **not** complete yet:
 | M2 `--fix` suggestions | Done | confirmed Stage 2 findings can include `fix` |
 | M3 Tree-sitter parser | Done | main parser now uses Tree-sitter-backed normalized AST |
 | M4 Custom rules runtime | Done | `rules.custom` is wired into `scan()`, and `rules validate/create/test` are available |
-| M5 GitHub / CI integration | Done | composite `action.yml`, `ci.yml`, and `security-scan.yml` (SARIF upload to Code Scanning) exist and pass |
+| M5 GitHub / CI integration | Implemented | composite `action.yml`, `ci.yml`, and `security-scan.yml` (SARIF upload to Code Scanning) exist; remote workflow execution was not verified in this delivery |
 | M6 More languages | Done | Go: 12 rules; Java: 15 rules (adds `CG-010`, `CG-041`, `CG-070` over the Go set); PHP: 17 rules (adds `CG-021`/`CG-022`/`CG-023`/`CG-024`/`CG-025`/`CG-026`/`CG-031`/`CG-040`/`CG-041`/`CG-050`/`CG-070` over the original MVP set) |
 | M7 Quality & adoption tooling | Done | Stage 1 precision harness + ratchet, Stage 2 triage-accuracy harness, baseline files, inline suppression, `--fail-on`, stable SARIF fingerprints |
 | M8 Commercialization step 1 | MVP implemented, locally verified | Library + self-hosted App, offline integration and Node HTTP smoke pass; container/live integration remain unverified ([deployment](app/README.md)) |

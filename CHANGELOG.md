@@ -76,6 +76,8 @@ Caught by a structured code review of the baseline/harness work above, before me
 
 ### Fixed
 
+- **Delivery dependency security cleanup (2026-10-19)**: compatible fixes for form-data, js-yaml, brace-expansion, PostCSS, nanoid, source-map-js, humanfs and the Vitest UI issue; Vitest 3.2.7 uses a supported Vite 6.4.4 override to preserve its Node 18-compatible Vite branch. Audit entries fell from 15 to 7 (production 5 to 3); Tinypool critical, mocker, braces and esbuild alerts remain explicitly registered in `docs/dev/M8-VALIDATION.md`. Architecture and handoff docs now describe the implemented library, cache, Action and App. All nine local gates pass; Docker/live integration remain unverified. The HTTP test child now binds only to loopback.
+
 Caught by an 8-angle code review of the additions above, before any release:
 
 - **`CG-031`'s Go `USER_INPUT_GO` regex missed the common quoted-argument form** — `\bc\.Param\(\b` required a word character immediately after the literal `(`, which a quoted string argument never satisfies (`(` and `"` are both non-word characters, so no `\b` boundary exists between them). `os.ReadFile(c.Param("filename"))` — the textbook Gin path-traversal-to-arbitrary-file-read pattern — silently failed to match; only the unrealistic unquoted form `c.Param(id)` did. Fixed by moving the anchor to after the method name instead of after the paren.

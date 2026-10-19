@@ -107,6 +107,6 @@ Check 名称 `AI-CodeGuard`，`external_id` 包含 PR number 与 head SHA；同 
 
 ## 7. 当前验收边界
 
-根项目五项检查与 app build/test/typecheck/lint 本地通过。28 项 app 测试包括 mock GitHub + 真实扫描器的完整签名 webhook 流程，以及编译后 Node 服务的真实回环 HTTP 测试；**不是 GitHub 联调结果**。
+2026-10-19 重新执行根项目五项检查与 app build/test/typecheck/lint，全部本地通过。根测试 574 passed / 2 opt-in skipped，app 28 passed；app 测试包括 mock GitHub + 真实扫描器的完整签名 webhook 流程，以及限定 127.0.0.1 的编译后 Node 服务真实 HTTP 测试；**不是 GitHub 联调结果**。
 
-Dockerfile 和 CI 定义已补；本地 Docker 引擎不可用，镜像/容器 health 未验证。远程 CI、GitHub 注册、上线、付费 API、npm/Release 均未执行。原有依赖审计仍有 15 项告警（含开发依赖 critical），本轮新增 Node 适配器告警已通过补丁消除。生产部署前需继续处理审计、容器验证、授权仓库真实联调。详见 [验收记录](../dev/M8-VALIDATION.md)。
+Dockerfile 和 CI 定义已补；本地 Docker 引擎不可用，镜像构建、容器 health/401 与运行镜像依赖/wasm 检查未验证。隔离生产包的本机安装及 wasm 扫描通过，不能代替容器验证。远程 CI、GitHub 注册、上线、付费 API、npm/Release 均未执行。兼容依赖修补将 audit 包条目从 15 降到 7，生产从 5 降到 3；开发链仍有 2 个 critical 条目，审计未通过。版本、引入路径、触发条件与延期理由集中见 [验收记录](../dev/M8-VALIDATION.md)。
