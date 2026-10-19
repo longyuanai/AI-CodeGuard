@@ -8,6 +8,8 @@
 注册 GitHub App、写入真实仓库或调用付费 API。
 同日续验从 `15332b7` 开始，继续消除 esbuild low、补齐容器检查定义并实测 Node 18；
 此记录正文为续验后的当前状态，原始日志保留前一阶段 7 条告警 / 28 项 app 测试的历史输出。
+随后以 `43da9971cc5034f7eaa871f513ef8d3e9ecffaf2` 为起点完成 Docker 重查与升级方案评估，
+结果见下方独立小节。该阶段只更新本记录与证据日志，**未安装候选依赖、未实施跨 major 升级**。
 
 M8 原实现日期为 2026-10-18，起点是 `main` / `cc43a84f87434b789cb7cad67b05ce81bdea2a3f`。
 其 [原始日志](validation/M8-2026-10-18.log) 保留当时结果；下面的实际验证与审计表为 10-19 复验结果。
@@ -128,6 +130,63 @@ health 200、无签名 401、依赖/wasm/PHP 实扫与 always 清理。脚本在
 生产安装排除测试/构建链并不消除开发机、CI 或构建阶段风险。本机隔离生产包检查仅
 证明上述包布局、wasm 和静态 scan 可用，**没有验证运行镜像**。TypeScript 仍由
 cosmiconfig 可选 peer 留在生产安装中，未宣称运行包不含编译器。
+
+## 43da997 起点：容器重查与升级评估
+
+日期仍为 2026-10-19（Asia/Shanghai）。工作分支 `codex/m8-github-app-mvp`；开始时无已跟踪
+文件修改，仅原有根目录 ROADMAP/SECURITY 未跟踪，两者哈希与上方记录一致。本阶段没有
+修改源码、依赖清单/锁、测试、CI、Dockerfile 或系统配置；没有构建/创建容器，没有外部写操作。
+
+### 本阶段实际结果
+
+| 项目 | 状态与证据 |
+|---|---|
+| Docker 引擎连接 | **失败**：允许访问本机引擎的执行环境中 `docker version` 仍退出 **1**；客户端 29.8.2 / desktop-linux，`//./pipe/dockerDesktopLinuxEngine` 不存在（The system cannot find the file specified） |
+| 镜像构建 | **未验证**：引擎不可用，没有执行 build；没有安装、启动、重置 Docker 或改系统配置 |
+| 容器非 root | **未验证**：Dockerfile 的 `USER node` 是配置事实，未取得运行中的 UID |
+| 容器只读根 / tmpfs | **未验证**：部署说明与 CI 有 `--read-only`、`/tmp` tmpfs；未执行容器内写入拒绝、tmpfs 写入验证或 inspect |
+| 容器 health 200 / 无签名 webhook 401 | **未验证**：此前 Node 回环 HTTP 测试通过，不能代替容器结果 |
+| 运行镜像开发依赖裁剪、7 个 wasm、PHP 实扫 | **未验证**：此前隔离本机生产包通过，不能代替镜像结果 |
+| 本阶段容器清理 | **不适用**：未创建容器/镜像，不删除用户已有资源 |
+| 当前完整 / 生产 audit | 均**失败，退出 1**；仍为 **6**（2 critical / 3 high / 1 moderate）及 **3 high** 包条目，未消除剩余告警 |
+| 官方版本/兼容性查询 | **通过**：只读查询 npm manifest、GHSA、Node 发布计划，结果附在现有日志的 `CLOSEOUT FROM 43da997` 段落 |
+| 代码回归 | **本阶段未重跑**：只有文档/日志变更，没有验收失败导致的代码修复；上方 574+2 skipped、App 30、95.8%/92.0% 是此前相同代码与依赖组合的实际日志，不冒充本阶段新运行 |
+| 升级候选的安装、测试、构建、审计与容器 | **未验证、未执行**；下面只是评估，不能预先承诺升级后 audit 清零 |
+
+Docker 恢复后应沿用现有 Dockerfile、部署命令与 CI 检查，用独立镜像 tag 和本次唯一容器名，
+合成凭据、仅 `127.0.0.1` 发布端口；记录镜像 ID、运行 UID、inspect 的只读根/tmpfs 配置，
+再实测根目录写入拒绝、`/tmp` 可写、health 200、无签名 401，以及 stdin 运行生产包检查脚本。
+最后在 finally/always 中仅清理本次容器并记录退出结果。**容器全通过仍不等于 audit 通过**。
+
+### 上游事实与约束（本阶段只读核对）
+
+| 对象 | 已核对事实 | 对升级的影响 |
+|---|---|---|
+| Vitest 3 / Tinypool | 当前 Vitest 3.2.7 依赖 Tinypool `^1.1.1`；查询的 3.2 系列未见更高补丁，1.x 最后为 1.1.1。worker-options [GHSA](https://github.com/advisories/GHSA-5gmw-xhrv-c9v3) 首修 2.1.1，run-options [GHSA](https://github.com/advisories/GHSA-85c8-ppgw-ccpr) 首修 2.1.2；综合至少 **2.1.2**，要求 Node `^20.0.0 \|\| >=22.0.0` | 不能向 Vitest 3 强制塞入超出声明范围的 Tinypool 2。告警有上游原型污染前置条件，但开发/CI 代码执行风险仍须登记 |
+| Vitest / mocker 4 | [Vitest 4.1.11 manifest](https://registry.npmjs.org/vitest/4.1.11) 要求 Node `^20.0.0 \|\| ^22.0.0 \|\| >=24.0.0`，固定 mocker **4.1.11**，**不再声明 Tinypool 依赖**。[mocker 公告](https://github.com/advisories/GHSA-82fw-gwwq-j7x9) 将 4.1.11 列为修补，3.x 不维护、不计划回补 | 4.1.11 是较小的跨 major 候选；预计从声明依赖树移除 Tinypool 路径，而不是“升级其 Tinypool”。真正的新锁仍须检查是否有其他引入者，并重新 audit |
+| Vitest 5 | 只读核对的 5.0.5 要求 Node `^22.12.0 \|\| ^24.0.0 \|\| >=26.0.0` | 没有为本轮跳到 5 提供必要性；优先评估已修补的 4.1.11，减少迁移范围。两者均未安装 |
+| source-map beta / tsup | 当前 tsup 8.5.0 固定废弃的 source-map 0.8.0-beta.0；这是维护警告，不是本轮新发现的漏洞。8.5.1 改为 source-map `^0.7.6`，但要求 esbuild `^0.27.0`，会回到已登记的 serve low 风险 | 不为去除废弃提示而重新引入已知告警，也不将 tsup 8 的固定 source-map 直接 override 成不支持版本 |
+| tsup 9 | [9.0.0 manifest](https://registry.npmjs.org/tsup/9.0.0) 使用 source-map-js `^1.2.2`、esbuild `^0.28.2`，Node 要求 `^22.18.0 \|\| ^24.11.0 \|\| >=26.0.0` | 可评估移除 source-map beta，但必须跨 major。当前全局 esbuild **0.25.12 override 与 tsup 9 冲突**；不能直接保留后宣称升级有效 |
+| Node 18 engines | brace-expansion 5.0.12 要求 20/22+；eslint-visitor-keys 5.0.1 要求 `^20.19.0 \|\| ^22.13.0 \|\| >=24`；生产 App 的 toad-cache 3.7.4 要求 `>=20` | 旧实测通过不能覆盖上游声明。后两项为既有依赖；不是靠 `--force`、关闭警告或只改根 engines 就解决 |
+| App 的 Node 18 候选 | @octokit/auth-app 7.2.2 声明 Node >=18、依赖 toad-cache `^3.7.0`；官方 3.x 列表中 **3.7.0** 声明 Node >=12，3.7.1/3.7.4 为 >=20，3.7.2/3.7.3 查询不存在 | 3.7.0 在父包允许范围，可作为后续兼容性评估对象；**尚未安装、比较修补差异、审计或验证 token/cache 语义，不是已确认安全的回退方案** |
+| Node 生命周期 | [Node 官方计划](https://github.com/nodejs/Release/blob/main/schedule.json)：18 于 **2025-04-30**、20 于 **2026-04-30** 结束维护；22 至 2027-04-30，24 至 2028-04-30 | 保留旧版本包含运行时本身的维护风险；不建议仅把最低版本提到已结束维护的 Node 20 |
+| 生产 braces high | [公告](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) 仍无 first_patched_version；当前 fast-glob → micromatch → braces 3.0.3 | 与测试栈升级分开处理。两方案都不能据此消除生产 3 个传播条目；App 输入限制只是缓解，CLI 仍有 glob DoS 输入面 |
+
+### 两种方案（均未实施）
+
+| 维度 | A：保留当前 Node 18 产品运行时声明 | B：提高产品最低 Node 支持范围 |
+|---|---|---|
+| 政策与影响 | CLI >=18、App >=18.14.1 的产品目标先保留，但构建/完整单测工具要求单独改为受支持的较新 Node。**这不是继续承诺 Node 18 能无警告进行完整开发安装**。生产 App 的 toad-cache engine 冲突仍需解决后才能承诺全面支持 | 后续可将根/App 支持范围对齐 `^22.18.0 \|\| ^24.11.0 \|\| >=26.0.0`，明确移除 18/20，不笼统写 >=22 而包含不受工具支持的 22.0/23/25。旧环境用户需升级，有兼容性影响 |
+| 工具候选 | 在 Node 22.18+/24.11+ 构建、测试 Vitest **4.1.11** + tsup **9.0.0**；产物仍以 Node 18 为 target。另评估 toad-cache **3.7.0** 或上游兼容修补，必须先查清旧版本遗漏的行为/安全修复 | 可评估同一工具组合，不需要为 Node 18 寻找生产缓存回退；现有 toad-cache/brace-expansion/visitor-keys 的 Node engine 范围与候选受支持分支匹配 |
+| override 处理 | 两方案都要检查新锁：Vite **6.4.4** 在 Vitest 4.1.11 允许的 6/7/8 范围，可先保留以减少变化；移除或精确收窄 esbuild **0.25.12** 全局 override，让 Vite 使用其 0.25 范围、tsup 9 使用 0.28.2+。不能盲目把所有调用方统一到一个不兼容版本 | 同左；不因提高 Node 就顺便升级 Vite、SDK、TypeScript 或增加生产依赖 |
+| CI / 构建影响 | 全量测试/类型/lint 移到支持工具的 Node；保留独立 Node 18（含 App 最低 18.14.1）**生产安装、CLI/库/HTTP/wasm 产物验收**。新锁下 `--omit=dev` / engine-strict 的实际行为也须验证。若用户要求 Node 18 原样运行完整工具链，则当前无已核对的上游全修补组合，只能暂留原组合及告警、等待回补，不能称风险已关闭 | 将完整 CI 改为候选范围的最低版本及受维护 22/24 分支；部署/Docker Node 22 需核实实际版本满足下限。两份构建 target 可先保留 node18，降低产物变化；支持政策和编译 target 是两个概念，不要求顺便重写源码 |
+| 必须验证 | 两方案均先在隔离工作分支定向生成 lock，检查实际依赖树无遗留 Tinypool 引入路径、mocker 命中修补版本、无旧 esbuild 告警、source-map beta 是否真正移除；完整/生产 audit **独立验收**。A 额外验证 Node 18 生产安装和 App token/cache 语义，用本地签名/响应替身验证认证流程，不用真实 GitHub 写操作 | 两方案均运行根五项 + app 四项；原 574 passed/2 opt-in skipped、App 30 不无故减少，23 TP/2 FN/1 FP 与 95.8%/92.0% 不退。核对 vi.mock/provider 替身、异常清理、预算、Check 映射；CLI/库跨 cwd 加载 wasm、声明文件与 source map、真实容器非 root/只读根/tmpfs/200/401/PHP 扫描。Linux/候选 Node/候选容器结果必须重新取得，不能沿用旧工具日志 |
+| 回滚 | 两方案都将工具迁移与 Node 政策分别提交；先保留 `43da997` 的清单、锁、配置、CI 和文档快照。失败时用定向 revert 撤销迁移提交，按原锁 `npm ci --ignore-scripts` 并重新构建/跑原门槛，避免重置用户工作区或强推。后续如有容器升级，应事前保存实际已验证旧镜像 ID/环境，切回原组合；本轮不存在“已验证旧镜像”可供声称 | 同左。回滚恢复的是已知本机基线，**也会恢复当前 6 条 audit/engine/beta 风险**，不是回滚到无告警状态；不得把旧 bundle 与新 lock 混用 |
+
+建议后续优先讨论 **B**：减少已结束维护的 Node 与生产依赖 engine 的矛盾，也无需引入
+未验证的缓存回退。若下游必须保留 Node 18，则选择 A 的运行时/开发工具分离路径，并明确
+其维护成本和退出时间；若必须连开发工具也维持 Node 18，本次评估无法提供无已知告警的
+受支持组合。本阶段只交付上述依据与取舍，未改变 Node 政策或依赖，没有执行任一迁移。
 
 ## 10-18 历史基线恢复
 
