@@ -76,7 +76,7 @@ Caught by a structured code review of the baseline/harness work above, before me
 
 ### Fixed
 
-- **Delivery dependency security cleanup (2026-10-19)**: compatible fixes for form-data, js-yaml, brace-expansion, PostCSS, nanoid, source-map-js, humanfs and the Vitest UI issue; Vitest 3.2.7 uses a supported Vite 6.4.4 override to preserve its Node 18-compatible Vite branch. Audit entries fell from 15 to 7 (production 5 to 3); Tinypool critical, mocker, braces and esbuild alerts remain explicitly registered in `docs/dev/M8-VALIDATION.md`. Architecture and handoff docs now describe the implemented library, cache, Action and App. All nine local gates pass; Docker/live integration remain unverified. The HTTP test child now binds only to loopback.
+- **Delivery dependency security cleanup (2026-10-19)**: fixes for form-data, js-yaml, brace-expansion, PostCSS, nanoid, source-map-js, humanfs and the Vitest UI issue; Vitest 3.2.7 uses a supported Vite 6.4.4 override. Follow-up pins tsup 8.5.0 and its supported esbuild 0.25.12, removing the remaining esbuild low alert. Audit entries fell from 15 to 6 (production 5 to 3); Tinypool critical, mocker and braces remain registered in `docs/dev/M8-VALIDATION.md`, along with the source-map beta deprecation and Node 18 engine warnings. All nine gates pass on Windows/Node 18 and 24; app tests increased from 28 to 30. Container CI now defines health/401, production dependency and wasm scan checks, with a reusable runtime checker and loopback-only HTTP tests. Docker/live integration remain unverified.
 
 Caught by an 8-angle code review of the additions above, before any release:
 

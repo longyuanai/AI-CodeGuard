@@ -1,10 +1,13 @@
 # M8 本地交付与验收记录
 
-最近复验：**2026-10-19**（Asia/Shanghai）。环境：Windows、Node **24.18.0**、npm **11.16.0**。
+最近复验：**2026-10-19**（Asia/Shanghai）。环境：Windows、Node **24.18.0** / npm **11.16.0**，
+及隔离便携 Node **18.20.8** / npm **10.8.2**。Node 18 官网 ZIP 的 SHA256 已核对，未安装到系统。
 本轮起点：分支 `codex/m8-github-app-mvp`，HEAD
 `75602a8bd39673dd313baf88bb8dba34ccf4ed5c`，仅原有 `ROADMAP.md`、`SECURITY.md` 未跟踪。
 本轮完成兼容依赖修补、文档核对与交付复验，没有扩展功能；没有推送、发布、部署、
 注册 GitHub App、写入真实仓库或调用付费 API。
+同日续验从 `15332b7` 开始，继续消除 esbuild low、补齐容器检查定义并实测 Node 18；
+此记录正文为续验后的当前状态，原始日志保留前一阶段 7 条告警 / 28 项 app 测试的历史输出。
 
 M8 原实现日期为 2026-10-18，起点是 `main` / `cc43a84f87434b789cb7cad67b05ce81bdea2a3f`。
 其 [原始日志](validation/M8-2026-10-18.log) 保留当时结果；下面的实际验证与审计表为 10-19 复验结果。
@@ -23,7 +26,7 @@ precision、CLI fixtures、生产包检查及 Docker 引擎错误。测试代码
 | `npm run typecheck` | 退出 0 |
 | `npm run lint` | 退出 0 |
 | `npm run build -w app` | 退出 0，生成 `app/dist/index.js` |
-| `npm test -w app` | **28 passed**，8 文件通过，无跳过 |
+| `npm test -w app` | **30 passed**，9 文件通过，无跳过；新增嵌套开发工具残留、缺失 wasm 的两个真实文件系统拒绝测试 |
 | `npm run typecheck -w app` | 退出 0，包含 app 源码与测试 |
 | `npm run lint -w app` | 退出 0 |
 | 编译后 CLI / vulnerable fixtures | 14 文件、**97 findings**、0 skipped、0 LLM calls、$0；通过 cosmiconfig 加载含 merge alias 的受信 YAML，复验 js-yaml 更新兼容性 |
@@ -33,13 +36,15 @@ precision、CLI fixtures、生产包检查及 Docker 引擎错误。测试代码
 | 工作区检查 | `git diff --check`、修改内容凭据模式检查通过；文档相对链接存在 |
 | Docker | 客户端 29.8.2；`docker version` 退出 1，`dockerDesktopLinuxEngine` pipe 不存在；**镜像构建、容器 health/401、运行镜像依赖/wasm 未验证**；未创建容器、未修改系统 |
 | 真实 GitHub / 付费 LLM / 远程 CI | **未验证、未执行**。现有测试对外部 API 使用 mock |
-| `npm audit --json` | **退出 1，未通过**：15 → **7** 包条目（2 critical / 3 high / 1 moderate / 1 low） |
+| `npm audit --json` | **退出 1，未通过**：15 → 7 → **6** 包条目（2 critical / 3 high / 1 moderate / 0 low） |
 | `npm audit --omit=dev --json` | **退出 1，未通过**：5 → **3 high** 包条目，均来自 braces；见下文 |
 
 HTTP smoke 使用合成启动凭据，不会创建 JWT 或联系 GitHub；它验证真实服务监听、
 路由和验签拒绝行为，不验证真实 App 凭据。本轮仅修改测试 bootstrap 的 bind，
 未增加服务配置或改变容器监听行为。检查在允许本机回环连接的执行环境中完成。
 `CODEGUARD_E2E=0`，两个付费 opt-in 测试保持跳过；没有删除测试或降低 precision ratchet。
+上述九项命令在 Windows/Node 24 和 Node 18 上分别完整运行并通过。生产检查脚本还以
+与容器相同的 stdin 模式在两种 Node 上运行，通过 7 个 wasm 与 PHP 实扫；**不是 Docker 验收**。
 
 ## 10-19 依赖安全收尾
 
@@ -47,10 +52,10 @@ HTTP smoke 使用合成启动凭据，不会创建 JWT 或联系 GitHub；它验
 包条目计数（含上游传播），**不等于独立漏洞数**。例如 3 个生产 high 条目是同一个
 braces 问题沿 micromatch/fast-glob 传播；2 个 critical 条目是 Tinypool 与 Vitest 聚合条目。
 
-| 范围 | 修补前 | 修补后 |
-|---|---|---|
-| 完整依赖树 | 15：2 critical / 10 high / 2 moderate / 1 low | 7：2 critical / 3 high / 1 moderate / 1 low |
-| `--omit=dev` | 5 high | 3 high |
+| 范围 | 修补前 | 首次收尾 | 同日续验（当前） |
+|---|---|---|---|
+| 完整依赖树 | 15：2 critical / 10 high / 2 moderate / 1 low | 7：2 critical / 3 high / 1 moderate / 1 low | 6：2 critical / 3 high / 1 moderate / 0 low |
+| `--omit=dev` | 5 high | 3 high | 3 high |
 
 保留既有清单和锁文件，以 `npm update ... --package-lock-only --ignore-scripts` 定向
 更新，再执行 `npm ci --ignore-scripts`。没有 `audit fix`、强制大版本更新或新增直接
@@ -59,10 +64,19 @@ braces 问题沿 micromatch/fast-glob 传播；2 个 critical 条目是 Tinypool
 override 为已修补的 **6.4.4**，使用上游允许的 Node 18 兼容 Vite 分支。
 这不代表整套工具链兼容 Node 18：开发依赖 brace-expansion **5.0.12** 的 engines
 由 `18 || 20 || >=22` 收窄到 `20 || >=22`，其 minimatch 10.2.5 父包仍声明支持 Node 18。
-这是**尚未解决的 Node 18 开发链兼容风险**；没有为消除告警强制替换为不受支持的
-依赖 major，也未擅自修改项目 Node 支持声明。本轮仅 Windows/Node 24 实测，
-Node 18/20/22 与远程 CI 均未验证，不能把 Vite 分支选择描述为全链兼容保证。
-新增锁节点主要是 Vite 6 所需 esbuild 0.25 的可选平台二进制，未重建整份锁文件。
+这是**尚未解决的 Node 18 上游支持风险**；没有为消除告警强制替换为不受支持的
+依赖 major，也未擅自修改项目 Node 支持声明。续验用 Node 18 按锁安装和运行九项检查均通过，
+但 npm 实际报出三项 `EBADENGINE`：
+
+- 开发：`typescript-eslint → typescript-estree → minimatch → brace-expansion 5.0.12`，要求 `20 || >=22`。
+- 开发：`typescript-eslint → visitor-keys → eslint-visitor-keys 5.0.1`，要求 `^20.19.0 || ^22.13.0 || >=24`。
+- 生产 App：`@octokit/app → @octokit/auth-app → toad-cache 3.7.4`，要求 `>=20`。
+
+后两项在续验前已存在。没有忽略日志中的警告，也没有使用 `--force`；未启用 engine-strict
+时安装退出 0。实际通过不等于上游声明支持，尤其不能据此保证真实 installation token
+路径在 Node 18 全面兼容。Node 20/22、Linux 与远程 CI 均未验证。
+首次收尾新增锁节点主要是 Vite 6 所需 esbuild 0.25 的可选平台二进制；续验统一版本后
+这些重复节点已去重。没有重建整份锁文件，两个阶段的具体增删分别保留在日志。
 
 ### 已修补的告警及实际条件
 
@@ -79,6 +93,16 @@ Node 18/20/22 与远程 CI 均未验证，不能把 Vite 分支选择描述为�
 | 开发：`tsup → postcss-load-config`、`vitest → vite → postcss` | **8.5.9 → 8.5.31**；原版本命中 `<=8.5.22` 范围内多条公告，见 [sourceMappingURL](https://github.com/advisories/GHSA-fxqj-rqcc-2cmp)、[路径加载](https://github.com/advisories/GHSA-r28c-9q8g-f849)、[CSS stringify](https://github.com/advisories/GHSA-qx2v-qp2m-jg93) | 不可信 CSS/map 可读本地 map/文件，CSS 输出进入 HTML 时可 XSS；当前构建 TypeScript，不处理目标仓库 CSS。仍修补构建链，不能泛称开发依赖无风险。 |
 | 开发：`postcss → nanoid` | **3.3.11 → 3.3.20**；原版本在 `<=3.3.17` 影响范围，[负数](https://github.com/advisories/GHSA-28wg-ghj8-5hjv)、[零长度](https://github.com/advisories/GHSA-2v37-7h3g-55p8)、[溢出](https://github.com/advisories/GHSA-xwg4-73v4-xw9w) | 非安全/自定义生成器接收负数、零或溢出 size 可能循环/溢出；不是默认可信 size 都会触发。 |
 | 开发：`postcss → source-map-js` | **1.2.1 → 1.2.2**；`>=1.0.0 <1.2.2`，[indexed map 公告](https://github.com/advisories/GHSA-68fv-2mgg-jv7q) | 恶意 indexed source-map section offset 可阻塞事件循环；现有构建不读取目标仓库 source map。 |
+| 开发：`tsup → esbuild`（同日续验） | tsup **8.5.1 → 8.5.0**，esbuild **0.27.7 → 0.25.12**；原 `>=0.27.3 <0.28.1` 命中 [Windows serve 公告](https://github.com/advisories/GHSA-g7r4-m6w7-qqqr) | Windows `.serve()` 可读任意文件；现有构建未调用它，仍消除安装告警。固定父包及 esbuild 在所有调用方支持的范围，不强制覆盖 tsup 8.5.1 到不允许的 0.28。 |
+
+续验核对了 [tsup 8.5.1 发行说明](https://github.com/egoist/tsup/releases/tag/v8.5.1)
+及对应补丁：浏览器 CJS `import.meta` shim 校验与 SWC source-map 路径不是本项目的
+Node ESM 构建路径；现有构建、声明、扫描和测试完整通过。tsup 8.5.0 原生依赖 esbuild
+`^0.25.0`，Vite 6.4.4 依赖 `^0.25.0`，bundle-require 的 peer 为 `>=0.18`；统一
+override **0.25.12** 均在支持范围内，避免旧 peer 锁继续保留 0.27.7。没有升级到要求
+更高 Node 的 tsup 9。此回退会带入父包固定的 **source-map 0.8.0-beta.0** 及四个相关
+开发节点；npm 明确给出该 beta 已废弃警告。当前 audit 未报新增漏洞、生产依赖未变，
+但这仍是构建链维护风险，应在后续上游支持安全 esbuild 时解除固定，而非永久停留。
 
 相关同系列配套更新包括 @vitest 子包、@humanfs/core、tinyspy、hasown 与 Vite 的嵌套
 picomatch；未改变规则、扫描策略、App 生产代码或精度门槛。完整版本差异保存在本轮日志。
@@ -88,6 +112,10 @@ picomatch；未改变规则、扫描策略、App 生产代码或精度门槛。�
 `docs/README.md`、`app/README.md`、`docs/design/GITHUB_APP.md`、本验收记录及
 `validation/M8-2026-10-19-security.log`。当前架构已补齐库/App 数据流并修正
 cache/Action 未实现的旧描述；历史专题通过导航明确标记，不重复新建状态文档。
+续验另外修改 `.github/workflows/ci.yml`，新增 `scripts/check-runtime.mjs` 和
+`app/tests/runtime-package.test.ts`：容器 CI 使用只读根、tmpfs、回环端口，定义
+health 200、无签名 401、依赖/wasm/PHP 实扫与 always 清理。脚本在本机生产包运行
+通过，拒绝路径测试通过；Docker/远程 job 仍未运行。
 
 ### 仍未修补，审计不通过
 
@@ -96,7 +124,6 @@ cache/Action 未实现的旧描述；历史专题通过导航明确标记，不�
 | **生产 high ×3 条目**：`fast-glob 3.3.3 → micromatch 4.0.8 → braces 3.0.3` | `braces <=3.0.3`，[深嵌套 DoS](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)；本次 registry/audit 无已发布兼容修补 | 恶意 glob 可栈耗尽，CLI 的路径/配置匹配存在此输入面。App 显式文件路径转义、忽略 include，exclude 限 100 条/256 字符且禁用 brace/bracket/extglob，减少暴露；不能据此宣称整个依赖已安全。替换 glob 库或维护 fork 超出本轮兼容修补范围，待上游补丁。 |
 | **开发 critical ×2 条目**：`vitest 3.2.7 → tinypool 1.1.1`（Vitest 为传播条目） | worker-options 问题 `<=2.1.0`，[公告一](https://github.com/advisories/GHSA-5gmw-xhrv-c9v3)；run-options 问题 `<2.1.2`，[公告二](https://github.com/advisories/GHSA-85c8-ppgw-ccpr)；修补为 2.1.2 | 需上游原型污染，继承的 worker/filename 选项可转为代码执行；run 变体还涉及调用者传入 options。开发/CI 进程可受影响，不能标为无风险，也不是已证明的无认证 App RCE。Vitest 3 依赖 `^1.1.1`，无 1.x 修补；2.1.2 越过依赖 major 且要求 Node 20/22+，不能强制 override。需另行规划测试栈/Node 支持升级。 |
 | **开发 moderate**：`vitest 3.2.7 → @vitest/mocker 3.2.7` | `>=2.1.0 <4.1.11`，[redirect mock 公告](https://github.com/advisories/GHSA-82fw-gwwq-j7x9)；修补 4.1.11，3.x 无计划回补 | 暴露 standalone mocker/interceptor plugin 的 Vite HMR websocket 时可未认证注册越界文件重定向；browser RPC 有 token 认证。当前仅 run 模式、未启动上述 server，仍保留告警；跨 major 升级需独立兼容验证。 |
-| **开发 low**：`tsup 8.5.1 → esbuild 0.27.7` | `>=0.27.3 <0.28.1`，[Windows serve 公告](https://github.com/advisories/GHSA-g7r4-m6w7-qqqr) | Windows 上 `.serve()` 可任意文件读取；本项目 build/watch 未调用 serve。tsup 8.5.1 要求 `^0.27.0`，该系列无补丁；不强制越过 0.x minor。可另行评估父包回退或上游支持 0.28.1+，本轮优先 critical/high 兼容修补，明确保留此 low。 |
 
 生产安装排除测试/构建链并不消除开发机、CI 或构建阶段风险。本机隔离生产包检查仅
 证明上述包布局、wasm 和静态 scan 可用，**没有验证运行镜像**。TypeScript 仍由
@@ -145,11 +172,11 @@ SDK 非预期 endpoint/重定向；CLI 与库加载 bundled wasm。均为本地�
 ## 剩余风险与未完成验收
 
 1. **Docker DoD 未验证**：本机引擎不可用，没有声称镜像能构建或容器 health 通过。
-   CI 新增 build/health job，但远程尚未运行。Linux、Node 18/20/22 矩阵同样
-   只是 CI 定义，当前实际本地验证环境为 Windows/Node 24。
+   CI 已补 build/health/401/runtime job，但远程尚未运行。Linux、Node 20/22 矩阵仍
+   只是 CI 定义；本机 Windows/Node 18/24 实测通过，Node 18 上游 engine 警告仍在。
 2. **真实联调未做**：权限、fork 可读性、真实 review 锚点、GitHub 限流、Webhook
    端到端需后续在授权测试仓库验证。所有 token/LLM 响应是 mock，不是付费实测。
-3. **依赖审计仍未通过**：10-18 的 15 条历史结果在本轮修补后降为 7 条，仍含
+3. **依赖审计仍未通过**：10-18 的 15 条历史结果在两次修补后降为 6 条，仍含
    Tinypool/Vitest 开发链 critical 和生产 braces high；本记录的审计登记列明路径、
    条件及兼容修补阻塞。App 的输入限制、生产裁剪不能等同于整个依赖树安全。
 4. 单副本、有界内存队列不保证崩溃后的任务恢复；需要人工 redelivery。多副本

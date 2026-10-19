@@ -4,14 +4,17 @@ Single-tenant, self-hosted PR scanning service. Hono receives signed webhooks;
 Octokit authenticates as a GitHub App installation. The existing scanner runs
 in-process against head-SHA content, without cloning or executing repository code.
 
-Local verification (2026-10-19): 28 app tests pass, including a real loopback Node HTTP
+Local verification (2026-10-19): 30 app tests pass on Windows/Node 18.20.8 and 24.18.0,
+including a real loopback Node HTTP
 `/healthz` request and signature rejection. GitHub API and LLM tests use mocks.
 Docker build/container health and real GitHub/paid-provider integration are **not verified**.
 See [acceptance evidence](../docs/dev/M8-VALIDATION.md).
 
 ## Run locally
 
-From the repository root, use Node 22 (app minimum: 18.14.1):
+From the repository root, use Node 22 (manifest minimum: 18.14.1). Node 18 passed
+local checks but three transitive packages declare newer engines; it is not a
+fully supported dependency configuration. See the acceptance record for paths.
 
 ```sh
 npm ci --ignore-scripts
@@ -139,7 +142,20 @@ docker run --rm --name codeguard-app -p 127.0.0.1:3000:3000 \
   --read-only --tmpfs /tmp:rw,noexec,nosuid,size=256m \
   --memory=512m --cpus=1 --stop-timeout=120 ai-codeguard-app:local
 curl --fail http://127.0.0.1:3000/healthz
+# Expected status: 401
+curl --silent --output /dev/null --write-out '%{http_code}\n' \
+  -X POST --data '{}' http://127.0.0.1:3000/webhook
+# Verify production dependencies, all 7 wasm assets and a zero-API PHP scan.
+docker exec -i codeguard-app node --input-type=module < scripts/check-runtime.mjs
 ```
+
+Run these shell commands from the repository root. The runtime check script is
+sent over stdin and is not copied into the image. It fails for retained test/build
+tools (including nested Tinypool), missing/empty wasm or a failed static scan.
+Two app tests exercise its rejection paths; a fresh isolated production install
+passes the real scan locally. Container execution remains unverified while the
+Docker engine is unavailable. CI now defines all three checks and always removes
+its test container.
 
 Terminate public TLS at a reverse proxy and route only `/webhook` and `/healthz`.
 Build a candidate image alongside the previous version; save its image ID and

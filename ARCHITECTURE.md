@@ -98,6 +98,10 @@ Reporter 实现 text、JSON、SARIF 2.1.0 和 GitHub review JSON，承载静态 
 
 根目录 `action.yml` 已实现 composite Action：安装/构建扫描器、运行扫描并输出 SARIF 路径与 finding 数量；默认只跑 Stage 1。`.github/workflows/ci.yml` 定义根项目、App、精度、Action smoke 和容器检查；`security-scan.yml` 定义扫描、artifact 与 Code Scanning 上传。workflow 的执行结果和发布状态须另行验证。使用者应审核 workflow 的 PR/fork 权限边界，尤其避免在高权限上下文执行未审核的目标代码或配置。
 
+容器 job 定义只读根文件系统、`/tmp` tmpfs、回环端口、health 200、无签名 401，
+并通过 stdin 执行 `scripts/check-runtime.mjs`，检查生产包不残留测试/构建工具、
+7 个 wasm 及真实 PHP 静态扫描。脚本可以对隔离生产安装复用；本机脚本通过不等于 Docker 通过。
+
 ### 4.4 配置与信任边界
 
 CLI 配置加载顺序为：配置文件 → 环境变量覆盖 → Zod 校验与默认值，再由命令行参数覆盖。支持 `.codeguard.yml`、`.codeguard.yaml`、`.codeguard.json`、`codeguard.config.js`、`codeguard.config.ts`；JS/TS 配置属于本地受信代码加载路径，不能直接用于不可信 PR 服务。
