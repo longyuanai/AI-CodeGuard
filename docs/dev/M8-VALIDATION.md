@@ -14,11 +14,16 @@ ROADMAP.md、SECURITY.md 哈希未变、未跟踪、未提交。
 | P1，已修复 | `app/src/pipeline.ts:78-81` | 重命名且有新增行的文件没有可用 diff 行时，旧实现因 status=renamed 直接跳过，`incomplete=false`，空 findings 被 Check 报为 success；同文件只解析到部分新增行也未核对完整性 | 只有 API 确认 `additions=0` 才可跳过；非零新增行缺失/行数不符标记 partial，保留可见 finding；纯重命名的合法无 hunk diff 正常处理 |
 | P2，已修复 | `src/scanner/diff.ts:66-67` | Git 将中文等路径写为带引号/八进制 UTF-8，旧解析器保存转义字面字符串，无法匹配实际文件名；CLI --diff 静默丢弃 findings，App 无法扫描/锚定对应行，并触发上项重命名漏洞 | 复用同一核心 parser 解码 Git C-quoted 路径再去 b/ 前缀；CLI、库和 App 一起受益，无公开接口变更 |
 
-回归先在旧代码实际失败（根 2 项、App 2 项），修复后新增 6 项全部通过。
+回归先在旧代码实际失败（根 2 项、App 2 项），修复及二进制边界复核后新增 7 项全部通过。
 使用合成目录由真实 `git -c core.quotePath=true diff` 生成中文路径 diff，编译后 CLI
 扫描 **1 文件、1 finding、0 LLM 调用**，不是只验证手写字符串或 mock。
 代码提交 **`e4b6c7b3bec045bb03340763496334418f43f771`**；
 [本轮失败复现/本地回归/实际 CI 日志](validation/M8-2026-10-20-pr17-review.log)。
+
+收尾复核发现上述修复对 `additions=0` 的豁免过宽，会把二进制修改误认为纯重命名；
+新增回归在修复前实际失败，已在 **`cf2d71b25f6c5bf9c304d43098c8c5fb0c931d51`**
+收紧为非二进制纯重命名或删除文件。再次运行全部九项和两项 audit 均通过；
+最终 App 为 35 项通过，不沿用中间阶段 34 项的结果。
 
 ### 审查覆盖与边界
 
@@ -32,21 +37,26 @@ ROADMAP.md、SECURITY.md 哈希未变、未跟踪、未提交。
 
 Windows 便携 Node **24.22.0 / npm 11.19.1**，系统 Node 未替换；支持仍为 **`^24.22.0`**。
 根 build/test:run/precision/typecheck/lint、App build/test/typecheck/lint **全退出 0**；
-根 **582 passed / 2 原有 opt-in skipped**、App **34 passed**；
+根 **582 passed / 2 原有 opt-in skipped**、App **35 passed**；
 **23 TP / 2 FN / 1 FP，precision 95.8%、recall 92.0%**，门槛未降低。
 完整和生产 `npm audit` **各 0 告警，退出 0**；依赖和构建配置未改。
 编译后 CLI 漏洞/安全 fixtures **97/0 findings**，库多语言 wasm、真实 HTTP **200/401** 均通过。
 
-修复 SHA `e4b6c7b3bec045bb03340763496334418f43f771` 的
+中间修复 SHA `e4b6c7b3bec045bb03340763496334418f43f771` 的
 [Linux CI](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39384389745) 与
 [security-scan](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39384389771) **成功**。
 实际容器重新构建并通过非 root/只读根/tmpfs、HTTP 200/401、开发依赖裁剪、7 wasm 和 PHP
 安全/漏洞实扫；容器已清理。后续仅文档交接提交也须核对其自身 CI，PR 描述保存最终 HEAD 的链接。
 
+最终代码 **`cf2d71b25f6c5bf9c304d43098c8c5fb0c931d51`** 的
+[Linux CI](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39385143556)（4 个 job，含真实容器）及
+[security-scan](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39385143504) **全部成功**；
+对应日志附在同一本轮审查日志的 FINAL FOLLOW-UP 段。
+
 未验证：真实 GitHub App 安装及 webhook→真实 PR 写流程、付费 provider、其他 Node 24 补丁/平台；
 本地 Docker 引擎不可用，容器证据为真实 Linux CI，API 测试仍是 mock。neutral 代表未完成，
 人工合并前须阅读汇总，不能当作干净扫描。未提交 APPROVE、合并、部署或发布。
-本轮修复回滚点为 `0cd3958`（保留依赖安全整改）；若必要可人工 revert `e4b6c7b` 后重验，
+本轮修复回滚点为 `0cd3958`（保留依赖安全整改）；若必要可人工按逆序 revert `cf2d71b`、`e4b6c7b` 后重验，
 但会恢复以上漏扫风险。完整 PR 的回滚应保存已验证构建/配置，不自动降回有已知告警的旧依赖。
 
 ## 历史验收：2026-10-20 braces 整改与远程交付通过（早于本次审阅）

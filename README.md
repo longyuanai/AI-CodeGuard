@@ -26,7 +26,7 @@ What is implemented today:
 - Disk cache for Stage 2 LLM results (`cache.enabled`), wired into the scan pipeline
 - GitHub composite Action (`action.yml`), CI / SARIF-upload workflows, and a BYO-key PR-review workflow example (`docs/examples/pr-review.yml`; design in `docs/design/GITHUB_APP.md`)
 - Self-hosted **GitHub App MVP** (`app/`): signed PR webhooks, installation authentication, head-SHA downloads, changed-line scanning, fingerprint-deduplicated inline reviews, one updated summary and Check Runs; BYO-key or labeled static fallback, bounded costs and temporary cleanup. [Run/deploy instructions](app/README.md)
-- Actual validation (2026-10-20): **582 root tests passed, 2 opt-in tests skipped**, **34 app tests passed**. All nine checks pass on Windows and Linux/Node **24.22.0**, precision **95.8% / recall 92.0%**. Replacing fast-glob with tinyglobby removes the remaining braces chain: complete and production audits both fell **3 high → 0 vulnerabilities**. Real Linux Docker acceptance passes build, UID 1000, read-only root, /tmp tmpfs, HTTP **200/401**, development-dependency removal and seven wasm assets; vulnerable/safe PHP scans yield **1/0 findings**, zero LLM calls. Live GitHub App and paid-provider integration remain unverified. [Evidence and CI links](docs/dev/M8-VALIDATION.md)
+- Actual validation (2026-10-20): **582 root tests passed, 2 opt-in tests skipped**, **35 app tests passed**. All nine checks pass on Windows and Linux/Node **24.22.0**, precision **95.8% / recall 92.0%**. Replacing fast-glob with tinyglobby removes the remaining braces chain: complete and production audits both fell **3 high → 0 vulnerabilities**. Real Linux Docker acceptance passes build, UID 1000, read-only root, /tmp tmpfs, HTTP **200/401**, development-dependency removal and seven wasm assets; vulnerable/safe PHP scans yield **1/0 findings**, zero LLM calls. Live GitHub App and paid-provider integration remain unverified. [Evidence and CI links](docs/dev/M8-VALIDATION.md)
 
 What is **not** complete yet:
 - Release preparation and npm registry publication remain separate operator work. The development branch is pushed and PR #17 is open for human review; no release, publication, merge or deployment has occurred.
@@ -401,7 +401,7 @@ npm run lint -w app
 
 Actual result (2026-10-20, Node 24.22.0 / npm 11.19.1; Windows and Linux CI):
 - root build, typecheck, lint, precision passed; `582` tests passed, `2` opt-in provider tests skipped (`19` files passed, `1` skipped)
-- app build, typecheck, lint passed; `34` tests passed across `9` files
+- app build, typecheck, lint passed; `35` tests passed across `9` files
 - precision `23 TP / 2 FN / 1 FP`: `95.8%` precision, `92.0%` recall; ratchet unchanged
 - built Node service `/healthz` returned 200 and unsigned webhook returned 401 over real loopback HTTP
 - local Docker engine unavailable; actual Linux CI image build, isolation, HTTP and static PHP scans passed. GitHub App API integration remains mock-based, with no paid calls

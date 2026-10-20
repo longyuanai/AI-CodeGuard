@@ -47,7 +47,8 @@ App 服务（Hono + @octokit/app + @octokit/webhooks，单副本）
 
 diff 文件头按 Git C-quoted 格式解码 UTF-8 八进制与控制字符转义，再与仓库实际路径匹配。
 逐文件核对 API 的 `additions` 与解析出的新增行数；缺少全部或部分新增行均标记 partial，
-重命名不能豁免。只有确认 `additions=0` 时才能无 hunk 正常跳过（如纯重命名/删除）。
+重命名不能豁免。只有非二进制且确认 `additions=0` 的纯重命名才能无 hunk 正常跳过；
+删除文件单独忽略。二进制修改即使 API 行数为 0，也不视为完整扫描。
 
 单 worker 串行处理，最多 10 个待处理任务；delivery ID 缓存一小时、最多 1,000 个。评论标记在重启后仍能去重，但内存队列不耐崩溃，多副本没有分布式锁。丢失/失败/503 的任务须操作者从 GitHub 手动重投；重投可能重复 LLM 工作。
 
@@ -111,6 +112,6 @@ Check 名称 `AI-CodeGuard`，`external_id` 包含 PR number 与 head SHA；同 
 
 ## 7. 当前验收边界
 
-2026-10-20 在 Node 24.22.0 LTS（支持 `^24.22.0`）完成依赖整改。Windows 与 Linux CI 的根五项、app 四项通过：582 passed / 2 opt-in skipped、app 34 passed、precision/recall 95.8%/92.0%。签名 webhook 流程使用 mock GitHub + 真实扫描器，本地编译后 HTTP 200/401 实测；**不是 GitHub App 联调结果**。
+2026-10-20 在 Node 24.22.0 LTS（支持 `^24.22.0`）完成依赖整改。Windows 与 Linux CI 的根五项、app 四项通过：582 passed / 2 opt-in skipped、app 35 passed、precision/recall 95.8%/92.0%。签名 webhook 流程使用 mock GitHub + 真实扫描器，本地编译后 HTTP 200/401 实测；**不是 GitHub App 联调结果**。
 
 本机 Docker 引擎仍不可用；Linux CI 已真实构建并运行容器，确认非 root、只读根、tmpfs、HTTP 200/401、开发工具裁剪、7 个 wasm 和 PHP 漏洞/安全样本实扫，随后清理容器。首轮发现 npm prune 残留 @vitest 目录，已改为独立阶段全新生产安装并复验通过。fast-glob/micromatch/braces 链被 tinyglobby 0.2.16 替换，完整与生产 audit 独立验证为 0 告警。开发分支已推送并建立 PR，交由人工审阅；未注册 App、上线、调用付费 API 或执行 npm/Release。实际运行链接、提交 SHA 与限制见 [验收记录](../dev/M8-VALIDATION.md)。
