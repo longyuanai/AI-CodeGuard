@@ -38,7 +38,8 @@ jobs:
             --read-only --tmpfs /tmp:rw,noexec,nosuid,size=256m \
             -e ALLOWED_REPOSITORIES=owner/repo ai-codeguard-app:ci
           for attempt in $(seq 1 20); do
-            if curl --fail http://127.0.0.1:3000/healthz; then exit 0; fi
+            status=$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:3000/healthz || true)
+            if [ "$status" = 200 ]; then echo "health HTTP=$status"; exit 0; fi
             sleep 1
           done
           exit 1
@@ -47,6 +48,21 @@ jobs:
           status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
             -X POST --data '{}' http://127.0.0.1:3000/webhook)
           test "$status" = 401
+          echo "unsigned webhook HTTP=$status"
+      - name: Verify container isolation
+        run: |
+          test "$(docker exec codeguard-app id -u)" != 0
+          test "$(docker inspect -f '{{.HostConfig.ReadonlyRootfs}}' codeguard-app)" = true
+          docker inspect -f 'user={{.Config.User}} readonly={{.HostConfig.ReadonlyRootfs}} tmpfs={{json .HostConfig.Tmpfs}}' codeguard-app
+          docker exec codeguard-app node --input-type=module -e '
+            import {writeFile, unlink} from "node:fs/promises";
+            if (process.getuid() === 0) throw new Error("root user");
+            try { await writeFile("/opt/codeguard/root-write-probe", "probe"); throw new Error("root writable"); }
+            catch (error) { if (error.code !== "EROFS") throw error; }
+            await writeFile("/tmp/tmpfs-probe", "probe");
+            await unlink("/tmp/tmpfs-probe");
+            console.log(JSON.stringify({uid:process.getuid(),rootWrite:"EROFS",tmpWrite:"passed"}));
+          '
       - name: Check runtime dependencies and wasm with a static scan
         run: docker exec -i codeguard-app node --input-type=module < scripts/check-runtime.mjs
       - if: always()
@@ -69,6 +85,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Audit complete and production dependency trees
+        run: |
+          npm audit --registry=https://registry.npmjs.org
+          npm audit --omit=dev --registry=https://registry.npmjs.org
 
       - name: Lint
         run: npm run lint

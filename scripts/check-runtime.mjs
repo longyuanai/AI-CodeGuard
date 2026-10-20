@@ -55,6 +55,15 @@ try {
   }
   summary.scan = { files: result.files, findings: result.findings.length,
     skipped: result.skipped.length, llmCalls: result.llmCalls };
+  await writeFile(join(temporary, 'safe.php'), '<?php echo "hello";');
+  const safe = await scan({ paths: ['safe.php'], rootDir: temporary,
+    config: ConfigSchema.parse({ cache: { enabled: false }, llm: { maxCostUSD: 0 } }),
+    dryRun: true, fix: false, output: 'json', verbose: false, report: false });
+  if (safe.files !== 1 || safe.skipped.length || safe.findings.length || safe.llmCalls) {
+    throw new Error('Production safe PHP scan failed');
+  }
+  summary.safeScan = { files: safe.files, findings: safe.findings.length,
+    skipped: safe.skipped.length, llmCalls: safe.llmCalls };
 } finally {
   if (dirname(resolve(temporary)) !== parent || !basename(temporary).startsWith('codeguard-runtime-')) {
     throw new Error('Unexpected temporary directory');
