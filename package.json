@@ -3,6 +3,13 @@
   "version": "0.4.0",
   "description": "AI-powered code security scanner combining static analysis with LLM intelligence",
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js"
+    }
+  },
+  "workspaces": ["app"],
   "bin": {
     "ai-codeguard": "./dist/index.js"
   },
@@ -14,7 +21,7 @@
     "url": "git+https://github.com/hzj-Jeff-07/AI-CodeGuard.git"
   },
   "engines": {
-    "node": ">=18"
+    "node": "^24.22.0"
   },
   "scripts": {
     "build": "tsup",
@@ -24,7 +31,7 @@
     "lint": "eslint src/",
     "prepublishOnly": "npm run build && npm run test:run",
     "scan:self": "node dist/index.js scan ./src",
-    "precision": "vitest run tests/precision",
+    "precision": "vitest run tests/precision --disableConsoleIntercept",
     "triage": "vitest run tests/triage",
     "typecheck": "tsc --noEmit"
   },
@@ -43,8 +50,8 @@
     "chalk": "^5.4.1",
     "commander": "^13.1.0",
     "cosmiconfig": "^9.0.0",
-    "fast-glob": "^3.3.3",
     "openai": "^4.85.0",
+    "tinyglobby": "0.2.16",
     "tree-sitter-go": "^0.25.0",
     "tree-sitter-java": "^0.23.5",
     "tree-sitter-javascript": "^0.25.0",
@@ -59,9 +66,12 @@
     "@types/node": "^22.13.0",
     "eslint": "^9.19.0",
     "prettier": "^3.4.2",
-    "tsup": "^8.3.6",
+    "tsup": "9.0.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.62.1",
-    "vitest": "^3.0.5"
+    "vitest": "4.1.11"
+  },
+  "overrides": {
+    "vite": "6.4.4"
   }
 }

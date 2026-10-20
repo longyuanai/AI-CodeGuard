@@ -63,7 +63,7 @@ export function parseUnifiedDiff(diffText: string): ChangedLines {
     if (line.startsWith('+++ ')) {
       // "+++ b/src/app.ts" (git) or "+++ src/app.ts" (plain diff); a
       // trailing tab + timestamp is legal in POSIX diffs.
-      const target = line.slice(4).split('\t')[0].trim();
+      const target = decodeDiffPath(line.slice(4).split('\t')[0].trim());
       currentFile = target === '/dev/null' ? null : target.replace(/^b\//, '');
       sawFileHeader = true;
       continue;
@@ -86,6 +86,31 @@ export function parseUnifiedDiff(diffText: string): ChangedLines {
   }
 
   return changed;
+}
+
+/** Git quotes unusual paths using C escapes and octal UTF-8 bytes. */
+function decodeDiffPath(path: string): string {
+  if (!path.startsWith('"')) return path;
+  const quoted = /^"((?:\\.|[^"\\])*)"$/.exec(path);
+  if (!quoted) throw new Error('Invalid quoted diff path.');
+  const content = quoted[1];
+  const escapes: Record<string, string> = {
+    a: '\x07', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t', v: '\v', '"': '"', '\\': '\\',
+  };
+  const chunks: Buffer[] = [];
+  let consumed = 0;
+  for (const token of content.matchAll(/\\([0-7]{1,3}|[abfnrtv"\\])|([^\\]+)/g)) {
+    if (token.index !== consumed) throw new Error('Invalid quoted diff escape.');
+    consumed += token[0].length;
+    if (token[2] !== undefined) chunks.push(Buffer.from(token[2], 'utf8'));
+    else if (/^[0-7]/.test(token[1])) {
+      const byte = parseInt(token[1], 8);
+      if (byte > 255) throw new Error('Invalid quoted diff byte.');
+      chunks.push(Buffer.from([byte]));
+    } else chunks.push(Buffer.from(escapes[token[1]], 'utf8'));
+  }
+  if (consumed !== content.length) throw new Error('Invalid quoted diff escape.');
+  return new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks));
 }
 
 export async function loadChangedLines(path: string): Promise<ChangedLines> {

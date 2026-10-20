@@ -1,14 +1,20 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { hostedFetch } from './hosted-fetch.js';
 
 let cachedClient: Anthropic | null = null;
 let cachedApiKey: string | null = null;
+let cachedHosted = false;
 
-function getClient(apiKey: string): Anthropic {
-  if (cachedClient && cachedApiKey === apiKey) {
+function getClient(apiKey: string, hosted: boolean): Anthropic {
+  if (cachedClient && cachedApiKey === apiKey && cachedHosted === hosted) {
     return cachedClient;
   }
-  cachedClient = new Anthropic({ apiKey });
+  cachedClient = new Anthropic({ apiKey, ...(hosted ? {
+    baseURL: 'https://api.anthropic.com', maxRetries: 0, timeout: 30_000,
+    fetch: hostedFetch('https://api.anthropic.com'),
+  } : {}) });
   cachedApiKey = apiKey;
+  cachedHosted = hosted;
   return cachedClient;
 }
 
@@ -17,12 +23,12 @@ export async function analyzeWithClaude(request: {
   apiKey: string;
   systemPrompt: string;
   userPrompt: string;
-}): Promise<{
+}, hosted = false): Promise<{
   text: string;
   inputTokens: number;
   outputTokens: number;
 }> {
-  const client = getClient(request.apiKey);
+  const client = getClient(request.apiKey, hosted);
 
   const response = await client.messages.create({
     model: request.model,

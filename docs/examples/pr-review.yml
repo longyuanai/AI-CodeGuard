@@ -37,7 +37,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '24.22.0'
 
       # Build AI-CodeGuard (or `npm i -g ai-codeguard` once published).
       - run: npm ci && npm run build

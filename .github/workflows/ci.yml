@@ -7,11 +7,72 @@ on:
   pull_request:
 
 jobs:
+  github-app:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['24.22.0']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm run typecheck -w app
+      - run: npm run lint -w app
+      - run: npm run build -w app
+      - run: npm test -w app
+      - run: npm run precision
+
+  github-app-container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f app/Dockerfile -t ai-codeguard-app:ci .
+      - name: Container health smoke (synthetic credentials, no external API)
+        run: |
+          docker run -d --name codeguard-app -p 127.0.0.1:3000:3000 \
+            -e APP_ID=1 -e PRIVATE_KEY=offline-test -e WEBHOOK_SECRET=offline-secret \
+            --read-only --tmpfs /tmp:rw,noexec,nosuid,size=256m \
+            -e ALLOWED_REPOSITORIES=owner/repo ai-codeguard-app:ci
+          for attempt in $(seq 1 20); do
+            status=$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:3000/healthz || true)
+            if [ "$status" = 200 ]; then echo "health HTTP=$status"; exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Reject unsigned webhook
+        run: |
+          status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
+            -X POST --data '{}' http://127.0.0.1:3000/webhook)
+          test "$status" = 401
+          echo "unsigned webhook HTTP=$status"
+      - name: Verify container isolation
+        run: |
+          test "$(docker exec codeguard-app id -u)" != 0
+          test "$(docker inspect -f '{{.HostConfig.ReadonlyRootfs}}' codeguard-app)" = true
+          docker inspect -f 'user={{.Config.User}} readonly={{.HostConfig.ReadonlyRootfs}} tmpfs={{json .HostConfig.Tmpfs}}' codeguard-app
+          docker exec codeguard-app node --input-type=module -e '
+            import {writeFile, unlink} from "node:fs/promises";
+            if (process.getuid() === 0) throw new Error("root user");
+            try { await writeFile("/opt/codeguard/root-write-probe", "probe"); throw new Error("root writable"); }
+            catch (error) { if (error.code !== "EROFS") throw error; }
+            await writeFile("/tmp/tmpfs-probe", "probe");
+            await unlink("/tmp/tmpfs-probe");
+            console.log(JSON.stringify({uid:process.getuid(),rootWrite:"EROFS",tmpWrite:"passed"}));
+          '
+      - name: Check runtime dependencies and wasm with a static scan
+        run: docker exec -i codeguard-app node --input-type=module < scripts/check-runtime.mjs
+      - if: always()
+        run: docker rm -f codeguard-app || true
+
   build-and-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        node-version: ['24.22.0']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,6 +85,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Audit complete and production dependency trees
+        run: |
+          npm audit --registry=https://registry.npmjs.org
+          npm audit --omit=dev --registry=https://registry.npmjs.org
 
       - name: Lint
         run: npm run lint

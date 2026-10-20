@@ -1,4 +1,4 @@
-import fg from 'fast-glob';
+import { glob } from 'tinyglobby';
 import { readFile, stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
@@ -134,10 +134,11 @@ async function resolveCustomRuleFiles(customPath: string): Promise<string[]> {
     throw new Error(`Custom rules path must be a file or directory: ${resolvedPath}`);
   }
 
-  const files = await fg(['**/*.yml', '**/*.yaml'], {
+  const files = await glob(['**/*.yml', '**/*.yaml'], {
     cwd: resolvedPath,
     absolute: true,
     onlyFiles: true,
+    expandDirectories: false,
   });
 
   if (files.length === 0) {

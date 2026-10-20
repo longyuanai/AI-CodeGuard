@@ -1,0 +1,1456 @@
+AI-CodeGuard dependency security implementation | 2026-10-20 Asia/Shanghai
+BASE: codex/m8-github-app-mvp / 99334d08f6ef8a3a81eab6d3c95ef44fe6c8b62e
+Initial tracked tree clean; only original ROADMAP.md / SECURITY.md untracked.
+No push, release, deployment, App registration, GitHub write or paid API calls.
+
+
+OFFICIAL NODE INDEX (https://nodejs.org/dist/index.json), selected LTS
+{
+  "version": "v24.22.0",
+  "date": "2026-10-14",
+  "files": [
+    "aix-ppc64",
+    "headers",
+    "linux-arm64",
+    "linux-ppc64le",
+    "linux-s390x",
+    "linux-x64",
+    "linux-x64-musl",
+    "osx-arm64-tar",
+    "osx-x64-pkg",
+    "osx-x64-tar",
+    "src",
+    "win-arm64-7z",
+    "win-arm64-zip",
+    "win-x64-7z",
+    "win-x64-exe",
+    "win-x64-msi",
+    "win-x64-zip"
+  ],
+  "npm": "11.19.1",
+  "v8": "13.6.233.17",
+  "uv": "1.52.1",
+  "zlib": "1.3.2.1-motley",
+  "openssl": "3.5.8",
+  "modules": "137",
+  "lts": "Krypton",
+  "security": false
+}
+
+
+OFFICIAL NODE ZIP SHA256 CHECK, verified before extraction
+f9683a19877e12a9b167305c8db71040d812876359de21f0d2e97c3f321f80c3  node-v24.22.0-win-x64.zip
+
+
+NODE 24.22.0: npm install --package-lock-only --ignore-scripts; npm ci --ignore-scripts (both EXIT 0)
+Node v24.22.0 | npm 11.19.1
+
+up to date in 40s
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 301 packages in 8s
+
+
+COMMAND: npm ls vitest @vitest/mocker tinypool tsup esbuild source-map fast-glob micromatch braces --all (EXIT 0)
+ai-codeguard@0.4.0 E:\001项目\001Github\000开源项目\001AI-CodeGuard
+├─┬ @ai-codeguard/github-app@0.1.0 -> .\app
+│ └─┬ ai-codeguard@0.4.0 -> .\
+│   ├── fast-glob@3.3.3 deduped
+│   ├── tsup@9.0.0 deduped
+│   └── vitest@4.1.11 deduped
+├─┬ fast-glob@3.3.3
+│ └─┬ micromatch@4.0.8
+│   └── braces@3.0.3
+├─┬ tsup@9.0.0
+│ ├─┬ bundle-require@5.1.0
+│ │ └── esbuild@0.25.12
+│ └── esbuild@0.28.2
+└─┬ vitest@4.1.11
+  ├── @vitest/mocker@4.1.11
+  └─┬ vite@6.4.4 overridden
+    └── esbuild@0.25.12 deduped
+
+
+
+FINAL NINE REQUIRED GATES ON NODE 24.22.0
+FINAL AI-CodeGuard security migration | 2026-10-20 Asia/Shanghai | Node v24.22.0 | npm 11.19.1
+COMMAND: npm run build
+
+> ai-codeguard@0.4.0 build
+> tsup
+
+CLI Building entry: {"index":"src/cli/index.ts","lib":"src/lib.ts"}
+CLI Using tsconfig: tsconfig.json
+CLI tsup v9.0.0
+CLI Using tsup config: E:\001项目\001Github\000开源项目\001AI-CodeGuard\tsup.config.ts
+CLI Target: node24
+CLI Cleaning output folder
+ESM Build start
+ESM dist\index.js              11.40 KB
+ESM dist\chunk-NZS42T4V.js     121.37 KB
+ESM dist\lib.js                542.00 B
+ESM dist\index.js.map          22.38 KB
+ESM dist\lib.js.map            71.00 B
+ESM dist\chunk-NZS42T4V.js.map 273.91 KB
+ESM ⚡️ Build success in 52ms
+DTS Build start
+DTS ⚡️ Build success in 1677ms
+DTS dist\index.d.ts 13.00 B
+DTS dist\lib.d.ts   9.77 KB
+EXIT: 0
+COMMAND: npm run test:run
+
+> ai-codeguard@0.4.0 test:run
+> vitest run
+
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard
+
+
+ Test Files  18 passed | 1 skipped (19)
+      Tests  574 passed | 2 skipped (576)
+   Start at  10:46:03
+   Duration  1.28s (transform 3.67s, setup 0ms, import 7.81s, tests 1.55s, environment 3ms)
+
+EXIT: 0
+COMMAND: npm run precision
+
+> ai-codeguard@0.4.0 precision
+> vitest run tests/precision --disableConsoleIntercept
+
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard
+
+
+── precision corpus report ──
+expected: 25  reported: 24
+TP: 23  FN: 2  FP: 1
+precision: 95.8%  recall: 92.0%
+missed (FN): handler.go:33:CG-002, webapp.ts:41:CG-001
+spurious (FP): service.py:42:CG-024
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  10:46:05
+   Duration  475ms (transform 167ms, setup 0ms, import 276ms, tests 59ms, environment 0ms)
+
+EXIT: 0
+COMMAND: npm run typecheck
+
+> ai-codeguard@0.4.0 typecheck
+> tsc --noEmit
+
+EXIT: 0
+COMMAND: npm run lint
+
+> ai-codeguard@0.4.0 lint
+> eslint src/
+
+EXIT: 0
+COMMAND: npm run build -w app
+
+> @ai-codeguard/github-app@0.1.0 build
+> tsup
+
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v9.0.0
+CLI Using tsup config: E:\001项目\001Github\000开源项目\001AI-CodeGuard\app\tsup.config.ts
+CLI Target: node24
+CLI Cleaning output folder
+ESM Build start
+ESM dist\index.js     21.33 KB
+ESM dist\index.js.map 40.26 KB
+ESM ⚡️ Build success in 26ms
+EXIT: 0
+COMMAND: npm test -w app
+
+> @ai-codeguard/github-app@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard/app
+
+
+ Test Files  9 passed (9)
+      Tests  30 passed (30)
+   Start at  10:46:10
+   Duration  755ms (transform 687ms, setup 0ms, import 2.40s, tests 1.32s, environment 1ms)
+
+EXIT: 0
+COMMAND: npm run typecheck -w app
+
+> @ai-codeguard/github-app@0.1.0 typecheck
+> tsc --noEmit
+
+EXIT: 0
+COMMAND: npm run lint -w app
+
+> @ai-codeguard/github-app@0.1.0 lint
+> eslint src/
+
+EXIT: 0
+ALL NINE REQUIRED CHECKS PASSED
+
+
+COMMAND: npm test -w app -- tests/runtime.test.ts --disableConsoleIntercept (EXIT 0; loopback only)
+
+> @ai-codeguard/github-app@0.1.0 test
+> vitest run tests/runtime.test.ts --disableConsoleIntercept
+
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard/app
+
+{"probe":"loopback HTTP","health":200,"unsignedWebhook":401}
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  10:46:14
+   Duration  498ms (transform 23ms, setup 0ms, import 33ms, tests 334ms, environment 0ms)
+
+
+
+BUILT CLI: scan tests/fixtures/{vulnerable,safe} --config <trusted YAML> --dry-run --fail-on none --output json --output-file <ignored report> (each EXIT 0)
+[
+  {
+    "mode": "vulnerable",
+    "files": 14,
+    "findings": 97,
+    "skipped": 0,
+    "llmCalls": 0,
+    "estimatedCost": 0
+  },
+  {
+    "mode": "safe",
+    "files": 8,
+    "findings": 0,
+    "skipped": 0,
+    "llmCalls": 0,
+    "estimatedCost": 0
+  }
+]
+
+
+ISOLATED PRODUCTION: npm ci --omit=dev --ignore-scripts --engine-strict --prefix <ignored production-runtime> (EXIT 0)
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 123 packages in 3s
+
+
+PRODUCTION PACKAGE STDIN LIBRARY/WASM/PHP SMOKE -- NOT A CONTAINER
+Local production package, NOT Docker
+{
+  "kind": "production package smoke",
+  "tools": {
+    "vitest": "absent",
+    "@vitest": "absent",
+    "tinypool": "absent",
+    "tsup": "absent",
+    "vite": "absent",
+    "esbuild": "absent",
+    "typescript": "present"
+  },
+  "wasm": [
+    {
+      "file": "tree-sitter-go.wasm",
+      "bytes": 217182
+    },
+    {
+      "file": "tree-sitter-java.wasm",
+      "bytes": 414641
+    },
+    {
+      "file": "tree-sitter-javascript.wasm",
+      "bytes": 411770
+    },
+    {
+      "file": "tree-sitter-php.wasm",
+      "bytes": 1058041
+    },
+    {
+      "file": "tree-sitter-python.wasm",
+      "bytes": 457883
+    },
+    {
+      "file": "tree-sitter-tsx.wasm",
+      "bytes": 1445638
+    },
+    {
+      "file": "web-tree-sitter.wasm",
+      "bytes": 196763
+    }
+  ],
+  "scan": {
+    "files": 1,
+    "findings": 1,
+    "skipped": 0,
+    "llmCalls": 0
+  }
+}
+
+EXIT: 0
+
+
+COMMAND: docker version -- ENGINE UNAVAILABLE
+Client:
+ Version:           29.8.2
+ API version:       1.56
+ Go version:        go1.26.8
+ Git commit:        7fc2dff
+ Built:             Wed Sep 30 19:35:42 2026
+ OS/Arch:           windows/amd64
+ Context:           desktop-linux
+failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.
+DOCKER EXIT: 1
+
+
+COMMAND: docker manifest inspect node:24.22.0-bookworm-slim -- READ-ONLY TAG LOOKUP
+DOCKER MANIFEST EXIT: 1
+
+
+LOCK VERSION DELTA AGAINST 99334d0
+[
+  {
+    "path": "node_modules/@vitest/expect",
+    "from": "3.2.7",
+    "to": "4.1.11",
+    "dev": true
+  },
+  {
+    "path": "node_modules/@vitest/mocker",
+    "from": "3.2.7",
+    "to": "4.1.11",
+    "dev": true
+  },
+  {
+    "path": "node_modules/@vitest/pretty-format",
+    "from": "3.2.7",
+    "to": "4.1.11",
+    "dev": true
+  },
+  {
+    "path": "node_modules/@vitest/runner",
+    "from": "3.2.7",
+    "to": "4.1.11",
+    "dev": true
+  },
+  {
+    "path": "node_modules/@vitest/snapshot",
+    "from": "3.2.7",
+    "to": "4.1.11",
+    "dev": true
+  },
+  {
+    "path": "node_modules/@vitest/spy",
+    "from": "3.2.7",
+    "to": "4.1.11",
+    "dev": true
+  },
+  {
+    "path": "node_modules/@vitest/utils",
+    "from": "3.2.7",
+    "to": "4.1.11",
+    "dev": true
+  },
+  {
+    "path": "node_modules/cac",
+    "from": "6.7.14",
+    "to": "7.1.0",
+    "dev": true
+  },
+  {
+    "path": "node_modules/chai",
+    "from": "5.3.3",
+    "to": "6.3.0",
+    "dev": true
+  },
+  {
+    "path": "node_modules/check-error",
+    "from": "2.1.3"
+  },
+  {
+    "path": "node_modules/chokidar",
+    "from": "4.0.3",
+    "to": "5.0.0",
+    "dev": true
+  },
+  {
+    "path": "node_modules/deep-eql",
+    "from": "5.0.2"
+  },
+  {
+    "path": "node_modules/es-module-lexer",
+    "from": "1.7.0",
+    "to": "2.3.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/lodash.sortby",
+    "from": "4.7.0"
+  },
+  {
+    "path": "node_modules/loupe",
+    "from": "3.2.1"
+  },
+  {
+    "path": "node_modules/pathval",
+    "from": "2.0.1"
+  },
+  {
+    "path": "node_modules/readdirp",
+    "from": "4.1.2",
+    "to": "5.1.1",
+    "dev": true
+  },
+  {
+    "path": "node_modules/source-map",
+    "from": "0.8.0-beta.0"
+  },
+  {
+    "path": "node_modules/source-map/node_modules/tr46",
+    "from": "1.0.1"
+  },
+  {
+    "path": "node_modules/source-map/node_modules/webidl-conversions",
+    "from": "4.0.2"
+  },
+  {
+    "path": "node_modules/source-map/node_modules/whatwg-url",
+    "from": "7.1.0"
+  },
+  {
+    "path": "node_modules/std-env",
+    "from": "3.10.0",
+    "to": "4.3.0",
+    "dev": true
+  },
+  {
+    "path": "node_modules/strip-literal",
+    "from": "3.1.0"
+  },
+  {
+    "path": "node_modules/strip-literal/node_modules/js-tokens",
+    "from": "9.0.1"
+  },
+  {
+    "path": "node_modules/tinyexec",
+    "from": "0.3.2",
+    "to": "1.3.1",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tinypool",
+    "from": "1.1.1"
+  },
+  {
+    "path": "node_modules/tinyrainbow",
+    "from": "2.0.0",
+    "to": "3.2.0",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tinyspy",
+    "from": "4.0.6"
+  },
+  {
+    "path": "node_modules/tsup",
+    "from": "8.5.0",
+    "to": "9.0.0",
+    "dev": true
+  },
+  {
+    "path": "node_modules/vite-node",
+    "from": "3.2.4"
+  },
+  {
+    "path": "node_modules/vitest",
+    "from": "3.2.7",
+    "to": "4.1.11",
+    "dev": true
+  },
+  {
+    "path": "node_modules/@napi-rs/lzma-linux-x64-gnu",
+    "to": "1.5.1",
+    "dev": true
+  },
+  {
+    "path": "node_modules/@standard-schema/spec",
+    "to": "1.1.0",
+    "dev": true
+  },
+  {
+    "path": "node_modules/convert-source-map",
+    "to": "2.0.0",
+    "dev": true
+  },
+  {
+    "path": "node_modules/obug",
+    "to": "3.0.0",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/aix-ppc64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/android-arm",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/android-arm64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/android-x64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/darwin-arm64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/darwin-x64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/freebsd-arm64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/freebsd-x64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/linux-arm",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/linux-arm64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/linux-ia32",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/linux-loong64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/linux-mips64el",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/linux-ppc64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/linux-riscv64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/linux-s390x",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/linux-x64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/netbsd-arm64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/netbsd-x64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/openbsd-arm64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/openbsd-x64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/openharmony-arm64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/sunos-x64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/win32-arm64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/win32-ia32",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@esbuild/win32-x64",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-android-arm-eabi",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-android-arm64",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-darwin-arm64",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-darwin-x64",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-freebsd-arm64",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-freebsd-x64",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-linux-arm-gnueabihf",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-linux-arm-musleabihf",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-linux-arm64-gnu",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-linux-arm64-musl",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-linux-loong64-gnu",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-linux-loong64-musl",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-linux-ppc64-gnu",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-linux-ppc64-musl",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-linux-riscv64-gnu",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-linux-riscv64-musl",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-linux-s390x-gnu",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-linux-x64-gnu",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-linux-x64-musl",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-openbsd-x64",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-openharmony-arm64",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-win32-arm64-msvc",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-win32-ia32-msvc",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-win32-x64-gnu",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@rollup/rollup-win32-x64-msvc",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/@types/estree",
+    "to": "1.0.9",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/esbuild",
+    "to": "0.28.2",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/fdir",
+    "to": "6.5.0",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/picomatch",
+    "to": "4.0.7",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/rollup",
+    "to": "4.64.10",
+    "dev": true
+  },
+  {
+    "path": "node_modules/tsup/node_modules/tinyglobby",
+    "to": "0.2.17",
+    "dev": true
+  },
+  {
+    "path": "node_modules/vitest/node_modules/obug",
+    "to": "2.2.1",
+    "dev": true
+  }
+]
+
+Docker manifest tool stderr: failed to configure transport: error pinging v2 registry: Get "https://registry-1.docker.io/v2/": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+No image build/container created; runtime image non-root/read-only-root/tmpfs/HTTP/wasm UNVERIFIED. No Docker install/reset/config change.
+
+
+COMMAND: npm audit --json (BEFORE) --registry=https://registry.npmjs.org
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@vitest/mocker": {
+      "name": "@vitest/mocker",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1193684,
+          "name": "@vitest/mocker",
+          "dependency": "@vitest/mocker",
+          "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+          "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N"
+          },
+          "range": ">=2.1.0 <4.1.11"
+        }
+      ],
+      "effects": [
+        "vitest"
+      ],
+      "range": "2.1.0 - 4.1.10",
+      "nodes": [
+        "node_modules/@vitest/mocker"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.0.5",
+        "isSemVerMajor": true
+      }
+    },
+    "braces": {
+      "name": "braces",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1240992,
+          "name": "braces",
+          "dependency": "braces",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "severity": "high",
+          "cwe": [
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=3.0.3"
+        }
+      ],
+      "effects": [
+        "micromatch"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/braces"
+      ],
+      "fixAvailable": false
+    },
+    "fast-glob": {
+      "name": "fast-glob",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "micromatch"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/fast-glob"
+      ],
+      "fixAvailable": false
+    },
+    "micromatch": {
+      "name": "micromatch",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "braces"
+      ],
+      "effects": [
+        "fast-glob"
+      ],
+      "range": ">=0.2.0",
+      "nodes": [
+        "node_modules/micromatch"
+      ],
+      "fixAvailable": false
+    },
+    "tinypool": {
+      "name": "tinypool",
+      "severity": "critical",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1241260,
+          "name": "tinypool",
+          "dependency": "tinypool",
+          "title": "Tinypool: Prototype Pollution gadget in worker options leads to Remote Code Execution",
+          "url": "https://github.com/advisories/GHSA-5gmw-xhrv-c9v3",
+          "severity": "critical",
+          "cwe": [
+            "CWE-1321"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<=2.1.0"
+        },
+        {
+          "source": 1241261,
+          "name": "tinypool",
+          "dependency": "tinypool",
+          "title": "Tinypool: Prototype Pollution Gadget to RCE in run() options",
+          "url": "https://github.com/advisories/GHSA-85c8-ppgw-ccpr",
+          "severity": "critical",
+          "cwe": [
+            "CWE-94",
+            "CWE-1321"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<2.1.2"
+        }
+      ],
+      "effects": [
+        "vitest"
+      ],
+      "range": "<=2.1.1",
+      "nodes": [
+        "node_modules/tinypool"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.0.5",
+        "isSemVerMajor": true
+      }
+    },
+    "vitest": {
+      "name": "vitest",
+      "severity": "critical",
+      "isDirect": true,
+      "via": [
+        "@vitest/mocker",
+        {
+          "source": 1193683,
+          "name": "vitest",
+          "dependency": "vitest",
+          "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+          "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N"
+          },
+          "range": ">=2.1.0 <4.1.11"
+        },
+        "tinypool"
+      ],
+      "effects": [],
+      "range": "0.0.95 - 4.1.10",
+      "nodes": [
+        "node_modules/vitest"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.0.5",
+        "isSemVerMajor": true
+      }
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 1,
+      "high": 3,
+      "critical": 2,
+      "total": 6
+    },
+    "dependencies": {
+      "prod": 125,
+      "dev": 228,
+      "optional": 52,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 352
+    }
+  }
+}
+
+EXIT: 1
+
+
+COMMAND: npm audit --omit=dev --json (BEFORE) --registry=https://registry.npmjs.org
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "braces": {
+      "name": "braces",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1240992,
+          "name": "braces",
+          "dependency": "braces",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "severity": "high",
+          "cwe": [
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=3.0.3"
+        }
+      ],
+      "effects": [
+        "micromatch"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/braces"
+      ],
+      "fixAvailable": false
+    },
+    "fast-glob": {
+      "name": "fast-glob",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "micromatch"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/fast-glob"
+      ],
+      "fixAvailable": false
+    },
+    "micromatch": {
+      "name": "micromatch",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "braces"
+      ],
+      "effects": [
+        "fast-glob"
+      ],
+      "range": ">=0.2.0",
+      "nodes": [
+        "node_modules/micromatch"
+      ],
+      "fixAvailable": false
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 3,
+      "critical": 0,
+      "total": 3
+    },
+    "dependencies": {
+      "prod": 125,
+      "dev": 228,
+      "optional": 52,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 352
+    }
+  }
+}
+
+EXIT: 1
+
+
+COMMAND: npm audit --json (AFTER) --registry=https://registry.npmjs.org
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "braces": {
+      "name": "braces",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1240992,
+          "name": "braces",
+          "dependency": "braces",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "severity": "high",
+          "cwe": [
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=3.0.3"
+        }
+      ],
+      "effects": [
+        "micromatch"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/braces"
+      ],
+      "fixAvailable": false
+    },
+    "fast-glob": {
+      "name": "fast-glob",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "micromatch"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/fast-glob"
+      ],
+      "fixAvailable": false
+    },
+    "micromatch": {
+      "name": "micromatch",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "braces"
+      ],
+      "effects": [
+        "fast-glob"
+      ],
+      "range": ">=0.2.0",
+      "nodes": [
+        "node_modules/micromatch"
+      ],
+      "fixAvailable": false
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 3,
+      "critical": 0,
+      "total": 3
+    },
+    "dependencies": {
+      "prod": 125,
+      "dev": 276,
+      "optional": 104,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 400
+    }
+  }
+}
+
+EXIT: 1
+
+
+COMMAND: npm audit --omit=dev --json (AFTER) --registry=https://registry.npmjs.org
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "braces": {
+      "name": "braces",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1240992,
+          "name": "braces",
+          "dependency": "braces",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "severity": "high",
+          "cwe": [
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=3.0.3"
+        }
+      ],
+      "effects": [
+        "micromatch"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/braces"
+      ],
+      "fixAvailable": false
+    },
+    "fast-glob": {
+      "name": "fast-glob",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "micromatch"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/fast-glob"
+      ],
+      "fixAvailable": false
+    },
+    "micromatch": {
+      "name": "micromatch",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "braces"
+      ],
+      "effects": [
+        "fast-glob"
+      ],
+      "range": ">=0.2.0",
+      "nodes": [
+        "node_modules/micromatch"
+      ],
+      "fixAvailable": false
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 3,
+      "critical": 0,
+      "total": 3
+    },
+    "dependencies": {
+      "prod": 125,
+      "dev": 276,
+      "optional": 104,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 400
+    }
+  }
+}
+
+EXIT: 1
+
+OFFICIAL NPM VIEW version engines dependencies peerDependencies (EXIT 0): vitest4.1.11.json
+{
+  "version": "4.1.11",
+  "engines": {
+    "node": "^20.0.0 || ^22.0.0 || >=24.0.0"
+  },
+  "dependencies": {
+    "obug": "^2.1.1",
+    "vite": "^6.0.0 || ^7.0.0 || ^8.0.0",
+    "pathe": "^2.0.3",
+    "std-env": "^4.0.0-rc.1",
+    "tinyexec": "^1.0.2",
+    "picomatch": "^4.0.3",
+    "tinybench": "^2.9.0",
+    "tinyglobby": "^0.2.15",
+    "@vitest/spy": "4.1.11",
+    "expect-type": "^1.3.0",
+    "tinyrainbow": "^3.1.0",
+    "magic-string": "^0.30.21",
+    "@vitest/utils": "4.1.11",
+    "@vitest/expect": "4.1.11",
+    "@vitest/mocker": "4.1.11",
+    "@vitest/runner": "4.1.11",
+    "es-module-lexer": "^2.0.0",
+    "@vitest/snapshot": "4.1.11",
+    "why-is-node-running": "^2.3.0",
+    "@vitest/pretty-format": "4.1.11"
+  },
+  "peerDependencies": {
+    "vite": "^6.0.0 || ^7.0.0 || ^8.0.0",
+    "jsdom": "*",
+    "happy-dom": "*",
+    "@vitest/ui": "4.1.11",
+    "@types/node": "^20.0.0 || ^22.0.0 || >=24.0.0",
+    "@edge-runtime/vm": "*",
+    "@opentelemetry/api": "^1.9.0",
+    "@vitest/coverage-v8": "4.1.11",
+    "@vitest/browser-preview": "4.1.11",
+    "@vitest/coverage-istanbul": "4.1.11",
+    "@vitest/browser-playwright": "4.1.11",
+    "@vitest/browser-webdriverio": "4.1.11"
+  }
+}
+
+OFFICIAL NPM VIEW version engines dependencies peerDependencies (EXIT 0): tsup9.0.0.json
+{
+  "version": "9.0.0",
+  "engines": {
+    "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
+  },
+  "dependencies": {
+    "cac": "^7.1.0",
+    "obug": "^3.0.0",
+    "joycon": "^3.1.1",
+    "rollup": "^4.64.6",
+    "consola": "^3.4.2",
+    "esbuild": "^0.28.2",
+    "sucrase": "^3.35.1",
+    "chokidar": "^5.0.0",
+    "tinyexec": "^1.3.1",
+    "tree-kill": "^1.2.2",
+    "picocolors": "^1.1.1",
+    "tinyglobby": "^0.2.17",
+    "resolve-from": "^5.0.0",
+    "source-map-js": "^1.2.2",
+    "bundle-require": "^5.1.0",
+    "postcss-load-config": "^6.0.1",
+    "fix-dts-default-cjs-exports": "^1.0.1"
+  },
+  "peerDependencies": {
+    "postcss": "^8.4.12",
+    "@swc/core": "^1",
+    "typescript": ">=4.5.0",
+    "@microsoft/api-extractor": "^7.36.0"
+  }
+}
+
+OFFICIAL NPM VIEW version engines dependencies peerDependencies (EXIT 0): fast-glob.json
+{
+  "version": "3.3.3",
+  "engines": {
+    "node": ">=8.6.0"
+  },
+  "dependencies": {
+    "@nodelib/fs.stat": "^2.0.2",
+    "@nodelib/fs.walk": "^1.2.3",
+    "glob-parent": "^5.1.2",
+    "merge2": "^1.3.0",
+    "micromatch": "^4.0.8"
+  }
+}
+
+OFFICIAL NPM VIEW version engines dependencies peerDependencies (EXIT 0): micromatch.json
+{
+  "version": "4.0.8",
+  "engines": {
+    "node": ">=8.6"
+  },
+  "dependencies": {
+    "braces": "^3.0.3",
+    "picomatch": "^2.3.1"
+  }
+}
+
+OFFICIAL NPM VIEW version engines dependencies peerDependencies (EXIT 0): braces.json
+{
+  "version": "3.0.3",
+  "engines": {
+    "node": ">=8"
+  },
+  "dependencies": {
+    "fill-range": "^7.1.1"
+  }
+}
+
+OFFICIAL NODE SCHEDULE: gh api repos/nodejs/Release/contents/schedule.json (EXIT 0)
+{
+  "v18": {
+    "start": "2022-04-19",
+    "lts": "2022-10-25",
+    "maintenance": "2023-10-18",
+    "end": "2025-04-30",
+    "codename": "Hydrogen"
+  },
+  "v20": {
+    "start": "2023-04-18",
+    "lts": "2023-10-24",
+    "maintenance": "2024-10-22",
+    "end": "2026-04-30",
+    "codename": "Iron"
+  },
+  "v22": {
+    "start": "2024-04-24",
+    "lts": "2024-10-29",
+    "maintenance": "2025-10-21",
+    "end": "2027-04-30",
+    "codename": "Jod"
+  },
+  "v24": {
+    "start": "2025-05-06",
+    "lts": "2025-10-28",
+    "maintenance": "2026-10-20",
+    "end": "2028-04-30",
+    "codename": "Krypton"
+  }
+}
+
+OFFICIAL MIGRATION SOURCES READ (not copied in full):
+https://github.com/vitest-dev/vitest/blob/v4.1.11/docs/guide/migration.md
+https://github.com/egoist/tsup/releases/tag/v9.0.0
+Reviewed coverage/pool/constructor-mock removals and Node/build-tool changes. Existing pool and coverage configuration remains compatible.
+
+DIAGNOSTIC ONLY: precision console visibility check initially failed in sandbox temporary cache rename, before tests loaded (EXIT 1); not a ratchet assertion failure:
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard
+
+ ❯ tests/precision/precision.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/precision/precision.test.ts [ tests/precision/precision.test.ts ]
+Error: EPERM: operation not permitted, rename 'C:\Users\15072\AppData\Local\Packages\sandbox.{794f2915-95ec-4dd4-97b2-a603fcf42c8e}\AC\Temp\9PrbPKpgZoQIAV5gNxJdK\ssr\.tmp-1792464275396-eary02hvadb' -> 'C:\Users\15072\AppData\Local\Packages\sandbox.{794f2915-95ec-4dd4-97b2-a603fcf42c8e}\AC\Temp\9PrbPKpgZoQIAV5gNxJdK\ssr\23c742f9a8bd7cb8612369495339107eac18bcf2'
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  10:44:35
+   Duration  213ms (transform 0ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+
+
+DIAGNOSTIC RETRY: allowed temporary-file execution environment, same Node and test, passed (EXIT 0):
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard
+
+
+── precision corpus report ──
+expected: 25  reported: 24
+TP: 23  FN: 2  FP: 1
+precision: 95.8%  recall: 92.0%
+missed (FN): handler.go:33:CG-002, webapp.ts:41:CG-001
+spurious (FP): service.py:42:CG-024
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  10:44:51
+   Duration  456ms (transform 164ms, setup 0ms, import 269ms, tests 58ms, environment 0ms)
+
+
+Post-install checks: all lockfile Node engine ranges accept v24.22.0; no tinypool or source-map at any lock path.
+Existing production lock versions unchanged: []
+Runtime/development policy: ^24.22.0 (Node 24.x only). Tested Windows x64 v24.22.0/npm 11.19.1. Other OS, Node patches and remote CI UNVERIFIED; historical Node 18/24.18 tests are not this migration evidence.
+Precommit checks: 19 related files inspected; 31 relative documentation links valid; YAML parse, table/fence, credential-pattern, package/lock coherence and git diff --check passed. Protected ROADMAP.md / SECURITY.md hashes unchanged. Security implementation committed as bf0201d; not pushed.

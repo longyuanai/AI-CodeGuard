@@ -1,4 +1,4 @@
-import fg from 'fast-glob';
+import { glob, escapePath } from 'tinyglobby';
 import { readFile, stat } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import type { CodeGuardConfig, ScanResult, Finding, SuspiciousNode, SkippedFile, OutputFormat, Severity } from '../types/index.js';
@@ -27,6 +27,10 @@ export interface ScanOptions {
   baselinePath?: string;
   /** Path to a unified diff — findings outside its added/modified lines are dropped (PR-bot mode). */
   diffPath?: string;
+  /** Repository root for discovery, diff paths and fingerprints; defaults to cwd. */
+  rootDir?: string;
+  /** Library callers can consume the result without printing or writing a report. */
+  report?: boolean;
 }
 
 export async function scan(
@@ -34,6 +38,7 @@ export async function scan(
   dependencies: AnalyzeFindingsDependencies = {},
 ): Promise<ScanResult> {
   const startTime = Date.now();
+  const rootDir = resolve(options.rootDir ?? process.cwd());
 
   if (options.minSeverity && !(options.minSeverity in SEVERITY_RANK)) {
     throw new Error(
@@ -41,7 +46,7 @@ export async function scan(
     );
   }
 
-  const files = await discoverFiles(options.paths, options.config);
+  const files = await discoverFiles(options.paths, options.config, rootDir);
 
   const rules = await loadRules({
     preset: options.config.rules.preset,
@@ -80,7 +85,7 @@ export async function scan(
     }
   }
 
-  let stage1Findings = createStage1Findings(allSuspicious, rules);
+  let stage1Findings = createStage1Findings(allSuspicious, rules, rootDir);
   let allSuspiciousKept = allSuspicious;
   let baselined = 0;
 
@@ -135,7 +140,7 @@ export async function scan(
     const mergedDependencies: AnalyzeFindingsDependencies = { ...dependencies };
     if (!mergedDependencies.cache && options.config.cache.enabled) {
       mergedDependencies.cache = new FileCacheStore({
-        directory: resolve(process.cwd(), options.config.cache.directory),
+        directory: resolve(rootDir, options.config.cache.directory),
         ttlSeconds: options.config.cache.ttl,
       });
     }
@@ -174,6 +179,7 @@ export async function scan(
     cacheHits,
   };
 
+  if (options.report === false) return result;
   const report = await generateReport(result, options.output, options.outputFile);
 
   if (!options.outputFile) {
@@ -189,6 +195,7 @@ export async function scan(
 function createStage1Findings(
   suspiciousNodes: SuspiciousNode[],
   rules: Awaited<ReturnType<typeof loadRules>>,
+  rootDir: string,
 ): Finding[] {
   return suspiciousNodes.map((s, i) => ({
     id: `finding-${i + 1}`,
@@ -198,7 +205,7 @@ function createStage1Findings(
     description: `Potential ${s.ruleName} detected. ${
       s.confidence >= 0.8 ? 'High confidence pre-filter match.' : 'Moderate confidence — LLM analysis recommended.'
     }`,
-    file: relative(process.cwd(), s.file).replace(/\\/g, '/'),
+    file: relative(rootDir, s.file).replace(/\\/g, '/'),
     location: s.location,
     snippet: s.snippet,
   }));
@@ -207,6 +214,7 @@ function createStage1Findings(
 async function discoverFiles(
   paths: string[],
   config: CodeGuardConfig,
+  rootDir: string,
 ): Promise<string[]> {
   let patterns: string[];
   if (paths.length > 0) {
@@ -214,8 +222,8 @@ async function discoverFiles(
       paths.map(async p => {
         const normalizedPath = p.replace(/\\/g, '/');
         try {
-          const info = await stat(p);
-          if (info.isFile()) return [normalizedPath];
+          const info = await stat(resolve(rootDir, p));
+          if (info.isFile()) return [escapePath(normalizedPath)];
         } catch {
           // Path doesn't exist yet — treat as glob pattern
           return [normalizedPath];
@@ -230,10 +238,13 @@ async function discoverFiles(
 
   const supportedExts = getSupportedExtensions();
 
-  const files = await fg(patterns, {
+  const files = await glob(patterns, {
+    cwd: rootDir,
     ignore: config.scan.exclude,
     absolute: true,
     onlyFiles: true,
+    // Match fast-glob: directory arguments are expanded explicitly above.
+    expandDirectories: false,
     dot: false,
   });
 

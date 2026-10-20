@@ -1,0 +1,936 @@
+AI-CodeGuard dependency remediation and remote acceptance | 2026-10-20 Asia/Shanghai
+BASE: codex/m8-github-app-mvp / 621ea730ce19f10a5dd8ce78cbb5ef0d7d33473a
+CODE: d09624c glob replacement, 6f75a19 runtime gates, 5de5fc0817f76587ec288bdf31f8fb5e8198e6ef clean production stage
+REMOTE: https://github.com/longyuanai/AI-CodeGuard.git (gh repo view: longyuanai/AI-CodeGuard, ADMIN, base main)
+DRAFT PR: https://github.com/longyuanai/AI-CodeGuard/pull/17
+Portable Node v24.22.0 / npm 11.19.1, process-local PATH; system Node unchanged.
+Protected ROADMAP.md / SECURITY.md hashes unchanged and untracked; no credentials/customer files staged.
+Credential signature scan only matched the pre-existing synthetic ghp_ alphabet sequence in tests/fixtures/vulnerable/auth.ts.
+No release, deployment, merge, force push, App registration or paid LLM calls.
+
+OFFICIAL RECHECK
+GH API /advisories/GHSA-vfj7-8cjw-p6xm: updated_at 2026-10-02T22:36:34Z; braces <=3.0.3, first_patched_version null.
+npm official metadata: braces latest 3.0.3; fast-glob latest 3.3.3; tinyglobby latest 0.2.17.
+Selected tinyglobby 0.2.16 (already locked/used by dev tools), dependencies fdir ^6.5.0 / picomatch ^4.0.4; engine >=12.
+Official package README: alternative to fast-glob intended to preserve behavior. expandDirectories defaults true; explicitly false at both consumers.
+Existing production tinyglobby dependency tree is not hidden via dev classification or audit overrides.
+Initial default npmmirror audit failed HTTP 404 NOT_IMPLEMENTED. Retried successfully with --registry=https://registry.npmjs.org (no global config change).
+A broad ad-hoc old/new discovery comparison was interrupted after traversing ignored local artifacts too broadly; not claimed as a passed comparison. The six committed targeted scan regressions passed instead, alongside existing custom-rule recursive YAML/duplicate-ID tests.
+
+
+=== BEFORE FULL AUDIT (exit 1) ===
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "braces": {
+      "name": "braces",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1240992,
+          "name": "braces",
+          "dependency": "braces",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "severity": "high",
+          "cwe": [
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=3.0.3"
+        }
+      ],
+      "effects": [
+        "micromatch"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/braces"
+      ],
+      "fixAvailable": false
+    },
+    "fast-glob": {
+      "name": "fast-glob",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "micromatch"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/fast-glob"
+      ],
+      "fixAvailable": false
+    },
+    "micromatch": {
+      "name": "micromatch",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "braces"
+      ],
+      "effects": [
+        "fast-glob"
+      ],
+      "range": ">=0.2.0",
+      "nodes": [
+        "node_modules/micromatch"
+      ],
+      "fixAvailable": false
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 3,
+      "critical": 0,
+      "total": 3
+    },
+    "dependencies": {
+      "prod": 125,
+      "dev": 276,
+      "optional": 104,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 400
+    }
+  }
+}
+
+
+=== BEFORE PRODUCTION AUDIT (exit 1) ===
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "braces": {
+      "name": "braces",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1240992,
+          "name": "braces",
+          "dependency": "braces",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "severity": "high",
+          "cwe": [
+            "CWE-674"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=3.0.3"
+        }
+      ],
+      "effects": [
+        "micromatch"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/braces"
+      ],
+      "fixAvailable": false
+    },
+    "fast-glob": {
+      "name": "fast-glob",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "micromatch"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/fast-glob"
+      ],
+      "fixAvailable": false
+    },
+    "micromatch": {
+      "name": "micromatch",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "braces"
+      ],
+      "effects": [
+        "fast-glob"
+      ],
+      "range": ">=0.2.0",
+      "nodes": [
+        "node_modules/micromatch"
+      ],
+      "fixAvailable": false
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 3,
+      "critical": 0,
+      "total": 3
+    },
+    "dependencies": {
+      "prod": 125,
+      "dev": 276,
+      "optional": 104,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 400
+    }
+  }
+}
+
+
+=== BEFORE INSTALL TREE ===
+ai-codeguard@0.4.0 E:\001项目\001Github\000开源项目\001AI-CodeGuard
+├─┬ @ai-codeguard/github-app@0.1.0 -> .\app
+│ └─┬ ai-codeguard@0.4.0 -> .\
+│   └── fast-glob@3.3.3 deduped
+├─┬ fast-glob@3.3.3
+│ └─┬ micromatch@4.0.8
+│   ├── braces@3.0.3
+│   └── picomatch@2.3.2
+├─┬ tsup@9.0.0
+│ ├─┬ sucrase@3.35.1
+│ │ └── tinyglobby@0.2.16 deduped
+│ └─┬ tinyglobby@0.2.17
+│   ├─┬ fdir@6.5.0
+│   │ └── picomatch@4.0.7 deduped
+│   └── picomatch@4.0.7
+├─┬ typescript-eslint@8.62.1
+│ └─┬ @typescript-eslint/typescript-estree@8.62.1
+│   └── tinyglobby@0.2.16 deduped
+└─┬ vitest@4.1.11
+  ├── picomatch@4.0.4
+  ├─┬ tinyglobby@0.2.16
+  │ ├─┬ fdir@6.5.0
+  │ │ └── picomatch@4.0.4 deduped
+  │ └── picomatch@4.0.4
+  └─┬ vite@6.4.4 overridden
+    ├─┬ fdir@6.5.0
+    │ └── picomatch@4.0.7 deduped
+    ├── picomatch@4.0.7
+    └── tinyglobby@0.2.16 deduped
+
+
+
+=== AFTER FULL AUDIT (exit 0) ===
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {},
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 110,
+      "dev": 275,
+      "optional": 104,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 384
+    }
+  }
+}
+
+
+=== AFTER PRODUCTION AUDIT (exit 0) ===
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {},
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 110,
+      "dev": 275,
+      "optional": 104,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 384
+    }
+  }
+}
+
+
+=== AFTER INSTALL TREE ===
+ai-codeguard@0.4.0 E:\001项目\001Github\000开源项目\001AI-CodeGuard
+├─┬ @ai-codeguard/github-app@0.1.0 -> .\app
+│ └─┬ ai-codeguard@0.4.0 -> .\
+│   └── tinyglobby@0.2.16 deduped
+├─┬ tinyglobby@0.2.16
+│ ├─┬ fdir@6.5.0
+│ │ └── picomatch@4.0.4 deduped
+│ └── picomatch@4.0.4
+├─┬ tsup@9.0.0
+│ ├─┬ sucrase@3.35.1
+│ │ └── tinyglobby@0.2.16 deduped
+│ └─┬ tinyglobby@0.2.17
+│   ├─┬ fdir@6.5.0
+│   │ └── picomatch@4.0.7 deduped
+│   └── picomatch@4.0.7
+├─┬ typescript-eslint@8.62.1
+│ └─┬ @typescript-eslint/typescript-estree@8.62.1
+│   └── tinyglobby@0.2.16 deduped
+└─┬ vitest@4.1.11
+  ├── picomatch@4.0.4
+  ├── tinyglobby@0.2.16 deduped
+  └─┬ vite@6.4.4 overridden
+    ├─┬ fdir@6.5.0
+    │ └── picomatch@4.0.7 deduped
+    ├── picomatch@4.0.7
+    └── tinyglobby@0.2.16 deduped
+
+
+
+=== LOCAL NINE GATES ===
+Node v24.22.0, npm 11.19.1, HEAD 621ea730ce19f10a5dd8ce78cbb5ef0d7d33473a
+
+COMMAND npm run build
+
+> ai-codeguard@0.4.0 build
+> tsup
+
+CLI Building entry: {"index":"src/cli/index.ts","lib":"src/lib.ts"}
+CLI Using tsconfig: tsconfig.json
+CLI tsup v9.0.0
+CLI Using tsup config: E:\001项目\001Github\000开源项目\001AI-CodeGuard\tsup.config.ts
+CLI Target: node24
+CLI Cleaning output folder
+ESM Build start
+ESM dist\lib.js                542.00 B
+ESM dist\chunk-PON33OMC.js     121.54 KB
+ESM dist\index.js              11.40 KB
+ESM dist\lib.js.map            71.00 B
+ESM dist\chunk-PON33OMC.js.map 274.13 KB
+ESM dist\index.js.map          22.38 KB
+ESM ⚡️ Build success in 56ms
+DTS Build start
+DTS ⚡️ Build success in 1724ms
+DTS dist\index.d.ts 13.00 B
+DTS dist\lib.d.ts   9.77 KB
+EXIT=0
+
+COMMAND npm run test:run
+
+> ai-codeguard@0.4.0 test:run
+> vitest run
+
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard
+
+
+ Test Files  19 passed | 1 skipped (20)
+      Tests  580 passed | 2 skipped (582)
+   Start at  11:14:48
+   Duration  1.26s (transform 3.64s, setup 0ms, import 8.03s, tests 1.72s, environment 2ms)
+
+EXIT=0
+
+COMMAND npm run precision
+
+> ai-codeguard@0.4.0 precision
+> vitest run tests/precision --disableConsoleIntercept
+
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard
+
+
+── precision corpus report ──
+expected: 25  reported: 24
+TP: 23  FN: 2  FP: 1
+precision: 95.8%  recall: 92.0%
+missed (FN): handler.go:33:CG-002, webapp.ts:41:CG-001
+spurious (FP): service.py:42:CG-024
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  11:14:50
+   Duration  479ms (transform 183ms, setup 0ms, import 267ms, tests 66ms, environment 0ms)
+
+EXIT=0
+
+COMMAND npm run typecheck
+
+> ai-codeguard@0.4.0 typecheck
+> tsc --noEmit
+
+EXIT=0
+
+COMMAND npm run lint
+
+> ai-codeguard@0.4.0 lint
+> eslint src/
+
+EXIT=0
+
+COMMAND npm run build -w app
+
+> @ai-codeguard/github-app@0.1.0 build
+> tsup
+
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v9.0.0
+CLI Using tsup config: E:\001项目\001Github\000开源项目\001AI-CodeGuard\app\tsup.config.ts
+CLI Target: node24
+CLI Cleaning output folder
+ESM Build start
+ESM dist\index.js     21.33 KB
+ESM dist\index.js.map 40.26 KB
+ESM ⚡️ Build success in 29ms
+EXIT=0
+
+COMMAND npm test -w app
+
+> @ai-codeguard/github-app@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard/app
+
+
+ Test Files  9 passed (9)
+      Tests  30 passed (30)
+   Start at  11:14:56
+   Duration  712ms (transform 659ms, setup 0ms, import 2.16s, tests 1.21s, environment 1ms)
+
+EXIT=0
+
+COMMAND npm run typecheck -w app
+
+> @ai-codeguard/github-app@0.1.0 typecheck
+> tsc --noEmit
+
+EXIT=0
+
+COMMAND npm run lint -w app
+
+> @ai-codeguard/github-app@0.1.0 lint
+> eslint src/
+
+EXIT=0
+
+
+=== COMPILED CLI / BUILT LIBRARY / REAL HTTP ===
+CLI vulnerable
+EXIT=0
+CLI safe
+EXIT=0
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard/app
+
+{"probe":"loopback HTTP","health":200,"unsignedWebhook":401}
+
+ Test Files  2 passed (2)
+      Tests  3 passed (3)
+   Start at  11:15:22
+   Duration  576ms (transform 138ms, setup 0ms, import 328ms, tests 490ms, environment 0ms)
+
+LIBRARY_HTTP_EXIT=0
+
+
+=== ISOLATED PRODUCTION INSTALL (npm ci --omit=dev --ignore-scripts --engine-strict) ===
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 108 packages in 3s
+
+16 packages are looking for funding
+  run `npm fund` for details
+EXIT=0
+
+
+=== PRODUCTION RUNTIME (node scripts/check-runtime.mjs <isolated-root>) ===
+{
+  "kind": "production package smoke",
+  "tools": {
+    "vitest": "absent",
+    "@vitest": "absent",
+    "tinypool": "absent",
+    "tsup": "absent",
+    "vite": "absent",
+    "esbuild": "absent",
+    "typescript": "present"
+  },
+  "wasm": [
+    {
+      "file": "tree-sitter-go.wasm",
+      "bytes": 217182
+    },
+    {
+      "file": "tree-sitter-java.wasm",
+      "bytes": 414641
+    },
+    {
+      "file": "tree-sitter-javascript.wasm",
+      "bytes": 411770
+    },
+    {
+      "file": "tree-sitter-php.wasm",
+      "bytes": 1058041
+    },
+    {
+      "file": "tree-sitter-python.wasm",
+      "bytes": 457883
+    },
+    {
+      "file": "tree-sitter-tsx.wasm",
+      "bytes": 1445638
+    },
+    {
+      "file": "web-tree-sitter.wasm",
+      "bytes": 196763
+    }
+  ],
+  "scan": {
+    "files": 1,
+    "findings": 1,
+    "skipped": 0,
+    "llmCalls": 0
+  },
+  "safeScan": {
+    "files": 1,
+    "findings": 0,
+    "skipped": 0,
+    "llmCalls": 0
+  }
+}
+EXIT=0
+
+CLI safe summary: {"scan":{"files":8,"suspicious":0,"suppressed":0,"baselined":0,"diffFiltered":0,"duration":64,"llmCalls":0,"estimatedCost":0,"cacheHits":0,"totalFindings":0,"severityCounts":{"critical":0,"high":0,"medium":0,"low":0}},"findings":0}
+
+CLI vulnerable summary: {"scan":{"files":14,"suspicious":97,"suppressed":0,"baselined":0,"diffFiltered":0,"duration":76,"llmCalls":0,"estimatedCost":0,"cacheHits":0,"totalFindings":97,"severityCounts":{"critical":27,"high":37,"medium":33,"low":0}},"findings":97}
+
+LOCAL DOCKER: docker version exit 1: client 29.8.2 desktop-linux; failed to connect npipe:////./pipe/dockerDesktopLinuxEngine (file not found). No local container created; proceeded directly to Linux CI.
+
+FIRST ACTUAL CI (failure, retained as evidence)
+https://github.com/longyuanai/AI-CodeGuard/actions/runs/39363468144
+head 6f75a1961906ef2f8935e994ac770c9dd2bba0db
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:17:33.5828567Z Error: Dev-only tool retained: /opt/codeguard/node_modules/@vitest
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:17:33.5829841Z Node.js v24.22.0
+github-app-container	Run docker rm -f codeguard-app || true	﻿2026-10-20T03:17:33.6184839Z ##[group]Run docker rm -f codeguard-app || true
+github-app-container	Run docker rm -f codeguard-app || true	2026-10-20T03:17:33.6185253Z ^[[36;1mdocker rm -f codeguard-app || true^[[0m
+github-app-container	Run docker rm -f codeguard-app || true	2026-10-20T03:17:33.6235104Z shell: /usr/bin/bash -e {0}
+github-app-container	Run docker rm -f codeguard-app || true	2026-10-20T03:17:33.6235375Z ##[endgroup]
+github-app-container	Run docker rm -f codeguard-app || true	2026-10-20T03:17:33.7569874Z codeguard-app
+Fix: clean production-deps stage with npm ci --omit=dev --ignore-scripts --engine-strict; no weakening of checker.
+
+FINAL LINUX CI: https://github.com/longyuanai/AI-CodeGuard/actions/runs/39363604041
+{
+  "headSha": "5de5fc0817f76587ec288bdf31f8fb5e8198e6ef",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "build-and-test (24.22.0)",
+      "conclusion": "success",
+      "url": "https://github.com/longyuanai/AI-CodeGuard/actions/runs/39363604041/job/118435201355",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout",
+          "conclusion": "success"
+        },
+        {
+          "name": "Setup Node.js 24.22.0",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Audit complete and production dependency trees",
+          "conclusion": "success"
+        },
+        {
+          "name": "Lint",
+          "conclusion": "success"
+        },
+        {
+          "name": "Typecheck",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run tests",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Setup Node.js 24.22.0",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "github-app-container",
+      "conclusion": "success",
+      "url": "https://github.com/longyuanai/AI-CodeGuard/actions/runs/39363604041/job/118435201482",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .",
+          "conclusion": "success"
+        },
+        {
+          "name": "Container health smoke (synthetic credentials, no external API)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Reject unsigned webhook",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify container isolation",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check runtime dependencies and wasm with a static scan",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run docker rm -f codeguard-app || true",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "github-app (24.22.0)",
+      "conclusion": "success",
+      "url": "https://github.com/longyuanai/AI-CodeGuard/actions/runs/39363604041/job/118435201650",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci --ignore-scripts",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run typecheck -w app",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run lint -w app",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build -w app",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm test -w app",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run precision",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "action-smoke",
+      "conclusion": "success",
+      "url": "https://github.com/longyuanai/AI-CodeGuard/actions/runs/39363604041/job/118435201696",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout",
+          "conclusion": "success"
+        },
+        {
+          "name": "Scan vulnerable fixtures with the local action",
+          "conclusion": "success"
+        },
+        {
+          "name": "Assert vulnerable scan produced findings and valid SARIF",
+          "conclusion": "success"
+        },
+        {
+          "name": "Scan safe fixtures with the local action (must pass)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Assert safe scan reported zero findings",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Scan safe fixtures with the local action (must pass)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Scan vulnerable fixtures with the local action",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}
+
+FINAL SECURITY SCAN: https://github.com/longyuanai/AI-CodeGuard/actions/runs/39363603938
+{
+  "headSha": "5de5fc0817f76587ec288bdf31f8fb5e8198e6ef",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "AI-CodeGuard SARIF",
+      "conclusion": "success",
+      "url": "https://github.com/longyuanai/AI-CodeGuard/actions/runs/39363603938/job/118435200504",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout",
+          "conclusion": "success"
+        },
+        {
+          "name": "Setup Node.js",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build CLI",
+          "conclusion": "success"
+        },
+        {
+          "name": "Prepare artifact directory",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Stage 1 scan (SARIF)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload SARIF as artifact",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload SARIF to GitHub Code Scanning",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Upload SARIF to GitHub Code Scanning",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Setup Node.js",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}
+
+ACTUAL LINUX CI LOG EXCERPTS (timestamps retained; full logs accessible at run URL)
+build-and-test (24.22.0)	Install dependencies	2026-10-20T03:18:49.9589675Z found 0 vulnerabilities
+build-and-test (24.22.0)	Audit complete and production dependency trees	2026-10-20T03:18:50.4808000Z found 0 vulnerabilities
+build-and-test (24.22.0)	Audit complete and production dependency trees	2026-10-20T03:18:50.9137739Z found 0 vulnerabilities
+build-and-test (24.22.0)	Run tests	2026-10-20T03:19:00.8275406Z TP: 23  FN: 2  FP: 1
+build-and-test (24.22.0)	Run tests	2026-10-20T03:19:00.8275840Z precision: 95.8%  recall: 92.0%
+build-and-test (24.22.0)	Run tests	2026-10-20T03:19:01.8967666Z ^[[2m Test Files ^[[22m ^[[1m^[[32m19 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[90m (20)^[[39m
+build-and-test (24.22.0)	Run tests	2026-10-20T03:19:01.8973480Z ^[[2m      Tests ^[[22m ^[[1m^[[32m580 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[90m (582)^[[39m
+github-app (24.22.0)	Run npm ci --ignore-scripts	2026-10-20T03:18:53.5490064Z found 0 vulnerabilities
+github-app (24.22.0)	Run npm test -w app	2026-10-20T03:19:03.9301618Z ^[[2m Test Files ^[[22m ^[[1m^[[32m9 passed^[[39m^[[22m^[[90m (9)^[[39m
+github-app (24.22.0)	Run npm test -w app	2026-10-20T03:19:03.9303235Z ^[[2m      Tests ^[[22m ^[[1m^[[32m30 passed^[[39m^[[22m^[[90m (30)^[[39m
+github-app (24.22.0)	Run npm run precision	2026-10-20T03:19:04.8711919Z TP: 23  FN: 2  FP: 1
+github-app (24.22.0)	Run npm run precision	2026-10-20T03:19:04.8712940Z precision: 95.8%  recall: 92.0%
+github-app (24.22.0)	Run npm run precision	2026-10-20T03:19:04.8760501Z ^[[2m Test Files ^[[22m ^[[1m^[[32m1 passed^[[39m^[[22m^[[90m (1)^[[39m
+github-app (24.22.0)	Run npm run precision	2026-10-20T03:19:04.8762042Z ^[[2m      Tests ^[[22m ^[[1m^[[32m1 passed^[[39m^[[22m^[[90m (1)^[[39m
+action-smoke	Scan vulnerable fixtures with the local action	2026-10-20T03:18:51.2310544Z found 0 vulnerabilities
+action-smoke	Scan vulnerable fixtures with the local action	2026-10-20T03:18:54.6462212Z ^[[36;1mecho "findings-count=$FINDINGS" >> "$GITHUB_OUTPUT"^[[0m
+action-smoke	Assert vulnerable scan produced findings and valid SARIF	2026-10-20T03:18:55.0472001Z ^[[36;1mecho "findings-count=$FINDINGS sarif-file=$SARIF_FILE"^[[0m
+action-smoke	Assert vulnerable scan produced findings and valid SARIF	2026-10-20T03:18:55.0620848Z findings-count=97 sarif-file=smoke-vulnerable.sarif
+action-smoke	Scan safe fixtures with the local action (must pass)	2026-10-20T03:18:59.5160137Z found 0 vulnerabilities
+action-smoke	Scan safe fixtures with the local action (must pass)	2026-10-20T03:19:02.7153650Z ^[[36;1mecho "findings-count=$FINDINGS" >> "$GITHUB_OUTPUT"^[[0m
+action-smoke	Assert safe scan reported zero findings	2026-10-20T03:19:03.0829805Z ^[[36;1mecho "findings-count=$FINDINGS"^[[0m
+action-smoke	Assert safe scan reported zero findings	2026-10-20T03:19:03.0972535Z findings-count=0
+
+ACTUAL FINAL CONTAINER LOG EXCERPTS (executed commands, build result, HTTP, isolation, real scan JSON, cleanup)
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:42.7382850Z #1 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:42.7384562Z #2 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:42.9669781Z #3 DONE 0.5s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:43.0872123Z #4 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:43.0875333Z #5 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:45.8874538Z #6 DONE 2.9s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:45.8875282Z #7 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:45.8875980Z #8 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:45.8876996Z #9 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:50.8559883Z #11 DONE 5.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:52.2175387Z #10 DONE 6.3s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:52.4241380Z #12 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:52.4242125Z #13 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:52.4243261Z #14 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:52.4244042Z #15 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:56.9369149Z #16 DONE 4.5s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:57.2043207Z #17 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:57.2044625Z #18 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:57.8127335Z #19 DONE 0.8s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:58.0000682Z #20 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:58.0002059Z #21 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:58.0002418Z #22 exporting to image
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:59.3711094Z #22 naming to docker.io/library/ai-codeguard-app:ci done
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T03:18:59.3711767Z #22 DONE 1.5s
+github-app-container	Container health smoke (synthetic credentials, no external API)	2026-10-20T03:19:00.6795269Z health HTTP=200
+github-app-container	Reject unsigned webhook	2026-10-20T03:19:00.7104032Z unsigned webhook HTTP=401
+github-app-container	Verify container isolation	2026-10-20T03:19:00.8165993Z user=node readonly=true tmpfs={"/tmp":"rw,noexec,nosuid,size=256m"}
+github-app-container	Verify container isolation	2026-10-20T03:19:00.9050533Z {"uid":1000,"rootWrite":"EROFS","tmpWrite":"passed"}
+github-app-container	Check runtime dependencies and wasm with a static scan	﻿2026-10-20T03:19:00.9164561Z ##[group]Run docker exec -i codeguard-app node --input-type=module < scripts/check-runtime.mjs
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:00.9165329Z ^[[36;1mdocker exec -i codeguard-app node --input-type=module < scripts/check-runtime.mjs^[[0m
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:00.9218657Z shell: /usr/bin/bash -e {0}
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:00.9218929Z ##[endgroup]
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2443277Z {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2444394Z   "kind": "production package smoke",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2445205Z   "tools": {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2445577Z     "vitest": "absent",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2446207Z     "@vitest": "absent",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2446626Z     "tinypool": "absent",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2447322Z     "tsup": "absent",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2447697Z     "vite": "absent",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2448253Z     "esbuild": "absent",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2448624Z     "typescript": "present"
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2448983Z   },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2449449Z   "wasm": [
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2449729Z     {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2450028Z       "file": "tree-sitter-go.wasm",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2451374Z       "bytes": 217182
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2452021Z     },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2452365Z     {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2452725Z       "file": "tree-sitter-java.wasm",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2453533Z       "bytes": 414641
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2453862Z     },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2454377Z     {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2454721Z       "file": "tree-sitter-javascript.wasm",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2455204Z       "bytes": 411770
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2455794Z     },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2456067Z     {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2456399Z       "file": "tree-sitter-php.wasm",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2457130Z       "bytes": 1058041
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2457454Z     },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2457726Z     {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2458320Z       "file": "tree-sitter-python.wasm",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2458792Z       "bytes": 457883
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2459406Z     },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2459711Z     {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2460025Z       "file": "tree-sitter-tsx.wasm",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2460671Z       "bytes": 1445638
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2460995Z     },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2461548Z     {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2461858Z       "file": "web-tree-sitter.wasm",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2462299Z       "bytes": 196763
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2462819Z     }
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2464504Z   ],
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2464837Z   "scan": {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2465405Z     "files": 1,
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2465732Z     "findings": 1,
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2466098Z     "skipped": 0,
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2466633Z     "llmCalls": 0
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2466953Z   },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2467264Z   "safeScan": {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2467873Z     "files": 1,
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2468178Z     "findings": 0,
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2468529Z     "skipped": 0,
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2469090Z     "llmCalls": 0
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2469430Z   }
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T03:19:01.2470044Z }
+github-app-container	Run docker rm -f codeguard-app || true	2026-10-20T03:19:01.4337633Z codeguard-app
+
+UNVERIFIED: local Docker engine still unavailable; other Node patches/platforms; real GitHub App installation/webhook-to-PR writes and paid-provider integration. Container success is independent of npm audit success. Dependency audit is a point-in-time advisory check, not a production security review.

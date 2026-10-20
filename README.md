@@ -4,6 +4,11 @@
 
 ## Current Status
 
+Runtime and development require **Node 24.x >=24.22.0 LTS** (`engines: ^24.22.0`).
+Node 18/20/22 and earlier Node 24 minors are no longer supported on this branch.
+Build targets, CI, the composite Action and Docker use the same policy. Historical
+Node 18 checks do not establish compatibility with the upgraded dependencies.
+
 AI-CodeGuard is currently in a **Phase 1** state, but the runtime pipeline is no longer Stage-1-only.
 
 What is implemented today:
@@ -20,11 +25,11 @@ What is implemented today:
 - Config loading via `.codeguard.yml` / environment variables
 - Disk cache for Stage 2 LLM results (`cache.enabled`), wired into the scan pipeline
 - GitHub composite Action (`action.yml`), CI / SARIF-upload workflows, and a BYO-key PR-review workflow example (`docs/examples/pr-review.yml`; design in `docs/design/GITHUB_APP.md`)
-- Automated validation with **572 passing tests across 18 test files** (`npm run test:run`), plus two opt-in real-provider tests (an E2E acceptance test and the triage measurement, both skipped without `CODEGUARD_E2E=1` + API key) and a CI smoke job exercising the composite Action against the fixtures
+- Self-hosted **GitHub App MVP** (`app/`): signed PR webhooks, installation authentication, head-SHA downloads, changed-line scanning, fingerprint-deduplicated inline reviews, one updated summary and Check Runs; BYO-key or labeled static fallback, bounded costs and temporary cleanup. [Run/deploy instructions](app/README.md)
+- Actual validation (2026-10-20): **582 root tests passed, 2 opt-in tests skipped**, **35 app tests passed**. All nine checks pass on Windows and Linux/Node **24.22.0**, precision **95.8% / recall 92.0%**. Replacing fast-glob with tinyglobby removes the remaining braces chain: complete and production audits both fell **3 high → 0 vulnerabilities**. Real Linux Docker acceptance passes build, UID 1000, read-only root, /tmp tmpfs, HTTP **200/401**, development-dependency removal and seven wasm assets; vulnerable/safe PHP scans yield **1/0 findings**, zero LLM calls. Live GitHub App and paid-provider integration remain unverified. [Evidence and CI links](docs/dev/M8-VALIDATION.md)
 
 What is **not** complete yet:
-- npm registry publish (GitHub tags exist via the release workflow, but the package is not on npm yet)
-- `v0.4.0` tag — code and CHANGELOG are release-ready; trigger the manual `release` workflow with tag `v0.4.0` after merging to `main`
+- Release preparation and npm registry publication remain separate operator work. The development branch is pushed and PR #17 is open for human review; no release, publication, merge or deployment has occurred.
 
 ### Completion Snapshot
 
@@ -35,10 +40,10 @@ What is **not** complete yet:
 | M2 `--fix` suggestions | Done | confirmed Stage 2 findings can include `fix` |
 | M3 Tree-sitter parser | Done | main parser now uses Tree-sitter-backed normalized AST |
 | M4 Custom rules runtime | Done | `rules.custom` is wired into `scan()`, and `rules validate/create/test` are available |
-| M5 GitHub / CI integration | Done | composite `action.yml`, `ci.yml`, and `security-scan.yml` (SARIF upload to Code Scanning) exist and pass |
+| M5 GitHub / CI integration | Implemented | composite `action.yml`, `ci.yml`, and `security-scan.yml` (SARIF upload to Code Scanning) exist; remote workflow execution was not verified in this delivery |
 | M6 More languages | Done | Go: 12 rules; Java: 15 rules (adds `CG-010`, `CG-041`, `CG-070` over the Go set); PHP: 17 rules (adds `CG-021`/`CG-022`/`CG-023`/`CG-024`/`CG-025`/`CG-026`/`CG-031`/`CG-040`/`CG-041`/`CG-050`/`CG-070` over the original MVP set) |
 | M7 Quality & adoption tooling | Done | Stage 1 precision harness + ratchet, Stage 2 triage-accuracy harness, baseline files, inline suppression, `--fail-on`, stable SARIF fingerprints |
-| M8 Commercialization step 1 | In progress | `--output github` PR-review reporter + BYO-key workflow example; hosted GitHub App designed (`docs/design/GITHUB_APP.md`), not yet built |
+| M8 Commercialization step 1 | MVP implemented, CI verified | Library + App, local/Linux checks and real container acceptance pass; live App integration remains unverified ([deployment](app/README.md)) |
 
 ### Terminology
 
@@ -99,6 +104,12 @@ node dist/index.js rules test ./custom-rules ./src --output json
 ### PR review bot (BYO-key)
 
 `--output github` produces a [GitHub PR review payload](https://docs.github.com/en/rest/pulls/reviews#create-a-review-for-a-pull-request) — a summary plus one inline comment per finding (rule, CWE link, Stage 2 reasoning, suggested fix, and a copy-paste suppression hint). It carries no credentials; a thin workflow step submits it with the repo's built-in `GITHUB_TOKEN`, and you bring your own LLM key as a secret (nothing goes to a hosted service). See [`docs/examples/pr-review.yml`](docs/examples/pr-review.yml) — it scans only the PR's changed files and passes the PR diff via `--diff`, so comments land only on changed *lines* (pre-existing findings in touched files are dropped before Stage 2, costing no LLM calls), and it falls back to a Stage-1-only advisory pass when no key is set.
+
+### Self-hosted GitHub App
+
+For the hosted-service variant, see [`app/README.md`](app/README.md). It imports the
+same `scan()` library; target-repository scripts/configuration cannot select service
+credentials or API destinations. It requires a deployment repository allowlist.
 
 ### Measuring precision
 
@@ -234,7 +245,7 @@ Current boundary:
 
 The current runtime pipeline is:
 
-1. Discover files with `fast-glob`
+1. Discover files with `tinyglobby`
 2. Detect language from file extension
 3. Parse each file with a **Tree-sitter-backed normalized parser**
 4. Load built-in rules plus optional custom YAML rules
@@ -338,6 +349,7 @@ SARIF output integrates with GitHub Code Scanning: the repository ships a compos
 
 ```text
 ai-codeguard/
+├── app/                    # Self-hosted GitHub App, tests, Dockerfile and deployment guide
 ├── src/
 │   ├── analyzer/            # Stage 2 orchestration and provider adapters
 │   ├── cli/                 # Commander.js entry and commands
@@ -378,14 +390,24 @@ ai-codeguard/
 ```bash
 npm run build
 npm run test:run
+npm run precision
+npm run typecheck
 npm run lint
+npm run build -w app
+npm run typecheck -w app
+npm test -w app
+npm run lint -w app
 ```
 
-Result (2026-07-11):
-- build passed, lint clean
-- `18` test files passed
-- `572` tests passed (plus `2` opt-in real-provider tests skipped without `CODEGUARD_E2E=1` + an API key)
-- self-scan of `./src` and the safe fixtures reports 0 findings; the vulnerable fixtures report 97
+Actual result (2026-10-20, Node 24.22.0 / npm 11.19.1; Windows and Linux CI):
+- root build, typecheck, lint, precision passed; `582` tests passed, `2` opt-in provider tests skipped (`19` files passed, `1` skipped)
+- app build, typecheck, lint passed; `35` tests passed across `9` files
+- precision `23 TP / 2 FN / 1 FP`: `95.8%` precision, `92.0%` recall; ratchet unchanged
+- built Node service `/healthz` returned 200 and unsigned webhook returned 401 over real loopback HTTP
+- local Docker engine unavailable; actual Linux CI image build, isolation, HTTP and static PHP scans passed. GitHub App API integration remains mock-based, with no paid calls
+- complete and production dependency audits: **0 vulnerabilities**, checked separately from container acceptance
+
+The older 572-test result was re-established from the original lockfile before development. Full command evidence and limitations: [`docs/dev/M8-VALIDATION.md`](docs/dev/M8-VALIDATION.md).
 
 The scanner's own quality is measured, not just asserted: `npm run precision` reports Stage 1 precision/recall against a labeled corpus (baseline 95.8% / 92.0%, enforced by a ratchet test), and `npm run triage` (opt-in) measures Stage 2 confirm/dismiss accuracy. Stage 1 has also been validated by hand against three real open-source repositories — fixing the false-positive classes that run exposed cut noise on the clean repos by 84% while keeping every planted Juice Shop vulnerability (`docs/dev/REALWORLD.md`).
 

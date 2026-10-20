@@ -10,6 +10,18 @@ import type { ScanOptions } from '../../src/scanner/orchestrator.js';
 // ── parseUnifiedDiff ────────────────────────────────────────────
 
 describe('parseUnifiedDiff', () => {
+  it('decodes Git C-quoted UTF-8 paths before stripping the b/ prefix', () => {
+    const diff = [String.raw`--- "a/src/\344\270\255.ts"`,
+      String.raw`+++ "b/src/\344\270\255.ts"`, '@@ -0,0 +1 @@', '+eval(input);'].join('\n');
+    expect([...parseUnifiedDiff(diff).get('src/中.ts') ?? []]).toEqual([1]);
+  });
+
+  it('decodes quoted control characters, quotes and backslashes in paths', () => {
+    const diff = [String.raw`--- "a/src/a\t\"b\\c.ts"`,
+      String.raw`+++ "b/src/a\t\"b\\c.ts"`, '@@ -0,0 +1 @@', '+eval(input);'].join('\n');
+    expect([...parseUnifiedDiff(diff).get('src/a\t"b\\c.ts') ?? []]).toEqual([1]);
+  });
+
   it('collects added/modified new-side lines per file, stripping the b/ prefix', () => {
     const diff = [
       'diff --git a/src/app.ts b/src/app.ts',

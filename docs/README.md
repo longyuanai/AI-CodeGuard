@@ -1,113 +1,50 @@
 # AI-CodeGuard 文档导航
 
-> 本页是 AI-CodeGuard 当前文档集的入口，帮助你快速找到“总览、设计细节、开发说明、决策记录”四类信息。
+> 当前能力以 [README](../README.md)、[架构](../ARCHITECTURE.md) 和源码为准；实际测试、依赖审计、容器及外部联调状态集中在 [M8 验收记录](./dev/M8-VALIDATION.md)。历史专题保留设计背景，不作为当前验收结果。
 
-## 1. 先记住这三个术语
+## 1. 阅读顺序
 
-为了避免文档阅读时把“产品阶段”和“运行时阶段”混在一起，当前统一使用下面的术语：
+1. [README](../README.md)：CLI、六语言/19 规则、配置、Action 与当前交付边界。
+2. [ARCHITECTURE](../ARCHITECTURE.md)：CLI/库/App 入口、扫描管道、cache、数据流和信任边界。
+3. [M8 验收记录](./dev/M8-VALIDATION.md)：可复现命令、实际日志、剩余风险与未验证项。
+4. 运行 App 时看 [部署说明](../app/README.md) 和 [GitHub App 设计](./design/GITHUB_APP.md)。
 
-- **Phase 1**：当前已交付的产品阶段，指一个可运行、可测试的本地 CLI 基线
-- **Stage 1**：扫描管道中的第一阶段，指静态预过滤（Tree-sitter 归一化解析 + 规则执行）
-- **Stage 2**：扫描管道中的第二阶段，指 LLM 二次确认 / 结果增强 / 可选修复建议生成
+**Stage 1** 指 Tree-sitter + 规则静态预筛；**Stage 2** 指可选 LLM 分诊及修复建议。`--dry-run` 停在 Stage 1，App 无 key 时自动降级并标注未经 AI 分诊。旧文档中的 **Phase 1** 是早期本地 CLI 基线阶段名，不表示库、cache、Action 或 App 尚未实现。
 
-当前最准确的状态是：
+## 2. 当前实现与使用入口
 
-> **仓库当前仍处于 Phase 1，但运行时 `scan()` 已支持 Stage 1 + Stage 2，且 `rules.custom` 已接入运行时；`--dry-run` 会明确停在 Stage 1。**
+| 内容 | 文档 |
+|---|---|
+| 总览、安装、CLI 和配置示例 | [README](../README.md) |
+| 模块、库入口、wasm、App 数据流 | [ARCHITECTURE](../ARCHITECTURE.md) |
+| 实际验证与未验证项 | [M8 验收记录](./dev/M8-VALIDATION.md) |
+| App 环境变量、权限、容器、清理与回滚 | [app/README](../app/README.md) |
+| 签名、head SHA、评论去重、Check、预算与隐私 | [GITHUB_APP](./design/GITHUB_APP.md) |
+| built-in / YAML custom rules 与检测边界 | [RULES](./design/RULES.md) |
+| Stage 2 结果缓存、键、TTL 与默认值 | [CACHING](./design/CACHING.md) |
+| composite Action 的输入/输出与 SARIF 使用 | [GITHUB-ACTION](./dev/GITHUB-ACTION.md)；规则覆盖以根 README 为准 |
+| 已接受的架构决策与当时背景 | [ADR](./adr/decisions.md)；实施状态以当前架构为准 |
 
-## 2. 推荐阅读顺序
+库接口由 `src/lib.ts` 导出，构建为 `dist/lib.js`；App 通过 workspace 复用 `scan()`、reporter、diff、baseline、suppression、fingerprint 和成本控制。部署说明与设计文档分别负责“怎么运行”和“怎么工作”，避免重复保存环境变量或动态测试数字。
 
-如果你第一次接触这个仓库，推荐按下面顺序阅读：
+## 3. 历史规划与专题参考
 
-1. [README.md](../README.md) — 项目总览与当前能力边界
-2. [ARCHITECTURE.md](../ARCHITECTURE.md) — 当前运行时架构与数据流
-3. [docs/design/TECHNICAL-SUMMARY.md](./design/TECHNICAL-SUMMARY.md) — 实现状态、验证结论与剩余缺口
-4. 按需进入 design / dev / adr 子文档
+以下文档保留早期设计、示例或当时验证记录；部分段落中的语言/规则数量、模型、cache/Action 实现状态、测试计数和后续优先级已过时。遇到冲突时，请回到上述当前入口及源码核对。
 
-## 3. 文档地图
+- [TECHNICAL-SUMMARY](./design/TECHNICAL-SUMMARY.md)：历史技术汇总，正文按历史快照阅读。
+- [core-modules](./design/core-modules.md)：早期模块接口与说明；当前库/App、过滤及 cache 接线见架构。
+- [CONFIGURATION](./design/CONFIGURATION.md)：配置专题；默认值以 `src/config/schema.ts`、`defaults.ts` 和 CLI `init` 模板为准，App 使用字段白名单。
+- [REPORTING](./design/REPORTING.md)：早期 text/JSON/SARIF 说明；当前另有 GitHub review JSON。
+- [LLM-INTEGRATION](./design/LLM-INTEGRATION.md)：早期 Stage 2 设计；当前缓存及 App 的固定出口、预算预留见架构/App 设计。
+- [CLI-EXAMPLES](./dev/CLI-EXAMPLES.md)：早期命令示例；当前参数、模型与退出码以 README、CLI `--help` 和源码为准。
+- [TESTING](./dev/TESTING.md)：测试组织与历史覆盖说明；实际计数、命令和精度以 M8 验收记录为准。
+- [GITHUB-CI-INTEGRATION](./dev/GITHUB-CI-INTEGRATION.md)：早期手动集成方案；当前 composite Action 与 SARIF workflow 见上方 GITHUB-ACTION 及架构。
+- [docs/dev/ROADMAP](./dev/ROADMAP.md)：历史开发路线图，不作为当前排期或未完成清单。
+- [CODEX_PLAN](./design/CODEX_PLAN.md)：M8 T0～T6 原始任务书及执行记录；验收标准与实际验证结果分别阅读。
 
-### 3.1 总览文档
+## 4. 文档维护原则
 
-- [README.md](../README.md) — 对外/对内都可使用的当前项目概览
-- [ARCHITECTURE.md](../ARCHITECTURE.md) — 当前架构、模块关系、数据流与实现边界
-- [docs/design/TECHNICAL-SUMMARY.md](./design/TECHNICAL-SUMMARY.md) — 当前实现完成度、验证状态与下一阶段优先级
-
-### 3.2 设计文档（design）
-
-- [docs/design/core-modules.md](./design/core-modules.md) — 按模块解释当前代码边界与运行行为
-- [docs/design/CONFIGURATION.md](./design/CONFIGURATION.md) — 配置结构、默认值、环境变量覆盖、实际生效边界
-- [docs/design/RULES.md](./design/RULES.md) — 当前 built-in + custom rules 的运行方式、检测信号与限制
-- [docs/design/REPORTING.md](./design/REPORTING.md) — text / json / sarif 报告格式与当前输出边界
-- [docs/design/LLM-INTEGRATION.md](./design/LLM-INTEGRATION.md) — 当前 Stage 2 行为、provider、成本控制与限制
-
-### 3.3 开发文档（dev）
-
-- [docs/dev/CLI-EXAMPLES.md](./dev/CLI-EXAMPLES.md) — 当前 CLI 命令示例与推荐用法
-- [docs/dev/ROADMAP.md](./dev/ROADMAP.md) — 以当前基线为起点的推荐开发路线图
-- [docs/dev/TESTING.md](./dev/TESTING.md) — 测试命令、覆盖范围与当前测试空白
-
-### 3.4 决策记录（adr）
-
-- [docs/adr/decisions.md](./adr/decisions.md) — 已接受的架构决策，以及每项决策当前是否真正落地
-
-## 4. 按问题找文档
-
-### 想知道“项目现在到底实现了什么？”
-
-优先看：
-
-- [README.md](../README.md)
-- [docs/design/TECHNICAL-SUMMARY.md](./design/TECHNICAL-SUMMARY.md)
-
-### 想知道“`scan()` 现在真实怎么跑？”
-
-优先看：
-
-- [ARCHITECTURE.md](../ARCHITECTURE.md)
-- [docs/design/core-modules.md](./design/core-modules.md)
-
-### 想知道“某个配置字段到底有没有生效？”
-
-优先看：
-
-- [docs/design/CONFIGURATION.md](./design/CONFIGURATION.md)
-
-### 想知道“规则系统现在是不是支持 YAML custom rules？”
-
-优先看：
-
-- [docs/design/RULES.md](./design/RULES.md)
-- [docs/adr/decisions.md](./adr/decisions.md)
-
-### 想知道“LLM / fix / dryRun 现在到了哪一步？”
-
-优先看：
-
-- [docs/design/LLM-INTEGRATION.md](./design/LLM-INTEGRATION.md)
-- [docs/dev/CLI-EXAMPLES.md](./dev/CLI-EXAMPLES.md)
-- [docs/dev/TESTING.md](./dev/TESTING.md)
-
-### 想知道“怎么跑命令、怎么验证结果？”
-
-优先看：
-
-- [docs/dev/CLI-EXAMPLES.md](./dev/CLI-EXAMPLES.md)
-- [docs/dev/TESTING.md](./dev/TESTING.md)
-
-## 5. 当前文档使用原则
-
-阅读本仓库文档时，请默认遵循以下原则：
-
-1. **当前源码优先于旧规划**
-2. **已实现能力与设计目标必须分开理解**
-3. **看到 Tree-sitter / custom rules / GitHub Action 时，先确认文档写的是“已接线运行时能力”还是“未完成工作流/产品化能力”**
-4. **如果某个说法和源码冲突，以源码与测试结果为准，并回头修正文档**
-
-## 6. 当前结论
-
-AI-CodeGuard 的文档集现在已经可以支持三件事：
-
-- 快速理解当前已交付能力
-- 准确区分 Stage 1 / Stage 2 / 已接线 custom rules / 后续规划项
-- 为下一步推进规则精度、custom rules 示例 / 错误提示补强与 CI 集成提供清晰基线
-
-如果后续继续扩展文档，建议优先保持这页导航与 README 的链接同步更新。
+- 修改当前事实时原地更新 README、架构或对应使用说明；测试和审计证据统一更新验收记录。
+- 历史结果保留日期与边界；CI 定义、本地通过、Docker 通过和真实 GitHub/付费 API 联调分别记录。
+- 目标仓库代码与配置是不可信输入；CLI 的受信配置加载和 App 的数据白名单不能混用。
+- 新增文档前先检查本页现有入口，优先修正已有说明，避免产生多个当前状态来源。
