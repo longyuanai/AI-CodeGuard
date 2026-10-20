@@ -153,10 +153,13 @@ docker exec -i codeguard-app node --input-type=module < scripts/check-runtime.mj
 Run these shell commands from the repository root. The runtime check script is
 sent over stdin and is not copied into the image. It fails for retained test/build
 tools (including nested Tinypool), missing/empty wasm or a failed static scan.
-Two app tests exercise its rejection paths; a fresh isolated production install
-passes the real scan locally. Container execution remains unverified while the
-Docker engine is unavailable. CI now defines all three checks and always removes
-its test container.
+Two app tests exercise its rejection paths. A fresh isolated production install
+and the real Linux CI container both pass vulnerable/safe PHP scans (1/0 findings,
+zero API calls). CI verifies UID 1000, read-only root (EROFS), writable /tmp tmpfs,
+HTTP 200/401, dependency pruning and all seven wasm assets, then removes its test
+container. Docker uses a clean production-dependencies stage: npm prune left an
+@vitest scope in the first actual image test. See the run links and failure/fix
+evidence in [M8 acceptance](../docs/dev/M8-VALIDATION.md).
 
 Terminate public TLS at a reverse proxy and route only `/webhook` and `/healthz`.
 Build a candidate image alongside the previous version; save its image ID and
@@ -164,8 +167,8 @@ deployment environment securely before replacing anything. Roll back by starting
 the previous image with the same environment and redelivering interrupted events.
 No database migration is required. This repository does not deploy automatically.
 
-Dependency repairs leave 3 high production audit entries from one braces issue.
-The Vitest/mocker/Tinypool development alerts are removed in the current lock;
-the complete audit still fails (see acceptance evidence). This local MVP
-has not passed a production security review. No live GitHub or paid API validation
-is implied by the mock tests or liveness probe.
+The vulnerable fast-glob/micromatch/braces chain has been replaced with tinyglobby
+0.2.16. Complete and production npm audits report zero vulnerabilities locally
+and in Linux CI (2026-10-20). Audit and container checks are independent gates;
+neither establishes a production security review. Live GitHub App integration
+and paid-provider validation remain unverified.

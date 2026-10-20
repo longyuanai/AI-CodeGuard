@@ -19,7 +19,7 @@ CLI (scan / init / rules)               库调用方 / GitHub App
     └──────────────────┬───────────────────┘
                        ▼
                  scan(options)
-    ├─ fast-glob 文件发现、按扩展名识别语言
+    ├─ tinyglobby 文件发现、按扩展名识别语言
     ├─ Tree-sitter → 归一化 AST → built-in / custom rules
     ├─ inline suppression → baseline → diff 变更行过滤
     ├─ Stage 2（可选）：cache → provider → confirm / dismiss
@@ -152,7 +152,7 @@ target 为 `node24`；CI、Action 默认值与 Docker 同步。Node 18/20/22 的
 
 | 职责 | 实现 |
 |---|---|
-| CLI / 配置 / 文件发现 | Commander / cosmiconfig + Zod / fast-glob |
+| CLI / 配置 / 文件发现 | Commander / cosmiconfig + Zod / tinyglobby（保留 brace、extglob、排除与字面路径语义） |
 | Parser | web-tree-sitter + 六种语言 grammar wasm |
 | Stage 2 | Anthropic / OpenAI provider，App 使用固定出口封装 |
 | 构建 / 类型 / 测试 | tsup / TypeScript / Vitest |

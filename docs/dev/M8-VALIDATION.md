@@ -1,10 +1,68 @@
 # M8 本地交付与验收记录
 
-## 当前验收：2026-10-20 依赖安全整改已实施
+## 当前验收：2026-10-20 braces 整改与远程交付通过
+
+本轮起点 `621ea730ce19f10a5dd8ce78cbb5ef0d7d33473a`，分支
+`codex/m8-github-app-mvp`。已核实远程为 `longyuanai/AI-CodeGuard`，正常推送，
+[草稿 PR #17](https://github.com/longyuanai/AI-CodeGuard/pull/17)；未合并、发布或部署。
+根 ROADMAP.md、SECURITY.md 保持原哈希、未跟踪、未提交。下方迁移记录均为历史。
+
+本轮唯一日志：[实际命令、审计前后、回归和 CI/容器日志摘录](validation/M8-2026-10-20-remote.log)。
+代码提交：`d09624c`（依赖/扫描调用/6 项回归）、`6f75a19`（容器验收）、
+`5de5fc0817f76587ec288bdf31f8fb5e8198e6ef`（真实容器发现的问题修复）。
+
+### 依赖整改与兼容性
+
+- 重新查询 [官方 GHSA](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)：
+  `braces <=3.0.3` 仍受影响且 `first_patched_version: null`；不是沿用历史判断。
+  npm 最新 braces 3.0.3、fast-glob 3.3.3，故没有可用的同链兼容修补版本。
+- 移除生产 `fast-glob 3.3.3 → micromatch 4.0.8 → braces 3.0.3`，改为已在项目工具链
+  使用的 **tinyglobby 0.2.16**（当前最新版 0.2.17，但不为整改追新）。实际生产路径为
+  `tinyglobby 0.2.16 → fdir 6.5.0 / picomatch 4.0.4`；锁文件没有无关版本升级。
+  替换生产依赖有明确漏洞修复目的，没有新增 override、忽略告警或改变审计分类来过关。
+- 两处调用限定于扫描器文件发现、自定义 YAML 规则发现，未改变 CLI 参数/配置/规则接口。
+  显式 `expandDirectories: false` 保持原行为；保留绝对路径、onlyFiles、dot=false、ignore，
+  字面文件名使用库的 escapePath。未自写 glob 匹配器。
+- 新增回归验证递归 brace、数字范围、extglob、否定模式、排除/隐藏文件、去重、
+  配置 include、含 `[code]{a,b}` 的字面路径和 2000 层嵌套 brace；原递归 yml/yaml
+  加载、排序/重复 ID、CLI 与 App 字面路径测试全部保留并通过。
+- 原镜像 `npm prune` 残留 `node_modules/@vitest` 目录，首次真实容器作业失败；
+  未弱化检查器，Dockerfile 改为独立阶段全新 `npm ci --omit=dev --ignore-scripts
+  --engine-strict`，运行镜像仅复制该阶段依赖和构建产物。复验通过。
+
+| 本轮门禁 | 实际结果 |
+|---|---|
+| 完整 / 生产 audit | 修复前各 **3 high（退出 1）** → 修复后各 **0 vulnerabilities（退出 0）**；本地及 Linux 均通过，3 条目来自同一 braces 公告传播 |
+| Windows Node 24.22.0 / npm 11.19.1 | 根 build/test:run/precision/typecheck/lint、app build/test/typecheck/lint 全部退出 0；便携 PATH，未替换系统 Node |
+| 根测试 / App 测试 | **580 passed / 2 opt-in skipped**（19 文件通过、1 跳过）；App **30 passed / 9 文件**；原有效测试没有减少 |
+| 精度门槛 | **23 TP / 2 FN / 1 FP，precision 95.8%、recall 92.0%**，未降低 ratchet |
+| 编译后 CLI / 库 | 漏洞 fixtures 14 文件/97 findings、安全 fixtures 8 文件/0；库入口、bundled wasm 和特殊文件名扫描通过；零 LLM 调用 |
+| Windows 真实 HTTP | health **200**、无签名 webhook **401**；GitHub API 仍为 mock |
+| 隔离生产安装 | engine-strict 安装成功；开发工具缺席、7 个 wasm 非空；PHP 漏洞/安全样本 **1/0 findings**，零跳过/零 API |
+| Linux CI | 根/App 门禁、Action 漏洞/安全冒烟全部通过；安全扫描 SARIF 作业通过 |
+| Linux 真实 Docker | 构建成功；USER node/UID **1000**；只读根写入 **EROFS**；`/tmp:rw,noexec,nosuid,size=256m` 实际可写；health **200**、无签名 webhook **401** |
+| 容器运行包 / 实扫 | Vitest/@vitest/Tinypool/tsup/Vite/esbuild 目录均缺席；7 wasm；PHP 漏洞 **1 finding**、安全 **0**，各扫描 1 文件/零跳过/零 LLM；临时容器已清理 |
+
+最终代码 SHA **`5de5fc0817f76587ec288bdf31f8fb5e8198e6ef`** 的实际运行：
+[Linux CI（4 个 job 成功）](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39363604041)、
+[真实容器 job](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39363604041/job/118435201482)、
+[security-scan 成功](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39363603938)。
+[首轮失败](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39363468144) 保留作为问题与修复证据。
+PR 工作流使用合成凭据，只有临时本机绑定容器，不推送镜像或部署；release 仅手动触发且未执行。
+
+剩余边界：本机 Docker named pipe `dockerDesktopLinuxEngine` 不存在，退出 1，未安装/重置；
+实际容器证据来自 Linux CI。其他 Node 24 补丁和平台未测；支持政策仍为 `^24.22.0`。
+真实 GitHub App 安装、签名 webhook 到真实 PR 写入、付费 provider 均未联调；
+不把草稿 PR/CI 操作冒充 App 联调。`node-domexception@1.0.0` 的维护性弃用提示仍在，
+不是本次 audit 漏洞。**容器通过与 audit 通过分别取证，零告警不等于完整生产安全审查。**
+回滚点为本轮起点 `621ea73`，回滚会恢复已知 braces 风险，不能作为安全上线方案。
+最短下一步：审阅草稿 PR；另行授权后再进行真实 GitHub App 联调，本轮不执行。
+
+## 历史记录：2026-10-20 Node 24 工具链迁移（早于本轮）
 
 起点：`codex/m8-github-app-mvp` / `99334d08f6ef8a3a81eab6d3c95ef44fe6c8b62e`，未推送。
 开始时已跟踪文件干净，只有原有根 ROADMAP.md、SECURITY.md 未跟踪；两者未修改、未提交。
-本节是当前事实；后面的 10-18～19 记录和日志保留历史，不代表当前 Node 支持或审计状态。
+本节保留当时事实；当前状态以上方 braces 整改与远程交付验收为准。
 [10-20 全新命令、回归与审计日志](validation/M8-2026-10-20-security.log) 不沿用旧结果。
 
 安全迁移代码提交：**`bf0201d`**。本轮修改文件清单：

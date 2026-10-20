@@ -1,6 +1,6 @@
 # AI-CodeGuard GitHub App（PR 机器人）
 
-> 状态：**MVP 已实现，本地验证**（2026-10-18）。源码位于 `app/`。Docker 镜像/容器健康、真实 GitHub 和付费 LLM 尚未验证。见 [部署说明](../../app/README.md) 与 [实际验收](../dev/M8-VALIDATION.md)。
+> 状态：**MVP 已实现，本地与 Linux CI/真实容器验证通过**（2026-10-20）。源码位于 `app/`。真实 GitHub App 与付费 LLM 尚未联调。见 [部署说明](../../app/README.md) 与 [实际验收](../dev/M8-VALIDATION.md)。
 
 ## 1. 定位与差异化
 
@@ -107,6 +107,6 @@ Check 名称 `AI-CodeGuard`，`external_id` 包含 PR number 与 head SHA；同 
 
 ## 7. 当前验收边界
 
-2026-10-20 实施安全工具链迁移，运行时和开发环境统一为 Node 24.x >=24.22.0 LTS（`^24.22.0`），两个构建 target 为 node24，CI/Action/Docker 同步。Windows/Node 24.22.0 的根五项与 app 四项重新通过：574 passed / 2 opt-in skipped、app 30 passed、precision/recall 95.8%/92.0%。包含 mock GitHub + 真实扫描器的签名 webhook 流程，以及限定 127.0.0.1 的编译后 Node 服务 HTTP 200/401 实测；**不是 GitHub 联调结果**。
+2026-10-20 在 Node 24.22.0 LTS（支持 `^24.22.0`）完成依赖整改。Windows 与 Linux CI 的根五项、app 四项通过：580 passed / 2 opt-in skipped、app 30 passed、precision/recall 95.8%/92.0%。签名 webhook 流程使用 mock GitHub + 真实扫描器，本地编译后 HTTP 200/401 实测；**不是 GitHub App 联调结果**。
 
-Dockerfile 和 CI 定义已补，CI 包括 health/401、依赖/wasm 静态扫描与容器清理；本地 Docker 引擎不可用，这些容器运行项仍未验证，Docker Hub 的独立 manifest 查询亦超时。新锁隔离生产包的严格安装及 wasm/PHP 扫描通过，不能代替容器验证。远程 CI、GitHub 注册、上线、付费 API、npm/Release 均未执行。本轮 audit 从 6 降到 3（0 critical / 0 moderate），剩余均为生产 braces high 传播条目，完整及生产审计仍失败。版本、引入路径与剩余风险见 [验收记录](../dev/M8-VALIDATION.md)。
+本机 Docker 引擎仍不可用；Linux CI 已真实构建并运行容器，确认非 root、只读根、tmpfs、HTTP 200/401、开发工具裁剪、7 个 wasm 和 PHP 漏洞/安全样本实扫，随后清理容器。首轮发现 npm prune 残留 @vitest 目录，已改为独立阶段全新生产安装并复验通过。fast-glob/micromatch/braces 链被 tinyglobby 0.2.16 替换，完整与生产 audit 独立验证为 0 告警。开发分支已推送并建立草稿 PR；未注册 App、上线、调用付费 API 或执行 npm/Release。实际运行链接、提交 SHA 与限制见 [验收记录](../dev/M8-VALIDATION.md)。
