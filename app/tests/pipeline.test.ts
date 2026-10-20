@@ -55,6 +55,14 @@ it('permits a pure rename with confirmed zero additions without claiming a parti
   expect(result?.incomplete).toBe(false);
   expect(result?.result.files).toBe(0);
 });
+it('does not treat a zero-addition binary modification as a clean pure rename', async () => {
+  const gh = mockGitHub(source, 'Binary files a/src/code.ts and b/src/code.ts differ\n');
+  const request = vi.fn(async (route: string, args: Record<string, unknown>) => {
+    if (route.endsWith('/files')) return { data: [{ filename: 'src/code.ts', status: 'modified', additions: 0 }] };
+    return gh.request(route, args);
+  });
+  await expect(scanPR({ request } as unknown as GitHubClient, job)).rejects.toThrow('Not a unified diff');
+});
 it('runs the real scanner with changed-line filtering and removes downloaded files', async () => {
   const gh = mockGitHub(source, diff);
   let temp = '';

@@ -44,8 +44,11 @@ export async function scanPR(client: GitHubClient, job: PRJob, deps: PipelineDep
   const diffResponse = await client.request('GET /repos/{owner}/{repo}/pulls/{pull_number}', { ...base, mediaType: { format: 'diff' } });
   const diff = diffResponse.data as unknown as string;
   if (typeof diff !== 'string' || Buffer.byteLength(diff) > MAX_TOTAL) throw new Error('Invalid or oversized PR diff.');
-  // Pure renames/deletions can legitimately have no +++ header or new lines.
-  const changed: ChangedLines = files.every(file => file.additions === 0) ? new Map() : parseUnifiedDiff(diff);
+  // Pure renames can lack +++ headers; zero-count binary edits are not renames.
+  const binaryDiff = /^(?:Binary files |GIT binary patch$)/m.test(diff);
+  const onlyRenames = !binaryDiff && files.every(file => file.status === 'removed'
+    || (file.status === 'renamed' && file.additions === 0));
+  const changed: ChangedLines = onlyRenames ? new Map() : parseUnifiedDiff(diff);
   const temp = await mkdtemp(join(tmpdir(), 'codeguard-'));
   try {
     const rootDir = join(temp, 'repo');
@@ -79,7 +82,9 @@ export async function scanPR(client: GitHubClient, job: PRJob, deps: PipelineDep
       if (!changed.get(file.filename)?.size) {
         // Binary diffs / truncated hunks cannot be reported as a clean scan.
         // A rename is safe to omit only when GitHub confirms zero additions.
-        if (file.additions !== 0) { notes.push(`No changed lines available: ${file.filename}`); incomplete = true; }
+        if (file.status !== 'renamed' || file.additions !== 0 || binaryDiff) {
+          notes.push(`No changed lines available: ${file.filename}`); incomplete = true;
+        }
         continue;
       }
       if (file.additions !== undefined && changed.get(file.filename)!.size !== file.additions) {
