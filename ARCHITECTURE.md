@@ -146,6 +146,10 @@ Check 结论优先级为：报告项达到部署阈值则 failure；否则 parti
 
 ## 6. 技术选型
 
+运行时与开发环境统一要求 Node **24.x >=24.22.0 LTS**（`^24.22.0`），两个构建入口
+target 为 `node24`；CI、Action 默认值与 Docker 同步。Node 18/20/22 的旧验证仅保留
+作历史记录，不代表当前依赖组合支持这些版本。安全工具迁移与回滚证据见验收记录。
+
 | 职责 | 实现 |
 |---|---|
 | CLI / 配置 / 文件发现 | Commander / cosmiconfig + Zod / fast-glob |

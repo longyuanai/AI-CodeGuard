@@ -4,7 +4,7 @@ Single-tenant, self-hosted PR scanning service. Hono receives signed webhooks;
 Octokit authenticates as a GitHub App installation. The existing scanner runs
 in-process against head-SHA content, without cloning or executing repository code.
 
-Local verification (2026-10-19): 30 app tests pass on Windows/Node 18.20.8 and 24.18.0,
+Local verification (2026-10-20): 30 app tests pass on Windows/Node 24.22.0 LTS,
 including a real loopback Node HTTP
 `/healthz` request and signature rejection. GitHub API and LLM tests use mocks.
 Docker build/container health and real GitHub/paid-provider integration are **not verified**.
@@ -12,9 +12,10 @@ See [acceptance evidence](../docs/dev/M8-VALIDATION.md).
 
 ## Run locally
 
-From the repository root, use Node 22 (manifest minimum: 18.14.1). Node 18 passed
-local checks but three transitive packages declare newer engines; it is not a
-fully supported dependency configuration. See the acceptance record for paths.
+From the repository root, use **Node 24.x >=24.22.0 LTS** for runtime and development
+(`engines: ^24.22.0`). Older Node versions are no longer supported after the security
+toolchain migration. Docker uses `node:24.22.0-bookworm-slim`; see the acceptance
+record for actual execution evidence and rollback limitations.
 
 ```sh
 npm ci --ignore-scripts
@@ -163,7 +164,8 @@ deployment environment securely before replacing anything. Roll back by starting
 the previous image with the same environment and redelivering interrupted events.
 No database migration is required. This repository does not deploy automatically.
 
-Compatible dependency repairs leave 3 high production audit entries from one
-braces issue, plus development alerts including critical Tinypool (see acceptance evidence); this local MVP
+Dependency repairs leave 3 high production audit entries from one braces issue.
+The Vitest/mocker/Tinypool development alerts are removed in the current lock;
+the complete audit still fails (see acceptance evidence). This local MVP
 has not passed a production security review. No live GitHub or paid API validation
 is implied by the mock tests or liveness probe.

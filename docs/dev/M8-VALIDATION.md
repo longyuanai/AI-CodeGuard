@@ -1,6 +1,125 @@
 # M8 本地交付与验收记录
 
-最近复验：**2026-10-19**（Asia/Shanghai）。环境：Windows、Node **24.18.0** / npm **11.16.0**，
+## 当前验收：2026-10-20 依赖安全整改已实施
+
+起点：`codex/m8-github-app-mvp` / `99334d08f6ef8a3a81eab6d3c95ef44fe6c8b62e`，未推送。
+开始时已跟踪文件干净，只有原有根 ROADMAP.md、SECURITY.md 未跟踪；两者未修改、未提交。
+本节是当前事实；后面的 10-18～19 记录和日志保留历史，不代表当前 Node 支持或审计状态。
+[10-20 全新命令、回归与审计日志](validation/M8-2026-10-20-security.log) 不沿用旧结果。
+
+安全迁移代码提交：**`bf0201d`**。本轮修改文件清单：
+
+- 代码/配置 11 个：`package.json`、`package-lock.json`、`app/package.json`、`tsup.config.ts`、
+  `app/tsup.config.ts`、`.github/workflows/ci.yml`、`.github/workflows/security-scan.yml`、
+  `action.yml`、`app/Dockerfile`、`docs/examples/pr-review.yml`、`app/tests/runtime.test.ts`。
+- 文档/证据 8 个：`README.md`、`ARCHITECTURE.md`、`CHANGELOG.md`、`app/README.md`、
+  `docs/design/GITHUB_APP.md`、`docs/dev/GITHUB-ACTION.md`、本验收记录、
+  `docs/dev/validation/M8-2026-10-20-security.log`。未修改核心规则、扫描算法或精度语料。
+
+### Node 政策、实施范围与兼容影响
+
+- **最低运行时与开发环境均为 Node 24.22.0，支持范围 `^24.22.0`（24.x）**。
+  官方 [发行索引](https://nodejs.org/dist/index.json) 确认 v24.22.0 于 2026-10-14 发布、LTS 为 Krypton；
+  [官方维护计划](https://github.com/nodejs/Release/blob/main/schedule.json) 的 24 分支维护至 2028-04-30。
+- 本轮在 Windows x64 **Node 24.22.0 / npm 11.19.1** 全量实测。使用官网便携 ZIP，SHA256
+  `f9683a19877e12a9b167305c8db71040d812876359de21f0d2e97c3f321f80c3` 与官网 SHASUMS 一致。
+  仅放入忽略目录、临时修改子进程 PATH，未安装或替换系统 Node。
+- 根/App engines、两个 tsup target（`node24`）、CI、Action 默认值、PR 示例、SARIF workflow
+  和 Docker（`node:24.22.0-bookworm-slim`）已同步。**Node 18/20/22、24.22.0 之前的 Node 24
+  不再支持；25/26 不在本分支声明范围。其他 Node 24 补丁、Linux、远程 CI 未实际运行。**
+- 阅读了 [Vitest 4.1.11 官方迁移说明](https://github.com/vitest-dev/vitest/blob/v4.1.11/docs/guide/migration.md)
+  和 [tsup 9 发行说明](https://github.com/egoist/tsup/releases/tag/v9.0.0)。现有配置没有旧 poolOptions、
+  自定义 pool、被移除的 coverage 选项或构造器箭头 mock，故不添加无用迁移配置；原测试完整保留。
+  Vitest 4 的通过日志未展示精度 console 输出，`precision` 脚本增加 `--disableConsoleIntercept`，
+  恢复 TP/FN/FP 可见性；HTTP 测试仅增加实际状态码的安全日志，不改服务行为。
+
+本机便携环境仍位于 `.artifacts/security-2026-10-20/node-v24.22.0-win-x64/`（忽略、不提交）；
+系统 Node 未替换，直接调用系统 npm 可能使用较旧版本。仅在当前 PowerShell 会话复现：
+
+```powershell
+$nodeBin = (Resolve-Path '.artifacts/security-2026-10-20/node-v24.22.0-win-x64').Path
+$env:PATH = $nodeBin + ';' + $env:PATH
+node --version # v24.22.0
+npm run build
+npm run test:run
+npm run precision
+npm run typecheck
+npm run lint
+npm run build -w app
+npm test -w app
+npm run typecheck -w app
+npm run lint -w app
+```
+
+干净 checkout 不含该便携目录，须自行准备满足相同范围的 Node；不要用旧全局 Node 的结果
+替代本轮环境验收，也不要将 API key 放进命令或提交。
+
+| 依赖/路径 | 原锁 → 最终安装 | 实际处理 |
+|---|---|---|
+| vitest、配套 @vitest/*、mocker | 3.2.7 → **4.1.11** | 使用已发布修补版本，不升级到无必要的 Vitest 5；mocker 的越界读取告警从最终 audit 消失 |
+| `vitest → tinypool` | 1.1.1 → **移除** | Vitest 4 使用重写后的 worker pool；最终锁和安装路径均无 Tinypool，不使用跨范围强制 override，两个 critical 包条目消失 |
+| tsup | 8.5.0 → **9.0.0** | 必要安全工具升级；Node 24.22.0 满足其 engine，声明与两个 ESM 入口构建通过 |
+| `tsup → source-map` | 0.8.0-beta.0 → **移除** | tsup 9 使用已修补的 source-map-js 1.2.2；全锁无 source-map 包，废弃 beta 警告移除 |
+| `tsup → esbuild` | 0.25.12 → **0.28.2** | 移除与 tsup 9 冲突的全局 esbuild override；Vite/bundle-require 的 0.25.12 保持在各自允许范围，两条路径均被审计 |
+| Vite | **6.4.4 保持** | 原有 override 在 Vitest 4 的 6/7/8 范围内，保留以避免无关 Vite 大版本升级；不新增 override |
+| 直接生产依赖 | **清单与既有锁版本保持** | 没有新增生产依赖、批量更新 SDK 或替换文件匹配器；其余变化限于必要工具的配套开发依赖，完整锁差异见日志 |
+
+### 新审计与未修复的生产 high
+
+| 范围 | 10-20 整改前 | 最终实际结果 |
+|---|---|---|
+| 完整 audit | 6：2 critical / 3 high / 1 moderate | **3 high、0 critical、0 moderate、0 low；退出 1，未通过** |
+| `--omit=dev` | 3 high | **3 high；退出 1，未通过** |
+
+先排查生产链：`fast-glob 3.3.3 → micromatch 4.0.8 → braces 3.0.3`。
+10-20 官方 npm 查询显示这三个仍是各自最新可用版本，audit 无可用修补；
+[braces 公告](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) 涉及深嵌套 pattern 栈耗尽。
+这 **3 个包条目来自同一漏洞传播**，不是 3 个独立漏洞。CLI 路径、配置与 custom-rule glob
+仍有不可信 pattern 输入面；App 对字面路径转义，限制 exclude 数量/长度并拒绝复杂语法，
+只是减少暴露。没有为了消除数字而删除扫描能力、将不存在/不兼容版本塞入 override，或声称
+开发工具整改能修复生产问题。后续需跟进上游兼容补丁，或单独评审 matcher 替换/维护补丁的
+兼容性、授权及维护成本。本轮先完成其余可执行整改，**整体依赖审计仍不合格**。
+
+最终所有锁中 Node engine 均接受 v24.22.0，安装没有 EBADENGINE；旧 engine 冲突由明确的
+运行环境迁移解决，并非改低子依赖要求。仍有既有 node-domexception 1.0.0 废弃提示，
+不是本轮新增的审计项；没有宣称整个安装无任何维护警告。
+
+### 最终实际验收（全部重新执行）
+
+| 命令/检查 | 10-20 实际结果 |
+|---|---|
+| 根 `build`、`test:run`、`precision`、`typecheck`、`lint` | **全部退出 0**；574 passed / 2 opt-in skipped，18 文件通过 / 1 跳过 |
+| App `build`、`test`、`typecheck`、`lint` | **全部退出 0**；30 passed，9 文件通过，无跳过 |
+| 精度门槛 | **23 TP / 2 FN / 1 FP，95.8% precision / 92.0% recall**；未改语料、规则或 ratchet |
+| 编译后 CLI 漏洞 / 安全 fixtures | **14 文件 / 97 findings**、**8 文件 / 0 findings**；均 0 skipped、0 LLM calls、$0，使用显式受信 YAML 与 dry-run |
+| 新锁隔离生产包 | `npm ci --omit=dev --ignore-scripts --engine-strict` **退出 0**；Vitest/@vitest/Tinypool/tsup/Vite/esbuild 均不在生产安装，TypeScript 可选 runtime peer 仍保留 |
+| 库入口与 bundled wasm | **7 个正确且非空 wasm**；从隔离生产 cwd 以容器相同 stdin 方式导入构建库，PHP 实扫 **1 文件 / 1 finding / 0 skipped / 0 LLM calls** |
+| 编译后本机 HTTP | 合成凭据、仅 **127.0.0.1**：health **200**、无签名 webhook **401**；日志有实际响应码，子进程 finally 终止 |
+| 文档/工作区 | 相对链接、表格/代码围栏、凭据模式、`git diff --check` 与受保护文件哈希核对；未推送或发布 |
+
+完整回归先通过一次；为恢复精度/HTTP 日志可见性做了小修改后，九项在最终状态再次通过。
+额外精度日志检查首次在受限沙箱遭遇临时缓存 rename **EPERM**（0 tests 加载），允许临时
+文件正常写入的执行环境重跑通过；失败及重跑均留档，没有用跳过测试或降门槛替代。
+未调用真实 GitHub 写操作或付费 API；外部 API 流程仍使用 mock，真实联调未验证。
+
+### Docker 独立边界、回滚与下一步
+
+- Docker 客户端 **29.8.2**；`docker version` **退出 1**，`dockerDesktopLinuxEngine` 管道不存在。
+  无镜像构建、无本轮容器，因此无需删除容器；没有安装、重置或配置 Docker。
+- 独立只读 `docker manifest inspect node:24.22.0-bookworm-slim` **退出 1**，Docker Hub
+  `registry-1.docker.io/v2/` 请求超时；因此连新 base tag 拉取也未验证，不能把这个失败解释为
+  标签不存在。镜像构建、非 root、只读根、tmpfs、容器 HTTP/wasm/PHP **全部未验证**。
+  本机生产包或 HTTP 通过不替代 Docker，容器将来通过也不替代 audit。
+- 回滚点 **99334d0**：本轮 Node/依赖/构建/CI 变更作为一组恢复，使用定向 revert，按旧锁
+  重装并重建，重跑原门槛；不把新 bundle 与旧锁混用、不 reset 用户修改或强推。回滚会同时
+  恢复 Tinypool/mocker、Node 18 engine 与 source-map beta 风险，不能称为安全回滚。
+  本轮没有已验证旧镜像可供声称。用户现有 ROADMAP/SECURITY 不属于任何提交或回滚范围。
+- 最短下一步：审阅本轮迁移提交；Docker 可用后按既有部署说明完成独立镜像验收并清理本次
+  容器，继续跟进 braces 生产 high；远程 CI、真实 GitHub、付费 provider、发布仍需另行授权。
+
+## 历史记录：2026-10-18～19（不是当前支持或审计状态）
+
+历史复验：**2026-10-19**（Asia/Shanghai）。环境：Windows、Node **24.18.0** / npm **11.16.0**，
 及隔离便携 Node **18.20.8** / npm **10.8.2**。Node 18 官网 ZIP 的 SHA256 已核对，未安装到系统。
 本轮起点：分支 `codex/m8-github-app-mvp`，HEAD
 `75602a8bd39673dd313baf88bb8dba34ccf4ed5c`，仅原有 `ROADMAP.md`、`SECURITY.md` 未跟踪。
@@ -14,7 +133,7 @@
 M8 原实现日期为 2026-10-18，起点是 `main` / `cc43a84f87434b789cb7cad67b05ce81bdea2a3f`。
 其 [原始日志](validation/M8-2026-10-18.log) 保留当时结果；下面的实际验证与审计表为 10-19 复验结果。
 
-## 实际验证
+### 实际验证
 
 [本轮命令与原始输出](validation/M8-2026-10-19-security.log) 包含九项退出码、测试计数、
 precision、CLI fixtures、生产包检查及 Docker 引擎错误。测试代码的真实 HTTP 断言
@@ -48,7 +167,7 @@ HTTP smoke 使用合成启动凭据，不会创建 JWT 或联系 GitHub；它验
 上述九项命令在 Windows/Node 24 和 Node 18 上分别完整运行并通过。生产检查脚本还以
 与容器相同的 stdin 模式在两种 Node 上运行，通过 7 个 wasm 与 PHP 实扫；**不是 Docker 验收**。
 
-## 10-19 依赖安全收尾
+### 10-19 依赖安全收尾
 
 先读取原 `.artifacts/m8/audit.json`，再对当前 lockfile 做完整/生产审计；按 npm
 包条目计数（含上游传播），**不等于独立漏洞数**。例如 3 个生产 high 条目是同一个
@@ -80,7 +199,7 @@ override 为已修补的 **6.4.4**，使用上游允许的 Node 18 兼容 Vite �
 首次收尾新增锁节点主要是 Vite 6 所需 esbuild 0.25 的可选平台二进制；续验统一版本后
 这些重复节点已去重。没有重建整份锁文件，两个阶段的具体增删分别保留在日志。
 
-### 已修补的告警及实际条件
+#### 已修补的告警及实际条件
 
 下表列出受影响的原锁版本、引入路径和触发条件。链接为上游安全公告；未运行漏洞 PoC。
 
@@ -119,7 +238,7 @@ cache/Action 未实现的旧描述；历史专题通过导航明确标记，不�
 health 200、无签名 401、依赖/wasm/PHP 实扫与 always 清理。脚本在本机生产包运行
 通过，拒绝路径测试通过；Docker/远程 job 仍未运行。
 
-### 仍未修补，审计不通过
+#### 仍未修补，审计不通过
 
 | 包、级别与路径 | 受影响版本 / 安全修复边界 | 实际风险、现有约束与延期原因 |
 |---|---|---|
@@ -131,13 +250,13 @@ health 200、无签名 401、依赖/wasm/PHP 实扫与 always 清理。脚本在
 证明上述包布局、wasm 和静态 scan 可用，**没有验证运行镜像**。TypeScript 仍由
 cosmiconfig 可选 peer 留在生产安装中，未宣称运行包不含编译器。
 
-## 43da997 起点：容器重查与升级评估
+### 43da997 起点：容器重查与升级评估
 
 日期仍为 2026-10-19（Asia/Shanghai）。工作分支 `codex/m8-github-app-mvp`；开始时无已跟踪
 文件修改，仅原有根目录 ROADMAP/SECURITY 未跟踪，两者哈希与上方记录一致。本阶段没有
 修改源码、依赖清单/锁、测试、CI、Dockerfile 或系统配置；没有构建/创建容器，没有外部写操作。
 
-### 本阶段实际结果
+#### 本阶段实际结果
 
 | 项目 | 状态与证据 |
 |---|---|
@@ -158,7 +277,7 @@ Docker 恢复后应沿用现有 Dockerfile、部署命令与 CI 检查，用独�
 再实测根目录写入拒绝、`/tmp` 可写、health 200、无签名 401，以及 stdin 运行生产包检查脚本。
 最后在 finally/always 中仅清理本次容器并记录退出结果。**容器全通过仍不等于 audit 通过**。
 
-### 上游事实与约束（本阶段只读核对）
+#### 上游事实与约束（本阶段只读核对）
 
 | 对象 | 已核对事实 | 对升级的影响 |
 |---|---|---|
@@ -172,7 +291,7 @@ Docker 恢复后应沿用现有 Dockerfile、部署命令与 CI 检查，用独�
 | Node 生命周期 | [Node 官方计划](https://github.com/nodejs/Release/blob/main/schedule.json)：18 于 **2025-04-30**、20 于 **2026-04-30** 结束维护；22 至 2027-04-30，24 至 2028-04-30 | 保留旧版本包含运行时本身的维护风险；不建议仅把最低版本提到已结束维护的 Node 20 |
 | 生产 braces high | [公告](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) 仍无 first_patched_version；当前 fast-glob → micromatch → braces 3.0.3 | 与测试栈升级分开处理。两方案都不能据此消除生产 3 个传播条目；App 输入限制只是缓解，CLI 仍有 glob DoS 输入面 |
 
-### 两种方案（均未实施）
+#### 两种方案（均未实施）
 
 | 维度 | A：保留当前 Node 18 产品运行时声明 | B：提高产品最低 Node 支持范围 |
 |---|---|---|
@@ -188,7 +307,7 @@ Docker 恢复后应沿用现有 Dockerfile、部署命令与 CI 检查，用独�
 其维护成本和退出时间；若必须连开发工具也维持 Node 18，本次评估无法提供无已知告警的
 受支持组合。本阶段只交付上述依据与取舍，未改变 Node 政策或依赖，没有执行任一迁移。
 
-## 10-18 历史基线恢复
+### 10-18 历史基线恢复
 
 初始 `npm ls tree-sitter-php --depth=0` 为空，本地缺少 wasm；原 package.json
 已经声明 `^0.24.2`，锁文件已固定 `0.24.2`。按原锁执行
@@ -203,7 +322,7 @@ README 历史数字没有直接作为验收结果。
 `@hono/node-server` 因审计告警由 1.19.11 修补为 **1.19.17**；原 YAML 2.8.3
 保持不变。没有执行 `npm audit fix` 或重建整个锁文件。
 
-## 完成范围与文件
+### 完成范围与文件
 
 | 任务 | 交付与关键文件 |
 |---|---|
@@ -228,7 +347,7 @@ SDK 非预期 endpoint/重定向；CLI 与库加载 bundled wasm。均为本地�
 - ROADMAP：`1BE82CE9F8FFCBF3D1B5D038E2E7C9DC035DA829285486C4D9D59150746B2D0D`
 - SECURITY：`82EBDEB2185E9079937E50599F3DD881E14F2E0C42F1B0DCE063B16BCFCC9B9F`
 
-## 剩余风险与未完成验收
+### 剩余风险与未完成验收
 
 1. **Docker DoD 未验证**：本机引擎不可用，没有声称镜像能构建或容器 health 通过。
    CI 已补 build/health/401/runtime job，但远程尚未运行。Linux、Node 20/22 矩阵仍
@@ -244,7 +363,7 @@ SDK 非预期 endpoint/重定向；CLI 与库加载 bundled wasm。均为本地�
    强杀无法执行 finally，部署应使用 tmpfs；大 PR/不可读文件/预算未分诊为 partial。
    评论存在长度上限，不能把摘要当作完整安全审计报告。
 
-## 最短下一步
+### 最短下一步
 
 先审阅此分支及 [部署说明](../../app/README.md)。Docker 引擎可用后执行：
 

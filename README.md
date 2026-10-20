@@ -4,6 +4,11 @@
 
 ## Current Status
 
+Runtime and development require **Node 24.x >=24.22.0 LTS** (`engines: ^24.22.0`).
+Node 18/20/22 and earlier Node 24 minors are no longer supported on this branch.
+Build targets, CI, the composite Action and Docker use the same policy. Historical
+Node 18 checks do not establish compatibility with the upgraded dependencies.
+
 AI-CodeGuard is currently in a **Phase 1** state, but the runtime pipeline is no longer Stage-1-only.
 
 What is implemented today:
@@ -21,7 +26,7 @@ What is implemented today:
 - Disk cache for Stage 2 LLM results (`cache.enabled`), wired into the scan pipeline
 - GitHub composite Action (`action.yml`), CI / SARIF-upload workflows, and a BYO-key PR-review workflow example (`docs/examples/pr-review.yml`; design in `docs/design/GITHUB_APP.md`)
 - Self-hosted **GitHub App MVP** (`app/`): signed PR webhooks, installation authentication, head-SHA downloads, changed-line scanning, fingerprint-deduplicated inline reviews, one updated summary and Check Runs; BYO-key or labeled static fallback, bounded costs and temporary cleanup. [Run/deploy instructions](app/README.md)
-- Actual local validation (2026-10-19): **574 root tests passed, 2 opt-in tests skipped** (19 files total), **30 app tests passed** (9 files), including real loopback Node HTTP health/signature rejection and fixture-driven mock GitHub integration. All nine build/test/precision/type/lint checks pass on Windows/Node **18.20.8 and 24.18.0**; Node 18 still emits upstream engine warnings. Dependency repairs reduced audit entries **15 → 6** (production **5 → 3**); **2 critical development entries remain**, so the audit has not passed. Docker and live GitHub/paid-provider integration remain unverified. [Evidence and residual risks](docs/dev/M8-VALIDATION.md)
+- Actual local validation (2026-10-20): **574 root tests passed, 2 opt-in tests skipped** (19 files total), **30 app tests passed** (9 files). All nine checks pass on Windows/Node **24.22.0 LTS**, including precision **95.8% / recall 92.0%**, real loopback HTTP **200/401**, CLI fixtures and bundled-wasm library scans. Vitest/mocker 4.1.11 and tsup 9 remove the Tinypool/mocker alerts and source-map beta. Full audit entries fell **6 → 3**, with **0 critical / 0 moderate**; the **3 high production entries from braces remain**, so audit has not passed. Docker and live GitHub/paid-provider integration remain unverified. [Evidence and residual risks](docs/dev/M8-VALIDATION.md)
 
 What is **not** complete yet:
 - Release preparation and npm registry publication remain separate operator work. This local validation did not publish, create a Release, merge or push; dependency and container acceptance gaps are recorded above.

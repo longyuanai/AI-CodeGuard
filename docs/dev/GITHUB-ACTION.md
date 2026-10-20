@@ -65,7 +65,7 @@ Add a secret named `CODEGUARD_API_KEY` (Anthropic or OpenAI key), then:
 | `api-key` | — | Required when `dry-run=false`. Pass via `${{ secrets.* }}`. |
 | `severity` | — | Minimum severity: `low`, `medium`, `high`, `critical`. |
 | `fail-on-findings` | `true` | Fail the job if critical/high findings exist. |
-| `node-version` | `20` | Node.js version. |
+| `node-version` | `24.22.0` | Node.js 24.x, minimum 24.22.0 for runtime and build tools. |
 
 ## Outputs
 

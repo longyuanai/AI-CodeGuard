@@ -107,6 +107,6 @@ Check 名称 `AI-CodeGuard`，`external_id` 包含 PR number 与 head SHA；同 
 
 ## 7. 当前验收边界
 
-2026-10-19 在 Windows/Node 18.20.8、24.18.0 重新执行根项目五项检查与 app build/test/typecheck/lint，均通过。根测试 574 passed / 2 opt-in skipped，app 30 passed（含生产包检查的两个拒绝路径）；Node 18 仍有上游 engine 警告。app 测试包括 mock GitHub + 真实扫描器的完整签名 webhook 流程，以及限定 127.0.0.1 的编译后 Node 服务真实 HTTP 测试；**不是 GitHub 联调结果**。
+2026-10-20 实施安全工具链迁移，运行时和开发环境统一为 Node 24.x >=24.22.0 LTS（`^24.22.0`），两个构建 target 为 node24，CI/Action/Docker 同步。Windows/Node 24.22.0 的根五项与 app 四项重新通过：574 passed / 2 opt-in skipped、app 30 passed、precision/recall 95.8%/92.0%。包含 mock GitHub + 真实扫描器的签名 webhook 流程，以及限定 127.0.0.1 的编译后 Node 服务 HTTP 200/401 实测；**不是 GitHub 联调结果**。
 
-Dockerfile 和 CI 定义已补，CI 包括 health/401、依赖/wasm 静态扫描与容器清理；本地 Docker 引擎不可用，这些容器运行项仍未验证。隔离生产包的本机安装及 wasm 扫描通过，不能代替容器验证。远程 CI、GitHub 注册、上线、付费 API、npm/Release 均未执行。依赖修补将 audit 包条目从 15 降到 6，生产从 5 降到 3；开发链仍有 2 个 critical 条目，审计未通过。版本、引入路径、触发条件与延期理由集中见 [验收记录](../dev/M8-VALIDATION.md)。
+Dockerfile 和 CI 定义已补，CI 包括 health/401、依赖/wasm 静态扫描与容器清理；本地 Docker 引擎不可用，这些容器运行项仍未验证，Docker Hub 的独立 manifest 查询亦超时。新锁隔离生产包的严格安装及 wasm/PHP 扫描通过，不能代替容器验证。远程 CI、GitHub 注册、上线、付费 API、npm/Release 均未执行。本轮 audit 从 6 降到 3（0 critical / 0 moderate），剩余均为生产 braces high 传播条目，完整及生产审计仍失败。版本、引入路径与剩余风险见 [验收记录](../dev/M8-VALIDATION.md)。
