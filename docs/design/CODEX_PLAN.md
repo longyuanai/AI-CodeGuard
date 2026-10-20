@@ -2,7 +2,7 @@
 
 > 状态：任务书（2026-07-23）。本文档写给编码代理（Codex）执行：把 M8「托管 GitHub App」从设计稿推进到可部署的 MVP，并补齐相关文档。阅读本文后按 §4 的任务顺序实施，每个任务都有明确的验收标准。
 
-> 执行记录（2026-10-18）：T0～T6 的实现已落地；本地验收及明确未验证项见 [M8-VALIDATION.md](../dev/M8-VALIDATION.md)。下文 572 项属于任务书历史基线；Docker、真实 GitHub/付费 API 联调及外部发布不据此宣称完成。当前交付为本地分支，未推送或发布。
+> 执行记录（2026-10-20）：T0～T6 已落地，已推送 [PR #17](https://github.com/longyuanai/AI-CodeGuard/pull/17)，本地及 Linux CI/真实容器验收通过，审阅修复记录见 [M8-VALIDATION.md](../dev/M8-VALIDATION.md)。下文 572 项、Node ≥18 等属于任务书历史要求；当前支持为 `^24.22.0`，以 README/package.json 为准。真实 GitHub App/付费 API 仍未联调，未合并、部署或发布。
 
 ## 0. 项目现状（已验证）
 

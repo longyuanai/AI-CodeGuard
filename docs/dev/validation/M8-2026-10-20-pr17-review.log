@@ -1,0 +1,583 @@
+AI-CodeGuard PR #17 code review and correctness regression | 2026-10-20 Asia/Shanghai
+BASE: 0cd395801700aa57812c0466c1798862e13c3203
+BRANCH: codex/m8-github-app-mvp; target main
+ACTUAL MERGE-BASE: cc43a84f87434b789cb7cad67b05ce81bdea2a3f
+FIX: e4b6c7b3bec045bb03340763496334418f43f771
+PR: https://github.com/longyuanai/AI-CodeGuard/pull/17
+Node v24.22.0 / npm 11.19.1 via process-local portable PATH; system Node unchanged.
+Protected ROADMAP.md / SECURITY.md unchanged and untracked.
+No external App registration, paid calls, deployment, merge, publication or APPROVE review.
+
+Review findings:
+P1 pipeline.ts original lines 78-81: renamed file with additions but unavailable changed lines was skipped without incomplete; some missing hunks also passed. Fix compares API additions and marks partial, retaining visible findings. Confirmed zero-addition rename/deletion may have no hunks.
+P2 diff.ts original lines 66-67: Git C-quoted UTF-8 paths never matched repository filenames; CLI --diff dropped findings and App could not anchor/scan them. Fix decodes Git octal UTF-8 and C escapes in the shared parser.
+No unresolved blocking P0/P1/contract P2 found in the reviewed change. Known documented MVP limits retained, not upgraded into queue/multi-tenant features.
+
+
+=== INITIAL BUILT LIBRARY PROBES ===
+{"paths":[".hidden.ts"],"files":1,"findings":1,"skipped":[]}
+{"paths":[".github/code.ts"],"files":1,"findings":1,"skipped":[]}
+{"paths":["[src]"],"files":1,"findings":1,"skipped":[]}
+{"paths":["src/code.ts"],"files":1,"findings":1,"skipped":[]}
+quoted diff keys ["\"b/src/\\344\\270\\255.ts\""]
+
+
+=== BEFORE FIX: root quoted-path regressions, exit 1 ===
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard
+
+ ❯ tests/unit/diff.test.ts (16 tests | 2 failed) 55ms
+     × decodes Git C-quoted UTF-8 paths before stripping the b/ prefix 6ms
+     × decodes quoted control characters, quotes and backslashes in paths 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/diff.test.ts > parseUnifiedDiff > decodes Git C-quoted UTF-8 paths before stripping the b/ prefix
+AssertionError: expected [] to deeply equal [ 1 ]
+
+- Expected
++ Received
+
+- [
+-   1,
+- ]
++ []
+
+ ❯ tests/unit/diff.test.ts:16:63
+     14|     const diff = [String.raw`--- "a/src/\344\270\255.ts"`,
+     15|       String.raw`+++ "b/src/\344\270\255.ts"`, '@@ -0,0 +1 @@', '+eval…
+     16|     expect([...parseUnifiedDiff(diff).get('src/中.ts') ?? []]).toEqual(…
+       |                                                               ^
+     17|   });
+     18|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/diff.test.ts > parseUnifiedDiff > decodes quoted control characters, quotes and backslashes in paths
+AssertionError: expected [] to deeply equal [ 1 ]
+
+- Expected
++ Received
+
+- [
+-   1,
+- ]
++ []
+
+ ❯ tests/unit/diff.test.ts:22:70
+     20|     const diff = [String.raw`--- "a/src/a\t\"b\\c.ts"`,
+     21|       String.raw`+++ "b/src/a\t\"b\\c.ts"`, '@@ -0,0 +1 @@', '+eval(in…
+     22|     expect([...parseUnifiedDiff(diff).get('src/a\t"b\\c.ts') ?? []]).t…
+       |                                                                      ^
+     23|   });
+     24|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 14 passed (16)
+   Start at  15:00:57
+   Duration  685ms (transform 277ms, setup 0ms, import 469ms, tests 55ms, environment 0ms)
+
+
+
+=== BEFORE FIX: App renamed-file regressions, exit 1 ===
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard/app
+
+ ❯ tests/pipeline.test.ts (10 tests | 2 failed) 104ms
+   × scans a renamed file with Git-quoted UTF-8 paths and anchors its changed line 13ms
+   × never claims success for a renamed file with additions but no usable diff lines 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/pipeline.test.ts > scans a renamed file with Git-quoted UTF-8 paths and anchors its changed line
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/pipeline.test.ts:21:32
+     19|   });
+     20|   const result = await scanPR({ request } as unknown as GitHubClient, …
+     21|   expect(result?.result.files).toBe(1);
+       |                                ^
+     22|   expect(result?.result.findings).toHaveLength(1);
+     23|   expect(result?.changed.get('src/中.ts')).toEqual(new Set([2]));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/pipeline.test.ts > never claims success for a renamed file with additions but no usable diff lines
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/pipeline.test.ts:34:30
+     32|   });
+     33|   const result = await scanPR({ request } as unknown as GitHubClient, …
+     34|   expect(result?.incomplete).toBe(true);
+       |                              ^
+     35|   expect(checkConclusion(result!, 'high')).toBe('neutral');
+     36| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 passed (10)
+   Start at  15:00:58
+   Duration  521ms (transform 130ms, setup 0ms, import 284ms, tests 104ms, environment 0ms)
+
+
+
+=== AFTER FIX: targeted root, exit 0 ===
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard
+
+
+ Test Files  1 passed (1)
+      Tests  16 passed (16)
+   Start at  15:02:20
+   Duration  642ms (transform 272ms, setup 0ms, import 460ms, tests 50ms, environment 0ms)
+
+
+
+=== AFTER FIX: targeted App, exit 0 (pure-rename fixture subsequently made Git-realistic; final nine gates include that update) ===
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard/app
+
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  15:02:25
+   Duration  545ms (transform 138ms, setup 0ms, import 298ms, tests 112ms, environment 0ms)
+
+
+
+=== FINAL LOCAL NINE GATES AND AUDIT EXIT CODES ===
+BASE 0cd3958; Node v24.22.0; npm 11.19.1
+
+COMMAND npm run build
+
+> ai-codeguard@0.4.0 build
+> tsup
+
+CLI Building entry: {"index":"src/cli/index.ts","lib":"src/lib.ts"}
+CLI Using tsconfig: tsconfig.json
+CLI tsup v9.0.0
+CLI Using tsup config: E:\001项目\001Github\000开源项目\001AI-CodeGuard\tsup.config.ts
+CLI Target: node24
+CLI Cleaning output folder
+ESM Build start
+ESM dist\index.js              11.40 KB
+ESM dist\chunk-43Y67Z3S.js     122.63 KB
+ESM dist\lib.js                542.00 B
+ESM dist\index.js.map          22.38 KB
+ESM dist\lib.js.map            71.00 B
+ESM dist\chunk-43Y67Z3S.js.map 276.33 KB
+ESM ⚡️ Build success in 46ms
+DTS Build start
+DTS ⚡️ Build success in 1679ms
+DTS dist\index.d.ts 13.00 B
+DTS dist\lib.d.ts   9.77 KB
+EXIT=0
+
+COMMAND npm run test:run
+
+> ai-codeguard@0.4.0 test:run
+> vitest run
+
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard
+
+
+ Test Files  19 passed | 1 skipped (20)
+      Tests  582 passed | 2 skipped (584)
+   Start at  15:04:10
+   Duration  1.26s (transform 3.57s, setup 0ms, import 8.11s, tests 1.82s, environment 2ms)
+
+EXIT=0
+
+COMMAND npm run precision
+
+> ai-codeguard@0.4.0 precision
+> vitest run tests/precision --disableConsoleIntercept
+
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard
+
+
+── precision corpus report ──
+expected: 25  reported: 24
+TP: 23  FN: 2  FP: 1
+precision: 95.8%  recall: 92.0%
+missed (FN): handler.go:33:CG-002, webapp.ts:41:CG-001
+spurious (FP): service.py:42:CG-024
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  15:04:12
+   Duration  433ms (transform 160ms, setup 0ms, import 241ms, tests 57ms, environment 0ms)
+
+EXIT=0
+
+COMMAND npm run typecheck
+
+> ai-codeguard@0.4.0 typecheck
+> tsc --noEmit
+
+EXIT=0
+
+COMMAND npm run lint
+
+> ai-codeguard@0.4.0 lint
+> eslint src/
+
+EXIT=0
+
+COMMAND npm run build -w app
+
+> @ai-codeguard/github-app@0.1.0 build
+> tsup
+
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v9.0.0
+CLI Using tsup config: E:\001项目\001Github\000开源项目\001AI-CodeGuard\app\tsup.config.ts
+CLI Target: node24
+CLI Cleaning output folder
+ESM Build start
+ESM dist\index.js     21.59 KB
+ESM dist\index.js.map 40.86 KB
+ESM ⚡️ Build success in 29ms
+EXIT=0
+
+COMMAND npm test -w app
+
+> @ai-codeguard/github-app@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard/app
+
+
+ Test Files  9 passed (9)
+      Tests  34 passed (34)
+   Start at  15:04:18
+   Duration  740ms (transform 628ms, setup 0ms, import 2.14s, tests 1.30s, environment 1ms)
+
+EXIT=0
+
+COMMAND npm run typecheck -w app
+
+> @ai-codeguard/github-app@0.1.0 typecheck
+> tsc --noEmit
+
+EXIT=0
+
+COMMAND npm run lint -w app
+
+> @ai-codeguard/github-app@0.1.0 lint
+> eslint src/
+
+EXIT=0
+AUDIT_EXIT=0
+PROD_AUDIT_EXIT=0
+
+
+=== FULL AUDIT (npm audit --registry=https://registry.npmjs.org --json) ===
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {},
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 110,
+      "dev": 275,
+      "optional": 104,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 384
+    }
+  }
+}
+
+
+=== PRODUCTION AUDIT (npm audit --omit=dev --registry=https://registry.npmjs.org --json) ===
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {},
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 110,
+      "dev": 275,
+      "optional": 104,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 384
+    }
+  }
+}
+
+
+=== ACTUAL GIT GENERATED DIFF (git -c core.quotePath=true diff --no-ext-diff --no-textconv in synthetic staging/worktree) ===
+diff --git "a/src/\344\270\255.ts" "b/src/\344\270\255.ts"
+index 0601d02..6cccf90 100644
+--- "a/src/\344\270\255.ts"
++++ "b/src/\344\270\255.ts"
+@@ -1 +1,2 @@
+-const x = 1;
+\ No newline at end of file
++const x = 1;
++eval(req.query.code);
+
+
+=== COMPILED CLI --diff RESULT (node dist/index.js scan . --dry-run --diff quoted.diff --output json --fail-on none) ===
+{
+  "version": "0.4.0",
+  "scan": {
+    "files": 1,
+    "suspicious": 1,
+    "suppressed": 0,
+    "baselined": 0,
+    "diffFiltered": 0,
+    "duration": 36,
+    "llmCalls": 0,
+    "estimatedCost": 0,
+    "cacheHits": 0,
+    "totalFindings": 1,
+    "severityCounts": {
+      "critical": 1,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    }
+  },
+  "findings": [
+    {
+      "id": "finding-1",
+      "ruleId": "CG-003",
+      "cwe": "CWE-95",
+      "cweUri": "https://cwe.mitre.org/data/definitions/95.html",
+      "severity": "critical",
+      "title": "Code Injection (eval)",
+      "description": "Potential Code Injection (eval) detected. Moderate confidence — LLM analysis recommended.",
+      "file": "src/中.ts",
+      "location": {
+        "start": {
+          "line": 2,
+          "column": 0
+        },
+        "end": {
+          "line": 2,
+          "column": 20
+        }
+      },
+      "snippet": "eval(req.query.code)",
+      "fix": null,
+      "llmAnalysis": null
+    }
+  ],
+  "dismissedFindings": [],
+  "skipped": []
+}
+
+=== COMPILED CLI QUOTED RUN EXIT ===
+EXIT=0
+
+
+=== BUILT LIBRARY / HTTP (npm exec -w app -- vitest run tests/library.test.ts tests/runtime.test.ts --disableConsoleIntercept) ===
+CLI_safe=0
+CLI_vulnerable=0
+
+ RUN  v4.1.11 E:/001项目/001Github/000开源项目/001AI-CodeGuard/app
+
+{"probe":"loopback HTTP","health":200,"unsignedWebhook":401}
+
+ Test Files  2 passed (2)
+      Tests  3 passed (3)
+   Start at  15:05:37
+   Duration  499ms (transform 137ms, setup 0ms, import 306ms, tests 406ms, environment 0ms)
+
+LIB_HTTP_EXIT=0
+
+CLI safe: {"scan":{"files":8,"suspicious":0,"suppressed":0,"baselined":0,"diffFiltered":0,"duration":56,"llmCalls":0,"estimatedCost":0,"cacheHits":0,"totalFindings":0,"severityCounts":{"critical":0,"high":0,"medium":0,"low":0}},"findings":0,"skipped":[]}
+
+CLI vulnerable: {"scan":{"files":14,"suspicious":97,"suppressed":0,"baselined":0,"diffFiltered":0,"duration":71,"llmCalls":0,"estimatedCost":0,"cacheHits":0,"totalFindings":97,"severityCounts":{"critical":27,"high":37,"medium":33,"low":0}},"findings":97,"skipped":[]}
+
+LINUX CI https://github.com/longyuanai/AI-CodeGuard/actions/runs/39384389745
+{
+  "headSha": "e4b6c7b3bec045bb03340763496334418f43f771",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "build-and-test (24.22.0)",
+      "conclusion": "success",
+      "url": "https://github.com/longyuanai/AI-CodeGuard/actions/runs/39384389745/job/118500622059"
+    },
+    {
+      "name": "github-app (24.22.0)",
+      "conclusion": "success",
+      "url": "https://github.com/longyuanai/AI-CodeGuard/actions/runs/39384389745/job/118500622093"
+    },
+    {
+      "name": "action-smoke",
+      "conclusion": "success",
+      "url": "https://github.com/longyuanai/AI-CodeGuard/actions/runs/39384389745/job/118500622219"
+    },
+    {
+      "name": "github-app-container",
+      "conclusion": "success",
+      "url": "https://github.com/longyuanai/AI-CodeGuard/actions/runs/39384389745/job/118500622292"
+    }
+  ]
+}
+
+SECURITY SCAN https://github.com/longyuanai/AI-CodeGuard/actions/runs/39384389771
+{
+  "headSha": "e4b6c7b3bec045bb03340763496334418f43f771",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "AI-CodeGuard SARIF",
+      "conclusion": "success",
+      "url": "https://github.com/longyuanai/AI-CodeGuard/actions/runs/39384389771/job/118500622437"
+    }
+  ]
+}
+
+ACTUAL CI EXCERPTS (timestamps retained; full log at run link)
+build-and-test (24.22.0)	Install dependencies	2026-10-20T07:06:41.2955016Z found 0 vulnerabilities
+build-and-test (24.22.0)	Audit complete and production dependency trees	2026-10-20T07:06:42.2500069Z found 0 vulnerabilities
+build-and-test (24.22.0)	Audit complete and production dependency trees	2026-10-20T07:06:42.7070717Z found 0 vulnerabilities
+build-and-test (24.22.0)	Run tests	2026-10-20T07:06:53.0270482Z TP: 23  FN: 2  FP: 1
+build-and-test (24.22.0)	Run tests	2026-10-20T07:06:53.0279718Z precision: 95.8%  recall: 92.0%
+build-and-test (24.22.0)	Run tests	2026-10-20T07:06:53.9504873Z ^[[2m Test Files ^[[22m ^[[1m^[[32m19 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[90m (20)^[[39m
+build-and-test (24.22.0)	Run tests	2026-10-20T07:06:53.9509279Z ^[[2m      Tests ^[[22m ^[[1m^[[32m582 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[90m (584)^[[39m
+github-app (24.22.0)	Run npm ci --ignore-scripts	2026-10-20T07:06:40.5695351Z found 0 vulnerabilities
+github-app (24.22.0)	Run npm test -w app	2026-10-20T07:06:51.3787831Z ^[[2m Test Files ^[[22m ^[[1m^[[32m9 passed^[[39m^[[22m^[[90m (9)^[[39m
+github-app (24.22.0)	Run npm test -w app	2026-10-20T07:06:51.3789171Z ^[[2m      Tests ^[[22m ^[[1m^[[32m34 passed^[[39m^[[22m^[[90m (34)^[[39m
+github-app (24.22.0)	Run npm run precision	2026-10-20T07:06:52.3278560Z TP: 23  FN: 2  FP: 1
+github-app (24.22.0)	Run npm run precision	2026-10-20T07:06:52.3279039Z precision: 95.8%  recall: 92.0%
+github-app (24.22.0)	Run npm run precision	2026-10-20T07:06:52.3302803Z ^[[2m Test Files ^[[22m ^[[1m^[[32m1 passed^[[39m^[[22m^[[90m (1)^[[39m
+github-app (24.22.0)	Run npm run precision	2026-10-20T07:06:52.3304292Z ^[[2m      Tests ^[[22m ^[[1m^[[32m1 passed^[[39m^[[22m^[[90m (1)^[[39m
+action-smoke	Scan vulnerable fixtures with the local action	2026-10-20T07:06:42.9378451Z found 0 vulnerabilities
+action-smoke	Scan vulnerable fixtures with the local action	2026-10-20T07:06:46.2932704Z ^[[36;1mecho "findings-count=$FINDINGS" >> "$GITHUB_OUTPUT"^[[0m
+action-smoke	Assert vulnerable scan produced findings and valid SARIF	2026-10-20T07:06:46.6959713Z ^[[36;1mecho "findings-count=$FINDINGS sarif-file=$SARIF_FILE"^[[0m
+action-smoke	Assert vulnerable scan produced findings and valid SARIF	2026-10-20T07:06:46.7106701Z findings-count=97 sarif-file=smoke-vulnerable.sarif
+action-smoke	Scan safe fixtures with the local action (must pass)	2026-10-20T07:06:51.1124303Z found 0 vulnerabilities
+action-smoke	Scan safe fixtures with the local action (must pass)	2026-10-20T07:06:54.3281884Z ^[[36;1mecho "findings-count=$FINDINGS" >> "$GITHUB_OUTPUT"^[[0m
+action-smoke	Assert safe scan reported zero findings	2026-10-20T07:06:54.7064373Z ^[[36;1mecho "findings-count=$FINDINGS"^[[0m
+action-smoke	Assert safe scan reported zero findings	2026-10-20T07:06:54.7207332Z findings-count=0
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:34.4631145Z #1 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:34.6138342Z #2 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:35.0234817Z #3 DONE 0.7s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:35.1595650Z #4 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:35.2658774Z #5 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:38.9272972Z #6 DONE 3.8s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:38.9273294Z #7 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:39.1135916Z #8 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:39.1136499Z #9 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:42.3987738Z #11 DONE 3.4s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:44.5686699Z #10 DONE 5.6s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:44.7975807Z #12 DONE 2.2s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:44.7976480Z #13 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:44.7976840Z #14 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:44.7977105Z #15 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:47.2190863Z #16 DONE 2.5s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:47.4014534Z #17 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:47.4015548Z #18 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:48.7060110Z #19 DONE 1.5s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:48.9255274Z #20 DONE 0.1s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:48.9255952Z #21 DONE 0.0s
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:48.9256128Z #22 exporting to image
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:49.7931675Z #22 naming to docker.io/library/ai-codeguard-app:ci done
+github-app-container	Run docker build -f app/Dockerfile -t ai-codeguard-app:ci .	2026-10-20T07:06:49.7932467Z #22 DONE 1.0s
+github-app-container	Container health smoke (synthetic credentials, no external API)	2026-10-20T07:06:50.9998843Z health HTTP=200
+github-app-container	Reject unsigned webhook	2026-10-20T07:06:51.0224089Z unsigned webhook HTTP=401
+github-app-container	Verify container isolation	2026-10-20T07:06:51.0861641Z user=node readonly=true tmpfs={"/tmp":"rw,noexec,nosuid,size=256m"}
+github-app-container	Verify container isolation	2026-10-20T07:06:51.1326436Z {"uid":1000,"rootWrite":"EROFS","tmpWrite":"passed"}
+github-app-container	Check runtime dependencies and wasm with a static scan	﻿2026-10-20T07:06:51.1397020Z ##[group]Run docker exec -i codeguard-app node --input-type=module < scripts/check-runtime.mjs
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.1397390Z ^[[36;1mdocker exec -i codeguard-app node --input-type=module < scripts/check-runtime.mjs^[[0m
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.1449098Z shell: /usr/bin/bash -e {0}
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.1449243Z ##[endgroup]
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3241984Z {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3242289Z   "kind": "production package smoke",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3242496Z   "tools": {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3242609Z     "vitest": "absent",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3242735Z     "@vitest": "absent",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3242860Z     "tinypool": "absent",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3242988Z     "tsup": "absent",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3243097Z     "vite": "absent",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3243210Z     "esbuild": "absent",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3243330Z     "typescript": "present"
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3243447Z   },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3243544Z   "wasm": [
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3243641Z     {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3243750Z       "file": "tree-sitter-go.wasm",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3244139Z       "bytes": 217182
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3244292Z     },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3244422Z     {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3244571Z       "file": "tree-sitter-java.wasm",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3244767Z       "bytes": 414641
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3244919Z     },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3245051Z     {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3245248Z       "file": "tree-sitter-javascript.wasm",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3245475Z       "bytes": 411770
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3245631Z     },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3245762Z     {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3245940Z       "file": "tree-sitter-php.wasm",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3246161Z       "bytes": 1058041
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3246322Z     },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3246478Z     {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3246690Z       "file": "tree-sitter-python.wasm",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3246909Z       "bytes": 457883
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3247064Z     },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3247506Z     {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3248225Z       "file": "tree-sitter-tsx.wasm",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3248552Z       "bytes": 1445638
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3248841Z     },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3249138Z     {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3249411Z       "file": "web-tree-sitter.wasm",
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3249709Z       "bytes": 196763
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3249937Z     }
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3250127Z   ],
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3250332Z   "scan": {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3250539Z     "files": 1,
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3250751Z     "findings": 1,
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3250956Z     "skipped": 0,
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3251171Z     "llmCalls": 0
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3251372Z   },
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3251564Z   "safeScan": {
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3251924Z     "files": 1,
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3252124Z     "findings": 0,
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3252283Z     "skipped": 0,
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3252441Z     "llmCalls": 0
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3252610Z   }
+github-app-container	Check runtime dependencies and wasm with a static scan	2026-10-20T07:06:51.3252766Z }
+github-app-container	Run docker rm -f codeguard-app || true	2026-10-20T07:06:51.4710020Z codeguard-app
+
+Unverified: real GitHub App PR-write integration, paid providers, other Node patches/platforms. Local Docker remains unavailable; Linux container results above are real, not mocked API tests.
