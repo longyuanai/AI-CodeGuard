@@ -34,7 +34,7 @@ export async function scanPR(client: GitHubClient, job: PRJob, deps: PipelineDep
   const largePR = pr.changed_files > MAX_FILES;
   const notes: string[] = largePR ? ['PR exceeds 300 files: first 300 only; inline comments disabled.'] : [];
   let incomplete = largePR;
-  const files: Array<{ filename: string; status: string }> = [];
+  const files: Array<{ filename: string; status: string; additions?: number }> = [];
   for (let page = 1; page <= MAX_FILES / 100; page++) {
     const { data } = await client.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/files', { ...base, per_page: 100, page });
     files.push(...data);
@@ -44,7 +44,8 @@ export async function scanPR(client: GitHubClient, job: PRJob, deps: PipelineDep
   const diffResponse = await client.request('GET /repos/{owner}/{repo}/pulls/{pull_number}', { ...base, mediaType: { format: 'diff' } });
   const diff = diffResponse.data as unknown as string;
   if (typeof diff !== 'string' || Buffer.byteLength(diff) > MAX_TOTAL) throw new Error('Invalid or oversized PR diff.');
-  const changed = parseUnifiedDiff(diff);
+  // Pure renames/deletions can legitimately have no +++ header or new lines.
+  const changed: ChangedLines = files.every(file => file.additions === 0) ? new Map() : parseUnifiedDiff(diff);
   const temp = await mkdtemp(join(tmpdir(), 'codeguard-'));
   try {
     const rootDir = join(temp, 'repo');
@@ -77,8 +78,13 @@ export async function scanPR(client: GitHubClient, job: PRJob, deps: PipelineDep
       if (file.status === 'removed' || !detectLanguage(file.filename)) continue;
       if (!changed.get(file.filename)?.size) {
         // Binary diffs / truncated hunks cannot be reported as a clean scan.
-        if (file.status !== 'renamed') { notes.push(`No changed lines available: ${file.filename}`); incomplete = true; }
+        // A rename is safe to omit only when GitHub confirms zero additions.
+        if (file.additions !== 0) { notes.push(`No changed lines available: ${file.filename}`); incomplete = true; }
         continue;
+      }
+      if (file.additions !== undefined && changed.get(file.filename)!.size !== file.additions) {
+        notes.push(`Incomplete changed lines: ${file.filename}`);
+        incomplete = true;
       }
       try { await download(file.filename, MAX_FILE); paths.push(file.filename); }
       catch { notes.push(`Skipped unavailable, unsafe or oversized file: ${file.filename}`); incomplete = true; }

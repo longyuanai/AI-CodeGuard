@@ -4,9 +4,57 @@ import { expect, it, vi } from 'vitest';
 import { scan, fingerprintFinding } from 'ai-codeguard';
 import { safePath, scanPR } from '../src/pipeline.js';
 import { job, mockGitHub } from './helpers.js';
+import type { GitHubClient } from '../src/types.js';
+import { checkConclusion } from '../src/review.js';
 
 const source = 'eval(req.query.old);\neval(req.query.new);\n';
 const diff = '--- a/src/code.ts\n+++ b/src/code.ts\n@@ -1 +1,2 @@\n eval(req.query.old);\n+eval(req.query.new);\n';
+it('scans a renamed file with Git-quoted UTF-8 paths and anchors its changed line', async () => {
+  const quotedDiff = [String.raw`--- "a/src/old.ts"`, String.raw`+++ "b/src/\344\270\255.ts"`,
+    '@@ -1 +1,2 @@', ' eval(req.query.old);', '+eval(req.query.new);'].join('\n');
+  const gh = mockGitHub(source, quotedDiff, { 'src/中.ts': source });
+  const request = vi.fn(async (route: string, args: Record<string, unknown>) => {
+    if (route.endsWith('/files')) return { data: [{ filename: 'src/中.ts', status: 'renamed', additions: 1 }] };
+    return gh.request(route, args);
+  });
+  const result = await scanPR({ request } as unknown as GitHubClient, job);
+  expect(result?.result.files).toBe(1);
+  expect(result?.result.findings).toHaveLength(1);
+  expect(result?.changed.get('src/中.ts')).toEqual(new Set([2]));
+  expect(checkConclusion(result!, 'high')).toBe('failure');
+});
+
+it('never claims success for a renamed file with additions but no usable diff lines', async () => {
+  const gh = mockGitHub(source, '');
+  const request = vi.fn(async (route: string, args: Record<string, unknown>) => {
+    if (route.endsWith('/files')) return { data: [{ filename: 'src/code.ts', status: 'renamed', additions: 1 }] };
+    return gh.request(route, args);
+  });
+  const result = await scanPR({ request } as unknown as GitHubClient, job);
+  expect(result?.incomplete).toBe(true);
+  expect(checkConclusion(result!, 'high')).toBe('neutral');
+});
+it('marks a partially available diff incomplete but still reports visible findings', async () => {
+  const gh = mockGitHub(source, diff);
+  const request = vi.fn(async (route: string, args: Record<string, unknown>) => {
+    if (route.endsWith('/files')) return { data: [{ filename: 'src/code.ts', status: 'modified', additions: 2 }] };
+    return gh.request(route, args);
+  });
+  const result = await scanPR({ request } as unknown as GitHubClient, job);
+  expect(result?.result.findings).toHaveLength(1);
+  expect(result?.incomplete).toBe(true);
+  expect(checkConclusion(result!, 'none')).toBe('neutral');
+});
+it('permits a pure rename with confirmed zero additions without claiming a partial scan', async () => {
+  const gh = mockGitHub(source, 'diff --git a/old.ts b/src/code.ts\nsimilarity index 100%\nrename from old.ts\nrename to src/code.ts\n');
+  const request = vi.fn(async (route: string, args: Record<string, unknown>) => {
+    if (route.endsWith('/files')) return { data: [{ filename: 'src/code.ts', status: 'renamed', additions: 0 }] };
+    return gh.request(route, args);
+  });
+  const result = await scanPR({ request } as unknown as GitHubClient, job);
+  expect(result?.incomplete).toBe(false);
+  expect(result?.result.files).toBe(0);
+});
 it('runs the real scanner with changed-line filtering and removes downloaded files', async () => {
   const gh = mockGitHub(source, diff);
   let temp = '';
