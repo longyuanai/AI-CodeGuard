@@ -36,9 +36,9 @@ inputs:
     required: false
     default: 'true'
   node-version:
-    description: 'Node.js version to use'
+    description: 'Node.js 24.x version to use (minimum 24.22.0)'
     required: false
-    default: '20'
+    default: '24.22.0'
 
 outputs:
   sarif-file:

@@ -37,6 +37,8 @@ it('starts the built Node HTTP service and answers health and signature rejectio
     expect(loopback).toBe(true);
     const health = await fetch(`http://127.0.0.1:${port}/healthz`);
     expect(health.status).toBe(200); expect(await health.json()).toEqual({ status: 'ok' });
-    expect((await fetch(`http://127.0.0.1:${port}/webhook`, { method: 'POST', body: '{}' })).status).toBe(401);
+    const unsigned = await fetch(`http://127.0.0.1:${port}/webhook`, { method: 'POST', body: '{}' });
+    expect(unsigned.status).toBe(401);
+    console.info(JSON.stringify({ probe: 'loopback HTTP', health: health.status, unsignedWebhook: unsigned.status }));
   } finally { child.kill(); }
 }, 15_000);

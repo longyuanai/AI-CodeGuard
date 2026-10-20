@@ -1,5 +1,5 @@
 # Build from the repository root: docker build -f app/Dockerfile -t ai-codeguard-app:local .
-FROM node:22-bookworm-slim AS build
+FROM node:24.22.0-bookworm-slim AS build
 WORKDIR /opt/codeguard
 COPY package.json package-lock.json ./
 COPY app/package.json ./app/package.json
@@ -11,7 +11,7 @@ COPY app/src ./app/src
 RUN npm run build && npm run build -w app
 RUN npm prune --omit=dev --ignore-scripts --no-audit --no-fund
 
-FROM node:22-bookworm-slim AS runtime
+FROM node:24.22.0-bookworm-slim AS runtime
 ENV NODE_ENV=production PORT=3000
 WORKDIR /opt/codeguard
 COPY --from=build --chown=node:node /opt/codeguard/package.json ./package.json
