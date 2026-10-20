@@ -1,4 +1,4 @@
-import fg from 'fast-glob';
+import { glob, escapePath } from 'tinyglobby';
 import { readFile, stat } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import type { CodeGuardConfig, ScanResult, Finding, SuspiciousNode, SkippedFile, OutputFormat, Severity } from '../types/index.js';
@@ -223,7 +223,7 @@ async function discoverFiles(
         const normalizedPath = p.replace(/\\/g, '/');
         try {
           const info = await stat(resolve(rootDir, p));
-          if (info.isFile()) return [fg.escapePath(normalizedPath)];
+          if (info.isFile()) return [escapePath(normalizedPath)];
         } catch {
           // Path doesn't exist yet — treat as glob pattern
           return [normalizedPath];
@@ -238,11 +238,13 @@ async function discoverFiles(
 
   const supportedExts = getSupportedExtensions();
 
-  const files = await fg(patterns, {
+  const files = await glob(patterns, {
     cwd: rootDir,
     ignore: config.scan.exclude,
     absolute: true,
     onlyFiles: true,
+    // Match fast-glob: directory arguments are expanded explicitly above.
+    expandDirectories: false,
     dot: false,
   });
 
