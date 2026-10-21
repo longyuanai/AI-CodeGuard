@@ -18,7 +18,7 @@
 | 总览、安装、CLI 和配置示例 | [README](../README.md) |
 | 模块、库入口、wasm、App 数据流 | [ARCHITECTURE](../ARCHITECTURE.md) |
 | 实际验证与未验证项 | [M8 验收记录](./dev/M8-VALIDATION.md) |
-| App 环境变量、权限、容器、清理与回滚 | [app/README](../app/README.md) |
+| App 环境变量、权限、真实联调步骤/证据模板、合成样本、清理与回滚 | [app/README](../app/README.md) |
 | 签名、head SHA、评论去重、Check、预算与隐私 | [GITHUB_APP](./design/GITHUB_APP.md) |
 | built-in / YAML custom rules 与检测边界 | [RULES](./design/RULES.md) |
 | Stage 2 结果缓存、键、TTL 与默认值 | [CACHING](./design/CACHING.md) |

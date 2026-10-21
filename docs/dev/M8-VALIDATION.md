@@ -1,6 +1,35 @@
 # M8 本地交付与验收记录
 
-## 当前审阅：2026-10-20 PR #17 正确性修复与验收
+## 当前准备：2026-10-21 真实 GitHub App 联调资料（未执行外部联调）
+
+基线为已合并、已验收 main **`045d4073ec8dd3a3c347b30bb2c61edfd35e2ae3`**，
+PR #17 不重复合并。2026-10-20 的 main 本地九项、582/2 skipped + App 35、
+95.8%/92.0%、两项 audit 0 告警及
+[main Linux CI/真实容器](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39387448393)、
+[security-scan](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39387448454)
+是历史有效证据，原本地报告为 `.artifacts/main-acceptance-2026-10-20/RESULT.md`（忽略目录）。
+本轮没有重新运行 main 的完整验收，也不把旧运行改写为 10-21 新结果。
+
+在 `codex/github-app-rehearsal-prep` 完善已有
+[App 手册](../../app/README.md#真实-github-app-联调手册待外部授权执行)，修正旧快照，
+补充配置单、指定仓库权限/安装、无 key/成本 0 的首次运行、测试操作、脱敏证据模板、
+故障定位及定点回滚/清理。源码、依赖、构建配置和原 fixtures 均未修改。
+
+新增 [safe](../examples/github-app/safe.ts)、[vulnerable](../examples/github-app/vulnerable.ts)、
+[fixed](../examples/github-app/fixed.ts) 三个最小合成样本，继承原 CG-003 fixture 模式，
+只供解析，不执行函数。本轮在便携 Node 24.22.0 / npm 11.19.1 使用已构建主分支 CLI
+实际扫描：findings **0 / 1 × CG-003 critical（第 3 行）/ 0**，退出码 **0 / 1（预期）/ 0**，
+均无 skipped/LLM calls/cost；三份样本的 TypeScript `--noEmit` 检查退出 0。
+隔离临时 Git fixture 的真实 diff + 编译后 CLI 复核通过：历史 eval 不在变更行时
+**0 findings / Outside diff 1**；中文路径及重命名并修改均检出第 3 行 CG-003，
+实际 Git 重命名相似度 **82%**。本地核验脚本语法/执行通过，临时目录已按本轮前缀定点清理。
+[本轮命令与结果日志](validation/M8-2026-10-21-app-prep.log) 与 10-20 历史日志分别保存。
+
+真实 App 注册/安装、服务部署、公网 HTTPS、真实测试 PR/投递及清理、付费 provider、
+其他 Node 24 补丁仍 **NOT_RUN/未验证**；不完整 diff 的已有 mock 回归不冒充真实 API 截断。
+ROADMAP.md、SECURITY.md 原哈希未变，仍未跟踪、不提交。
+
+## 历史审阅：2026-10-20 PR #17 正确性修复与验收
 
 起点 `0cd395801700aa57812c0466c1798862e13c3203`，PR 目标 `main`，实际 merge-base
 `cc43a84f87434b789cb7cad67b05ce81bdea2a3f`；按完整差异审阅生产代码和相关测试，

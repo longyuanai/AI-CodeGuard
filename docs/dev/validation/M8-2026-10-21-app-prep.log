@@ -1,0 +1,128 @@
+AI-CodeGuard real GitHub App rehearsal PREPARATION | 2026-10-21 Asia/Shanghai
+BASE main: 045d4073ec8dd3a3c347b30bb2c61edfd35e2ae3
+BRANCH: codex/github-app-rehearsal-prep
+Scope: existing handbook correction + synthetic data only. No runtime/dependency/build changes.
+No App registration/install/deployment/public endpoint/test PR/redelivery/cleanup or paid-provider call performed.
+2026-10-20 main results reused as history only (ci39387448393/security39387448454); no main gate rerun claimed.
+Historical local evidence read: .artifacts/main-acceptance-2026-10-20/RESULT.md.
+
+Official setup/cleanup references checked read-only, 2026-10-21:
+https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app
+https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/using-webhooks-with-github-apps
+https://docs.github.com/en/apps/using-github-apps/reviewing-and-modifying-installed-github-apps
+https://docs.github.com/en/webhooks/testing-and-troubleshooting-webhooks/redelivering-webhooks
+Local command basis: app/src/index.ts, server.ts, pipeline.ts, review.ts; src/rules/built-in/injection.ts CG-003; existing app/tests/pipeline.test.ts named incomplete-diff cases. Mock tests are not new real GitHub evidence.
+
+CLI SAMPLE COMMANDS / ACTUAL EXITS
+AI-CodeGuard App rehearsal preparation | 2026-10-21 Asia/Shanghai
+BASE=045d4073ec8dd3a3c347b30bb2c61edfd35e2ae3
+BRANCH=codex/github-app-rehearsal-prep
+Node v24.22.0, npm 11.19.1
+Built main CLI reused; runtime sources/dependencies/build unchanged.
+
+COMMAND node dist/index.js scan docs/examples/github-app/safe.ts --dry-run --output json --fail-on high
+EXIT=0
+
+COMMAND node dist/index.js scan docs/examples/github-app/vulnerable.ts --dry-run --output json --fail-on high
+EXIT=1
+
+COMMAND node dist/index.js scan docs/examples/github-app/fixed.ts --dry-run --output json --fail-on high
+EXIT=0
+
+docs/examples/github-app/safe.ts
+SHA256 c85f5e52d4cc440805e39861688693a0667c579890bd3d16f530ecf7abe83057
+{
+  "scan": {
+    "files": 1,
+    "suspicious": 0,
+    "suppressed": 0,
+    "baselined": 0,
+    "diffFiltered": 0,
+    "duration": 45,
+    "llmCalls": 0,
+    "estimatedCost": 0,
+    "cacheHits": 0,
+    "totalFindings": 0,
+    "severityCounts": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    }
+  },
+  "findings": [],
+  "skipped": []
+}
+
+docs/examples/github-app/vulnerable.ts
+SHA256 d97a549f27204e2d19ac573dec75f3bb32be0bba847fba08fb9612db74df543f
+{
+  "scan": {
+    "files": 1,
+    "suspicious": 1,
+    "suppressed": 0,
+    "baselined": 0,
+    "diffFiltered": 0,
+    "duration": 32,
+    "llmCalls": 0,
+    "estimatedCost": 0,
+    "cacheHits": 0,
+    "totalFindings": 1,
+    "severityCounts": {
+      "critical": 1,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    }
+  },
+  "findings": [
+    {
+      "file": "docs/examples/github-app/vulnerable.ts",
+      "rule": "CG-003",
+      "severity": "critical",
+      "line": 3
+    }
+  ],
+  "skipped": []
+}
+
+docs/examples/github-app/fixed.ts
+SHA256 5956992541d6a8537d88389c1309b34ce24976ee91d0a76aee7c3a5889d3bda6
+{
+  "scan": {
+    "files": 1,
+    "suspicious": 0,
+    "suppressed": 0,
+    "baselined": 0,
+    "diffFiltered": 0,
+    "duration": 31,
+    "llmCalls": 0,
+    "estimatedCost": 0,
+    "cacheHits": 0,
+    "totalFindings": 0,
+    "severityCounts": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    }
+  },
+  "findings": [],
+  "skipped": []
+}
+
+SAMPLE SYNTAX/TYPES
+COMMAND node node_modules/typescript/bin/tsc --noEmit --module NodeNext --target es2024 --skipLibCheck docs/examples/github-app/safe.ts docs/examples/github-app/vulnerable.ts docs/examples/github-app/fixed.ts
+EXIT=0
+
+LOCAL-ONLY DRIVER (ignored evidence, not an App feature)
+COMMAND node --check .artifacts/github-app-prep-2026-10-21/check-scenarios.mjs
+EXIT=0
+
+COMMAND node .artifacts/github-app-prep-2026-10-21/check-scenarios.mjs
+{"case":"changed-lines","diff":"diff --git a/src/codeguard-probe.ts b/src/codeguard-probe.ts\nindex 908754a..5b22756 100644\n--- a/src/codeguard-probe.ts\n+++ b/src/codeguard-probe.ts\n@@ -2,4 +2,4 @@\n export function parsePayload(input: string): unknown {\n   return eval(input);\n }\n-export const rehearsalRevision = 1;\n+export const rehearsalRevision = 2;","cliExit":0,"files":1,"findings":[],"outsideDiff":1,"llmCalls":0,"cost":0}
+{"case":"chinese","diff":"diff --git \"a/src/\\344\\270\\255\\346\\226\\207\\346\\216\\242\\351\\222\\210.ts\" \"b/src/\\344\\270\\255\\346\\226\\207\\346\\216\\242\\351\\222\\210.ts\"\nindex 8c003c3..6a026ce 100644\n--- \"a/src/\\344\\270\\255\\346\\226\\207\\346\\216\\242\\351\\222\\210.ts\"\n+++ \"b/src/\\344\\270\\255\\346\\226\\207\\346\\216\\242\\351\\222\\210.ts\"\n@@ -1,4 +1,4 @@\n // Synthetic scan-only fixture. Do not invoke this function during rehearsal.\n export function parsePayload(input: string): unknown {\n-  return JSON.parse(input);\n+  return eval(input);\n }","cliExit":1,"files":1,"findings":[{"rule":"CG-003","severity":"critical","file":"src/中文探针.ts","line":3}],"outsideDiff":0,"llmCalls":0,"cost":0}
+{"case":"rename-modified","diff":"diff --git a/src/codeguard-probe.ts \"b/src/\\351\\207\\215\\345\\221\\275\\345\\220\\215\\346\\216\\242\\351\\222\\210.ts\"\nsimilarity index 82%\nrename from src/codeguard-probe.ts\nrename to \"src/\\351\\207\\215\\345\\221\\275\\345\\220\\215\\346\\216\\242\\351\\222\\210.ts\"\nindex 8c003c3..6a026ce 100644\n--- a/src/codeguard-probe.ts\n+++ \"b/src/\\351\\207\\215\\345\\221\\275\\345\\220\\215\\346\\216\\242\\351\\222\\210.ts\"\n@@ -1,4 +1,4 @@\n // Synthetic scan-only fixture. Do not invoke this function during rehearsal.\n export function parsePayload(input: string): unknown {\n-  return JSON.parse(input);\n+  return eval(input);\n }","cliExit":1,"files":1,"findings":[{"rule":"CG-003","severity":"critical","file":"src/重命名探针.ts","line":3}],"outsideDiff":0,"llmCalls":0,"cost":0}
+EXIT=0
+
+Driver uses fresh mkdtemp directories, Git init/add/write-tree/diff --cached --find-renames --no-ext-diff --no-textconv with empty global/system config/hooks; only scans sample text via built CLI. Generated diffs are real Git output. No sample function is imported/called; temporary roots checked before rm. GitHub file-status similarity/real anchors remain NOT_RUN.
