@@ -1,6 +1,28 @@
 # M8 本地交付与验收记录
 
-## 当前交付：2026-10-22 公开预览版用户上手
+## 当前审阅：2026-10-22 PR #19 与 #18 条件合并
+
+[PR #19](https://github.com/longyuanai/AI-CodeGuard/pull/19) 经依赖/锁文件/新增回归审查后，
+以正常 merge commit **`64bffa2495f147138fa9f5f9ddbb42b6416f4f93`** 合入 main。
+原 HEAD `b81a6a6` 的本地完整回归和 [Linux CI](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39732363220)
+仍为同 SHA 有效证据；本轮重新执行 5 项针对性测试、完整/生产审计和安装树核对均通过。
+只更新 8 个 Vitest 配套锁节点至 4.1.12，其余锁节点及生产依赖逐项不变；Node 仍为 `^24.22.0`。
+测试覆盖数据字符串/导出名和路径边界，有旧版 3 failed/2 passed 对照；未执行注入代码或开放开发服务器。
+
+已将上述 main 正常合入 PR #18 分支，保留教程、演示及样本。正式材料入口为
+[main 快速上手](https://github.com/longyuanai/AI-CodeGuard/blob/main/docs/QUICKSTART.md)、
+[演示回放](https://github.com/longyuanai/AI-CodeGuard/blob/main/docs/examples/preview-demo.cast)、
+[宣传草稿](https://github.com/longyuanai/AI-CodeGuard/blob/main/docs/blog/02-selfhosted-preview-draft.md)
+和 [main 反馈模板](https://github.com/longyuanai/AI-CodeGuard/issues/new?template=preview-feedback.yml)。
+最终 main SHA、合并后检查及草稿交接见 [PR #18](https://github.com/longyuanai/AI-CodeGuard/pull/18)；
+原始本地日志保存在忽略目录，避免为补合并日志直接推送 main。
+
+旧预览的历史审计/验收不覆盖新公告：CLI tgz 不含 Vitest/mocker，当前生产审计 0；
+旧源码 ZIP 完整开发链当前 2 moderate，生产审计 0。可达 Vite 公共 mock WebSocket 是利用前提，
+标准 Node 测试/构建不会自动启用；Docker 构建阶段会安装开发依赖，不能仅凭最终镜像裁剪就忽略源码构建风险。
+当前 main 已修补，旧标签/附件/校验文件保留原样；需要面向源码用户的新预览，另行准备草稿，不公开发布。
+
+## 历史交付：2026-10-22 公开预览版用户上手（合并前）
 
 固定 [selfhosted-preview-20261021.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261021.1)
 已公开，源码仍为 `045d4073ec8dd3a3c347b30bb2c61edfd35e2ae3`；没有修改标签或附件。
@@ -27,9 +49,8 @@ SHA256SUMS，校验、安装、版本/帮助均通过。将教程全部 5 个 Po
 [Windows 路径绕过](https://github.com/advisories/GHSA-xp26-3454-mjgp) 使开发链 Vitest/mocker 4.1.11
 报告 2 moderate；生产审计仍为 0。App、容器、Action smoke 和 security-scan 已通过，不能据此忽略根 CI 失败。
 独立 [修复 PR #19](https://github.com/longyuanai/AI-CodeGuard/pull/19) 最小更新至 4.1.12 并增加 5 项回归，
-留待人工审阅；不混入本文档 PR 或自动合并。PR #18 在审计条件满足前不合并，不改变原 audit 门槛。
-因此提供可直接分享的 [分支上手文档](https://github.com/longyuanai/AI-CodeGuard/blob/codex/github-app-rehearsal-prep/docs/QUICKSTART.md)
-和不依赖模板部署的预填 Issue 入口；结构化模板须合入 main 后生效。
+当时留待人工审阅；未混入本文档 PR 或绕过 audit 门槛合并。
+当时提供分支教程和预填 Issue 作为临时入口；当前处理与正式 main 链接见本页顶部。
 
 ## 历史准备：2026-10-21 真实 GitHub App 联调资料（未执行外部联调）
 

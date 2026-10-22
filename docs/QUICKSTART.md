@@ -15,6 +15,13 @@ CLI 版本是 **0.4.0**，本批源码固定为 **`045d4073ec8dd3a3c347b30bb2c61
 这些链接固定到预发布，不使用 `releases/latest`，也不安装 npm 注册表上的同名历史版本。
 已发布标签及附件没有因本教程而改变。
 
+**2026-10-22 安全补充：** 旧版 CLI tgz 的生产依赖不含 Vitest/mocker，这两项新告警不构成已发布 CLI 的运行时漏洞；
+当前隔离安装生产审计仍为 0。旧版**源码 ZIP** 的完整开发/测试锁文件则包含 `vitest -> @vitest/mocker@4.1.11`，
+当前报告 2 moderate，已由 [PR #19](https://github.com/longyuanai/AI-CodeGuard/pull/19) 在 main 更新至 4.1.12。
+从源码开发、测试或构建 App 时请使用修补后的 main；不要将旧 ZIP 的 2026-10-21 审计 0 记录理解为当前无告警。
+可达的 Vite 公共 mock 注册接口是这些公告的利用前提；标准 Node 测试和普通构建不会自动开启该接口，
+但开发依赖风险仍需要修补。旧附件保持不变，新源码预览需另行审阅发布。
+
 运行要求 **Node `^24.22.0`（>=24.22.0、<25）**。本轮实际走通 Windows / PowerShell、
 Node 24.22.0 / npm 11.19.1；不是其它 Node 补丁或 macOS/Linux 安装矩阵的验收。
 如本机 Node 不符合要求，可自行解压[官方 Node 24.22.0 便携包](https://nodejs.org/download/release/v24.22.0/)，
@@ -186,9 +193,8 @@ App 是另一个需要自部署、HTTPS webhook、仓库白名单和最小权限
 及[现有 App 手册](../app/README.md)。它没有在线托管服务，**真实安装、签名投递到真实 PR、评论和 Check Run 联调尚未完成**。
 Linux CI 容器通过和 mock API 测试不代表真实 App 联调通过。
 
-请用 [预览版试用反馈](https://github.com/longyuanai/AI-CodeGuard/issues/new?title=%5BPreview%20feedback%5D&body=Release%3A%20selfhosted-preview-20261021.1%0AOS%20%2F%20Node%20%2F%20npm%3A%0AInstall%20success%3A%0AScan%20completed%20%2F%20exit%20code%3A%0AFalse%20positive%20or%20missed%20finding%20%28synthetic%20repro%20only%29%3A%0AImprovements%3A%0A%0ARedact%20keys%2C%20tokens%2C%20private%20source%20and%20customer%20data.)（提交需要 GitHub 登录），
-这个预填 Issue 链接不依赖模板先合并；[结构化反馈模板入口](https://github.com/longyuanai/AI-CodeGuard/issues/new?template=preview-feedback.yml)
-从 main 读取表单，模板尚未合并时使用上述预填入口即可。也可[查看已有 Issues](https://github.com/longyuanai/AI-CodeGuard/issues)。提供 OS、Node/npm/Release 版本、安装/扫描是否完成、
+请用 [预览版试用反馈表](https://github.com/longyuanai/AI-CodeGuard/issues/new?template=preview-feedback.yml)（提交需要 GitHub 登录），
+也可使用[预填普通 Issue](https://github.com/longyuanai/AI-CodeGuard/issues/new?title=%5BPreview%20feedback%5D&body=Release%3A%20selfhosted-preview-20261021.1%0AOS%20%2F%20Node%20%2F%20npm%3A%0AInstall%20success%3A%0AScan%20completed%20%2F%20exit%20code%3A%0AFalse%20positive%20or%20missed%20finding%20%28synthetic%20repro%20only%29%3A%0AImprovements%3A%0A%0ARedact%20keys%2C%20tokens%2C%20private%20source%20and%20customer%20data.)或[查看已有 Issues](https://github.com/longyuanai/AI-CodeGuard/issues)。提供 OS、Node/npm/Release 版本、安装/扫描是否完成、
 脱敏命令/退出码、误报或漏报的最小合成复现及希望改进的内容。
 **不要上传 API key、Token、私钥、webhook secret、私有源码、客户数据或完整环境变量。**
 无法公开的复现可仅描述规则和现象，不要为了填表泄露信息。

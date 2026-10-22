@@ -76,6 +76,8 @@ npm install ./ai-codeguard-0.4.0.tgz --ignore-scripts --omit=dev --engine-strict
   App 是需要自己的部署环境、HTTPS 地址及仓库安装的独立入口；没有在线托管服务。
 - 付费 provider、其它 Node 24 补丁和本轮未实际运行的平台仍未验证。CLI 的可选 LLM 能力不包含在这次静态体验中。
 - 无告警不代表无漏洞。`--dry-run` 是静态候选筛选，仍可能误报、漏报，不能代替人工审计。
+- 旧预览版源码 ZIP 锁定的 Vitest/mocker 4.1.11 开发链现有两项 moderate 告警，已由 [PR #19](https://github.com/longyuanai/AI-CodeGuard/pull/19) 在 main 修补为 4.1.12。
+  CLI 安装包不包含这条测试链，当前生产审计为 0；源码开发/构建请使用修补后的 main，不把旧源码包的历史审计 0 当作当前结果。
 
 ## 邀请开发者试用
 
@@ -89,6 +91,6 @@ npm install ./ai-codeguard-0.4.0.tgz --ignore-scripts --omit=dev --engine-strict
 
 > 我在做 AI-CodeGuard 的自部署预览版，想邀请 3～5 位开发者试用本地静态 CLI。
 > 用 Node ^24.22.0 跑一遍“eval 告警→修复→复扫”，不需要 LLM key。
-> 上手：https://github.com/longyuanai/AI-CodeGuard/blob/codex/github-app-rehearsal-prep/docs/QUICKSTART.md 。
+> 上手：https://github.com/longyuanai/AI-CodeGuard/blob/main/docs/QUICKSTART.md 。
 > 如果安装卡住、报告看不懂，或发现误报/漏报，欢迎提交脱敏反馈；不要上传私有源码或凭据。
 > 这是预览工具，真实 GitHub App 联调还未完成，也不替代人工安全审计。

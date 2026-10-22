@@ -18,6 +18,13 @@ is retained in Git history and [historical acceptance](../docs/dev/M8-VALIDATION
 Real GitHub App integration, paid providers and other Node 24 patches remain
 **unverified**. The [rehearsal below](#真实-github-app-联调手册待外部授权执行) prepares that work only.
 
+Source archive update (2026-10-22): the published `selfhosted-preview-20261021.1`
+source ZIP still locks the now-advised Vitest/mocker 4.1.11 development chain.
+[PR #19](https://github.com/longyuanai/AI-CodeGuard/pull/19) patches main to 4.1.12;
+use patched main for source development/builds. Production CLI/App installs omit
+this test chain. The dated zero-audit result above remains historical; current
+source/production assessments are recorded in [M8 acceptance](../docs/dev/M8-VALIDATION.md).
+
 ## Run locally
 
 From the repository root, use **Node 24.x >=24.22.0 LTS** for runtime and development
