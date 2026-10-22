@@ -4,10 +4,11 @@
 
 ## 1. 阅读顺序
 
-1. [README](../README.md)：CLI、六语言/19 规则、配置、Action 与当前交付边界。
-2. [ARCHITECTURE](../ARCHITECTURE.md)：CLI/库/App 入口、扫描管道、cache、数据流和信任边界。
-3. [M8 验收记录](./dev/M8-VALIDATION.md)：可复现命令、实际日志、剩余风险与未验证项。
-4. 运行 App 时看 [部署说明](../app/README.md) 和 [GitHub App 设计](./design/GITHUB_APP.md)。
+1. [预览版快速上手](./QUICKSTART.md)：固定 Release 安装、CG-003 演示/真实终端回放、退出码和试用反馈。
+2. [README](../README.md)：CLI、六语言/19 规则、配置、Action 与当前交付边界。
+3. [ARCHITECTURE](../ARCHITECTURE.md)：CLI/库/App 入口、扫描管道、cache、数据流和信任边界。
+4. [M8 验收记录](./dev/M8-VALIDATION.md)：可复现命令、实际日志、剩余风险与未验证项。
+5. 运行 App 时看 [部署说明](../app/README.md) 和 [GitHub App 设计](./design/GITHUB_APP.md)。
 
 **Stage 1** 指 Tree-sitter + 规则静态预筛；**Stage 2** 指可选 LLM 分诊及修复建议。`--dry-run` 停在 Stage 1，App 无 key 时自动降级并标注未经 AI 分诊。旧文档中的 **Phase 1** 是早期本地 CLI 基线阶段名，不表示库、cache、Action 或 App 尚未实现。
 
@@ -16,6 +17,8 @@
 | 内容 | 文档 |
 |---|---|
 | 总览、安装、CLI 和配置示例 | [README](../README.md) |
+| 固定预发布安装、危险代码→修复复扫、退出码与反馈 | [QUICKSTART](./QUICKSTART.md) |
+| 预览版发布介绍与首批试用邀请（仅草稿） | [发布介绍草稿](./blog/02-selfhosted-preview-draft.md) |
 | 模块、库入口、wasm、App 数据流 | [ARCHITECTURE](../ARCHITECTURE.md) |
 | 实际验证与未验证项 | [M8 验收记录](./dev/M8-VALIDATION.md) |
 | App 环境变量、权限、真实联调步骤/证据模板、合成样本、清理与回滚 | [app/README](../app/README.md) |

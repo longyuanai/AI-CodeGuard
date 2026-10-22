@@ -1,6 +1,27 @@
 # M8 本地交付与验收记录
 
-## 当前准备：2026-10-21 真实 GitHub App 联调资料（未执行外部联调）
+## 当前交付：2026-10-22 公开预览版用户上手
+
+固定 [selfhosted-preview-20261021.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261021.1)
+已公开，源码仍为 `045d4073ec8dd3a3c347b30bb2c61edfd35e2ae3`；没有修改标签或附件。
+本轮在原 `codex/github-app-rehearsal-prep` / PR #18 复用已有三份合成样本，
+补齐 [快速上手](../QUICKSTART.md)、README 首屏、试用反馈 Issue 模板和
+[发布介绍草稿](../blog/02-selfhosted-preview-draft.md)。旧发布说明/验收记录保留其日期和边界。
+
+便携 Node 24.22.0 / npm 11.19.1，在独立临时目录从公开 Release **匿名重新下载** CLI tgz 与
+SHA256SUMS，校验、安装、版本/帮助均通过。将教程全部 5 个 PowerShell 代码块逐字提取、语法检查并实际执行：
+安全/危险/修复扫描各 1 文件，发现 **0 / 1 CG-003 critical（第 3 行）/ 0**，退出 **0 / 1 / 0**，
+零跳过、零 LLM 调用、零费用。缺失配置运行错误实际退出 2；未知参数可能退出 1，教程明确要求结合报告和 stderr 判定。
+实际已安装 CLI 输出录为 [终端回放](../examples/preview-demo.cast)，不是桌面视频或真实 App 演示。
+脱敏原始输出、命令与退出码见 [本轮日志](validation/PREVIEW-2026-10-22-onboarding.log)。
+
+只改文档、反馈模板及演示产物，没有运行时/依赖/构建变更，因此不手动重跑未变化源码的完整验收；
+若 PR/main 自动 CI 运行，其结果单独记录，不冒充新用户安装或真实 App 联调。
+本轮实测范围为 Windows/PowerShell/Node24.22.0，真实 App/付费 provider/其它 Node 补丁仍未验证。
+宣传中的 95.8%/92.0% 明确来自项目标注语料，不是任意真实项目的准确率。
+没有发送邀请或发布自媒体，也未部署服务；ROADMAP.md / SECURITY.md 保持原样且不提交。
+
+## 历史准备：2026-10-21 真实 GitHub App 联调资料（未执行外部联调）
 
 基线为已合并、已验收 main **`045d4073ec8dd3a3c347b30bb2c61edfd35e2ae3`**，
 PR #17 不重复合并。2026-10-20 的 main 本地九项、582/2 skipped + App 35、
