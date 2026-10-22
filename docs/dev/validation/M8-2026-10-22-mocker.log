@@ -1,0 +1,67 @@
+Vitest mocker security patch | 2026-10-22 Asia/Shanghai
+BASE: 045d4073ec8dd3a3c347b30bb2c61edfd35e2ae3
+BRANCH: codex/vitest-mocker-4-1-12
+Node 24.22.0 / npm11.19.1, CODEGUARD_E2E=0. Separate from onboarding PR18.
+
+TRIGGER
+PR18 HEAD84f0e4e CI https://github.com/longyuanai/AI-CodeGuard/actions/runs/39730914515
+failed full npm audit: 2 moderate entries (@vitest/mocker, dependent vitest).
+Production audit before patch: 0. Released CLI consumer install: 0, no Vitest in production package.
+
+OFFICIAL PRIMARY SOURCES
+https://github.com/advisories/GHSA-qxg6-89mg-rqv8 (published 2026-10-21T19:54:26Z)
+https://github.com/advisories/GHSA-xp26-3454-mjgp (published 2026-10-21T19:48:38Z)
+Both identify 4.1.12 as first patched 4.x version.
+https://github.com/vitest-dev/vitest/releases/tag/v4.1.12
+https://github.com/vitest-dev/vitest/commit/b825313243dc55757e8d7c0f9e7a792135e13473
+npm view vitest@4.1.12 version engines dependencies --json --registry=https://registry.npmjs.org: exit0
+node engines ^20.0.0 || ^22.0.0 || >=24.0.0; compatible with project ^24.22.0.
+
+USAGE CONDITIONS
+Public interceptorPlugin/mockerPlugin on a reachable Vite development-server WebSocket can accept manual mock/redirect registration.
+Manual URLs/export names were emitted into module source without proper escaping; Windows backslash paths could bypass the file allowlist.
+Upstream states standard Node vitest runs do not register these public WS handlers; production CLI/App omit Vitest.
+This limits current exposure but does not make development-dependency advisories harmless. No audit gate is disabled or lowered.
+
+MINIMAL CHANGE
+vitest exact 4.1.11 -> 4.1.12 and seven matching @vitest packages to 4.1.12.
+No overrides or production dependency changes. All unrelated lock entries and original nested picomatch/fdir resolutions preserved.
+Initial npm install deduplicated unrelated nested nodes; final lock restored those unchanged nodes and was verified by clean npm ci.
+No major migration, Node-policy change, release-tag/asset edit or npm/image publication.
+
+TARGETED REGRESSION (tests/unit/mocker-security.test.ts)
+5 cases against installed public APIs, no network listener and no generated payload evaluation:
+- adversarial URL stays a single string argument;
+- quoted/newline export names remain valid module syntax/data;
+- inside-root redirect positive control;
+- forward-slash traversal blocked;
+- Windows backslash traversal blocked.
+4.1.11 negative control: EXIT1, 3 failed / 2 passed. Only synthetic outside-root canary was read in the local Windows reproduction.
+4.1.12: 5 passed. New test standalone tsc noEmit: EXIT0.
+Owned negative-control copy removed from primary checkout after hash verification; temporary canary directories cleaned in finally with path guard.
+
+ACTUAL LOCAL REGRESSION AFTER PATCH
+npm run build | EXIT=0
+npm run test:run | EXIT=0
+npm run precision | EXIT=0
+npm run typecheck | EXIT=0
+npm run lint | EXIT=0
+npm run build -w app | EXIT=0
+npm test -w app -- --disableConsoleIntercept | EXIT=0
+npm run typecheck -w app | EXIT=0
+npm run lint -w app | EXIT=0
+npm audit --registry=https://registry.npmjs.org --json | EXIT=0
+npm audit --omit=dev --registry=https://registry.npmjs.org --json | EXIT=0
+npm ls vitest @vitest/mocker --all | EXIT=0
+
+Root: 587 passed / 2 original opt-in skipped (original582 + 5 targeted security cases), 20 files passed / 1 skipped.
+App: 35 passed / 9 files; actual loopback HTTP200/unsigned401.
+Precision: TP23/FN2/FP1 =>95.8% precision /92.0% recall, original thresholds unchanged.
+Full and production npm audits after patch: 0 vulnerabilities.
+Final npm ls path: vitest@4.1.12 -> @vitest/mocker@4.1.12, workspace app uses same root tools.
+Compiled CLI fixtures: safe8files/0findings/exit0; vulnerable14files/97findings/expectedexit1; zero skips/LLM/cost.
+Built library/wasm actual scans covered by App library tests; 7 bundled wasm assets present from build.
+Local Docker engine is unavailable; automatic Linux CI/container results are recorded in this fix PR after push, not invented here.
+
+This source/dependency fix PR is left for human review, not auto-merged as documentation.
+Real App integration, paid providers and other Node24 patches are unverified. Existing published preview remains fixed and unchanged.
