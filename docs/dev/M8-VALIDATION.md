@@ -1,6 +1,87 @@
 # M8 本地交付与验收记录
 
-## 当前审阅：2026-10-20 PR #17 正确性修复与验收
+## 当前审阅：2026-10-22 PR #19 与 #18 条件合并
+
+[PR #19](https://github.com/longyuanai/AI-CodeGuard/pull/19) 经依赖/锁文件/新增回归审查后，
+以正常 merge commit **`64bffa2495f147138fa9f5f9ddbb42b6416f4f93`** 合入 main。
+原 HEAD `b81a6a6` 的本地完整回归和 [Linux CI](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39732363220)
+仍为同 SHA 有效证据；本轮重新执行 5 项针对性测试、完整/生产审计和安装树核对均通过。
+只更新 8 个 Vitest 配套锁节点至 4.1.12，其余锁节点及生产依赖逐项不变；Node 仍为 `^24.22.0`。
+测试覆盖数据字符串/导出名和路径边界，有旧版 3 failed/2 passed 对照；未执行注入代码或开放开发服务器。
+
+已将上述 main 正常合入 PR #18 分支，保留教程、演示及样本。正式材料入口为
+[main 快速上手](https://github.com/longyuanai/AI-CodeGuard/blob/main/docs/QUICKSTART.md)、
+[演示回放](https://github.com/longyuanai/AI-CodeGuard/blob/main/docs/examples/preview-demo.cast)、
+[宣传草稿](https://github.com/longyuanai/AI-CodeGuard/blob/main/docs/blog/02-selfhosted-preview-draft.md)
+和 [main 反馈模板](https://github.com/longyuanai/AI-CodeGuard/issues/new?template=preview-feedback.yml)。
+最终 main SHA、合并后检查及草稿交接见 [PR #18](https://github.com/longyuanai/AI-CodeGuard/pull/18)；
+原始本地日志保存在忽略目录，避免为补合并日志直接推送 main。
+
+旧预览的历史审计/验收不覆盖新公告：CLI tgz 不含 Vitest/mocker，当前生产审计 0；
+旧源码 ZIP 完整开发链当前 2 moderate，生产审计 0。可达 Vite 公共 mock WebSocket 是利用前提，
+标准 Node 测试/构建不会自动启用；Docker 构建阶段会安装开发依赖，不能仅凭最终镜像裁剪就忽略源码构建风险。
+当前 main 已修补，旧标签/附件/校验文件保留原样；需要面向源码用户的新预览，另行准备草稿，不公开发布。
+
+## 历史交付：2026-10-22 公开预览版用户上手（合并前）
+
+固定 [selfhosted-preview-20261021.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261021.1)
+已公开，源码仍为 `045d4073ec8dd3a3c347b30bb2c61edfd35e2ae3`；没有修改标签或附件。
+本轮在原 `codex/github-app-rehearsal-prep` / PR #18 复用已有三份合成样本，
+补齐 [快速上手](../QUICKSTART.md)、README 首屏、试用反馈 Issue 模板和
+[发布介绍草稿](../blog/02-selfhosted-preview-draft.md)。旧发布说明/验收记录保留其日期和边界。
+
+便携 Node 24.22.0 / npm 11.19.1，在独立临时目录从公开 Release **匿名重新下载** CLI tgz 与
+SHA256SUMS，校验、安装、版本/帮助均通过。将教程全部 5 个 PowerShell 代码块逐字提取、语法检查并实际执行：
+安全/危险/修复扫描各 1 文件，发现 **0 / 1 CG-003 critical（第 3 行）/ 0**，退出 **0 / 1 / 0**，
+零跳过、零 LLM 调用、零费用。缺失配置运行错误实际退出 2；未知参数可能退出 1，教程明确要求结合报告和 stderr 判定。
+实际已安装 CLI 输出录为 [终端回放](../examples/preview-demo.cast)，不是桌面视频或真实 App 演示。
+脱敏原始输出、命令与退出码见 [本轮日志](validation/PREVIEW-2026-10-22-onboarding.log)。
+
+只改文档、反馈模板及演示产物，没有运行时/依赖/构建变更，因此不手动重跑未变化源码的完整验收；
+若 PR/main 自动 CI 运行，其结果单独记录，不冒充新用户安装或真实 App 联调。
+本轮实测范围为 Windows/PowerShell/Node24.22.0，真实 App/付费 provider/其它 Node 补丁仍未验证。
+宣传中的 95.8%/92.0% 明确来自项目标注语料，不是任意真实项目的准确率。
+没有发送邀请或发布自媒体，也未部署服务；ROADMAP.md / SECURITY.md 保持原样且不提交。
+
+本轮新 HEAD `84f0e4e` 的 [PR CI](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39730914515)
+在完整 audit 步骤阻塞：新公开的
+[manual mock 注入](https://github.com/advisories/GHSA-qxg6-89mg-rqv8) 与
+[Windows 路径绕过](https://github.com/advisories/GHSA-xp26-3454-mjgp) 使开发链 Vitest/mocker 4.1.11
+报告 2 moderate；生产审计仍为 0。App、容器、Action smoke 和 security-scan 已通过，不能据此忽略根 CI 失败。
+独立 [修复 PR #19](https://github.com/longyuanai/AI-CodeGuard/pull/19) 最小更新至 4.1.12 并增加 5 项回归，
+当时留待人工审阅；未混入本文档 PR 或绕过 audit 门槛合并。
+当时提供分支教程和预填 Issue 作为临时入口；当前处理与正式 main 链接见本页顶部。
+
+## 历史准备：2026-10-21 真实 GitHub App 联调资料（未执行外部联调）
+
+基线为已合并、已验收 main **`045d4073ec8dd3a3c347b30bb2c61edfd35e2ae3`**，
+PR #17 不重复合并。2026-10-20 的 main 本地九项、582/2 skipped + App 35、
+95.8%/92.0%、两项 audit 0 告警及
+[main Linux CI/真实容器](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39387448393)、
+[security-scan](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39387448454)
+是历史有效证据，原本地报告为 `.artifacts/main-acceptance-2026-10-20/RESULT.md`（忽略目录）。
+本轮没有重新运行 main 的完整验收，也不把旧运行改写为 10-21 新结果。
+
+在 `codex/github-app-rehearsal-prep` 完善已有
+[App 手册](../../app/README.md#真实-github-app-联调手册待外部授权执行)，修正旧快照，
+补充配置单、指定仓库权限/安装、无 key/成本 0 的首次运行、测试操作、脱敏证据模板、
+故障定位及定点回滚/清理。源码、依赖、构建配置和原 fixtures 均未修改。
+
+新增 [safe](../examples/github-app/safe.ts)、[vulnerable](../examples/github-app/vulnerable.ts)、
+[fixed](../examples/github-app/fixed.ts) 三个最小合成样本，继承原 CG-003 fixture 模式，
+只供解析，不执行函数。本轮在便携 Node 24.22.0 / npm 11.19.1 使用已构建主分支 CLI
+实际扫描：findings **0 / 1 × CG-003 critical（第 3 行）/ 0**，退出码 **0 / 1（预期）/ 0**，
+均无 skipped/LLM calls/cost；三份样本的 TypeScript `--noEmit` 检查退出 0。
+隔离临时 Git fixture 的真实 diff + 编译后 CLI 复核通过：历史 eval 不在变更行时
+**0 findings / Outside diff 1**；中文路径及重命名并修改均检出第 3 行 CG-003，
+实际 Git 重命名相似度 **82%**。本地核验脚本语法/执行通过，临时目录已按本轮前缀定点清理。
+[本轮命令与结果日志](validation/M8-2026-10-21-app-prep.log) 与 10-20 历史日志分别保存。
+
+真实 App 注册/安装、服务部署、公网 HTTPS、真实测试 PR/投递及清理、付费 provider、
+其他 Node 24 补丁仍 **NOT_RUN/未验证**；不完整 diff 的已有 mock 回归不冒充真实 API 截断。
+ROADMAP.md、SECURITY.md 原哈希未变，仍未跟踪、不提交。
+
+## 历史审阅：2026-10-20 PR #17 正确性修复与验收
 
 起点 `0cd395801700aa57812c0466c1798862e13c3203`，PR 目标 `main`，实际 merge-base
 `cc43a84f87434b789cb7cad67b05ce81bdea2a3f`；按完整差异审阅生产代码和相关测试，

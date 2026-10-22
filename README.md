@@ -2,6 +2,20 @@
 
 > A TypeScript-based code security CLI that combines Stage 1 static pre-filtering with optional Stage 2 LLM confirmation.
 
+## 先试用：自部署预览版
+
+AI-CodeGuard 帮开发者在提交代码前定位可疑安全模式，适合个人项目维护者和希望在 CI 中增加静态检查的团队。
+本地 CLI 的 `--dry-run` 不需要 LLM key，也不会执行被扫描代码。
+
+- **[快速上手：匿名下载 → 校验 → 安全/漏洞/修复复扫](docs/QUICKSTART.md)**，含可复制的完整 PowerShell 示例、实际结果和演示回放。
+- **[固定预发布 selfhosted-preview-20261021.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261021.1)**；[CLI 安装包](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261021.1/ai-codeguard-0.4.0.tgz) / [SHA256SUMS](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261021.1/SHA256SUMS)。包内版本仍为 `0.4.0`，源码固定在 `045d4073`；不要用注册表同版本替代这个附件。
+- **Node `^24.22.0`（>=24.22.0、<25）**；本轮 Windows 实测 24.22.0 / npm 11.19.1，其他补丁和平台见教程的验证边界。
+- [试用反馈](https://github.com/longyuanai/AI-CodeGuard/issues/new?template=preview-feedback.yml)：安装失败、误报、漏报或希望改进的流程；请脱敏，不提交密钥或私有源码。
+
+旧源码 ZIP 的 Vitest/mocker 开发链告警已在 main 修补，CLI 安装包不含该链；[影响与源码构建说明](docs/QUICKSTART.md#固定下载与环境)。
+
+CLI 是本机静态体验；[GitHub App](app/README.md) 是需要自行配置凭据、部署和安装的单实例 PR 服务，**真实 App 联调尚未完成**，没有在线托管服务。
+
 ## Current Status
 
 Runtime and development require **Node 24.x >=24.22.0 LTS** (`engines: ^24.22.0`).
@@ -21,7 +35,7 @@ What is implemented today:
 - Stage 2 LLM analysis via **Claude** or **OpenAI** when `scan` runs without `--dry-run`
 - Optional fix suggestions through `--fix`
 - **CI-friendly controls**: `--fail-on <level>` exit-code gate, machine-readable `severityCounts` in JSON, inline `codeguard-ignore` suppression (auditable), baseline files (`--write-baseline` / `--baseline`) to adopt on an existing codebase and gate on new findings only, and `--diff <file>` to restrict findings to a PR's added/modified lines (the PR bot only speaks about the change under review)
-- **Measurable quality**: a Stage 1 precision harness with a labeled corpus and a metric ratchet (`npm run precision`; measured baseline 95.8% precision / 92.0% recall), a Stage 2 triage-accuracy harness (`npm run triage`, opt-in) that measures how well the LLM confirms real vulnerabilities and dismisses false positives, and a hand-assessed **real-world validation run** against fastify, flask, and OWASP Juice Shop (`docs/dev/REALWORLD.md`) whose false-positive classes are pinned as corpus regression tests
+- **Measurable quality**: a Stage 1 precision harness with a project-labeled corpus and a metric ratchet (`npm run precision`; measured corpus baseline 95.8% precision / 92.0% recall, not an accuracy guarantee for arbitrary repositories), a Stage 2 triage-accuracy harness (`npm run triage`, opt-in) that measures how well the LLM confirms real vulnerabilities and dismisses false positives, and a hand-assessed **real-world validation run** against fastify, flask, and OWASP Juice Shop (`docs/dev/REALWORLD.md`) whose false-positive classes are pinned as corpus regression tests
 - Config loading via `.codeguard.yml` / environment variables
 - Disk cache for Stage 2 LLM results (`cache.enabled`), wired into the scan pipeline
 - GitHub composite Action (`action.yml`), CI / SARIF-upload workflows, and a BYO-key PR-review workflow example (`docs/examples/pr-review.yml`; design in `docs/design/GITHUB_APP.md`)
@@ -29,7 +43,7 @@ What is implemented today:
 - Actual validation (2026-10-20): **582 root tests passed, 2 opt-in tests skipped**, **35 app tests passed**. All nine checks pass on Windows and Linux/Node **24.22.0**, precision **95.8% / recall 92.0%**. Replacing fast-glob with tinyglobby removes the remaining braces chain: complete and production audits both fell **3 high → 0 vulnerabilities**. Real Linux Docker acceptance passes build, UID 1000, read-only root, /tmp tmpfs, HTTP **200/401**, development-dependency removal and seven wasm assets; vulnerable/safe PHP scans yield **1/0 findings**, zero LLM calls. Live GitHub App and paid-provider integration remain unverified. [Evidence and CI links](docs/dev/M8-VALIDATION.md)
 
 What is **not** complete yet:
-- Release preparation and npm registry publication remain separate operator work. The development branch is pushed and PR #17 is open for human review; no release, publication, merge or deployment has occurred.
+- Real GitHub App installation/webhook-to-PR integration and paid-provider validation remain unverified. PR #17 was merged as `045d4073`; the fixed self-hosted preview is publicly available above. This preview was not published to npm or a container registry, and no online service was deployed.
 
 ### Completion Snapshot
 
@@ -40,7 +54,7 @@ What is **not** complete yet:
 | M2 `--fix` suggestions | Done | confirmed Stage 2 findings can include `fix` |
 | M3 Tree-sitter parser | Done | main parser now uses Tree-sitter-backed normalized AST |
 | M4 Custom rules runtime | Done | `rules.custom` is wired into `scan()`, and `rules validate/create/test` are available |
-| M5 GitHub / CI integration | Implemented | composite `action.yml`, `ci.yml`, and `security-scan.yml` (SARIF upload to Code Scanning) exist; remote workflow execution was not verified in this delivery |
+| M5 GitHub / CI integration | Implemented, CI verified | composite `action.yml`, `ci.yml`, and `security-scan.yml` (SARIF upload to Code Scanning) pass for the accepted main; dated evidence is linked in M8 acceptance |
 | M6 More languages | Done | Go: 12 rules; Java: 15 rules (adds `CG-010`, `CG-041`, `CG-070` over the Go set); PHP: 17 rules (adds `CG-021`/`CG-022`/`CG-023`/`CG-024`/`CG-025`/`CG-026`/`CG-031`/`CG-040`/`CG-041`/`CG-050`/`CG-070` over the original MVP set) |
 | M7 Quality & adoption tooling | Done | Stage 1 precision harness + ratchet, Stage 2 triage-accuracy harness, baseline files, inline suppression, `--fail-on`, stable SARIF fingerprints |
 | M8 Commercialization step 1 | MVP implemented, CI verified | Library + App, local/Linux checks and real container acceptance pass; live App integration remains unverified ([deployment](app/README.md)) |
@@ -107,7 +121,7 @@ node dist/index.js rules test ./custom-rules ./src --output json
 
 ### Self-hosted GitHub App
 
-For the hosted-service variant, see [`app/README.md`](app/README.md). It imports the
+For the self-hosted PR service, see [`app/README.md`](app/README.md). It imports the
 same `scan()` library; target-repository scripts/configuration cannot select service
 credentials or API destinations. It requires a deployment repository allowlist.
 

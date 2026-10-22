@@ -1,0 +1,51 @@
+name: 预览版试用反馈
+description: 安装体验、扫描结果、误报/漏报与改进建议
+title: "[Preview feedback] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢试用 selfhosted-preview-20261021.1！请先看 [快速上手](https://github.com/longyuanai/AI-CodeGuard/blob/main/docs/QUICKSTART.md)。
+        只提供脱敏信息或最小合成代码。不要上传 API key、Token、私钥、webhook secret、私有源码、客户数据或完整环境变量。
+        无法公开的情况仅描述规则与现象即可；静态发现需人工核实。
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境与版本
+      description: OS/终端、node --version、npm --version、Release tag、CLI --version
+      placeholder: "Windows / PowerShell；Node 24.22.0；npm 11.19.1；selfhosted-preview-20261021.1；CLI 0.4.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: installation
+    attributes:
+      label: 安装是否成功
+      options:
+        - 成功，哈希校验与版本检查通过
+        - 下载或哈希校验失败
+        - npm 安装失败
+        - 尚未尝试
+    validations:
+      required: true
+  - type: dropdown
+    id: scan
+    attributes:
+      label: 扫描是否完成
+      description: 完成扫描后退出 1 通常表示达到发现阈值；错误需结合 stderr/报告判断。
+      options:
+        - 完成，退出 0
+        - 完成，有发现并退出 1
+        - 遇到运行或参数错误
+        - 尚未扫描
+    validations:
+      required: true
+  - type: textarea
+    id: observations
+    attributes:
+      label: 实际结果、预期结果与误报/漏报
+      description: 可附脱敏命令、退出码、错误片段、ruleId 和最小合成复现；不要粘贴私有源码。
+  - type: textarea
+    id: improvements
+    attributes:
+      label: 最希望改进的内容
+      description: 安装、教程、报告可读性、规则覆盖或其它建议。

@@ -1,0 +1,53 @@
+AI-CodeGuard conditional review/merge | 2026-10-22 Asia/Shanghai
+PR19 reviewed HEAD: b81a6a6127ed8be0cb3b1906b48a83a96949529e
+Actual merge-base/pre-merge main: 045d4073ec8dd3a3c347b30bb2c61edfd35e2ae3
+PR19 merged normally as 64bffa2495f147138fa9f5f9ddbb42b6416f4f93; exact head guard, no APPROVE/admin bypass/branch deletion.
+No effective main rules, required approvals, reviews/comments or unresolved threads at merge gate.
+
+CODE REVIEW (not inferred from CI)
+Only root Vitest pin and8 Vitest-family lock nodes updated4.1.11->4.1.12; all other lock nodes deep-equal base.
+Production deps, Node^24.22.0, scanner/runtime/build config and audit/precision thresholds unchanged.
+Official patched versions/Node engines/integrity checked again against registry/advisories.
+New5 regressions cover literal manual URL, valid quoted/newline exports, allowed inside-root positive control, slash/backslash traversal rejection.
+Payload only parsed; fake WS transport invokes actual installed interceptor logic, not a real unauthenticated network test.
+Negative control already recorded3fail/2pass on4.1.11; same exact HEAD latest5tests pass.
+No correctness/security/compatibility blocker found requiring a source change.
+
+LATEST PR19 LOCAL CHECKS
+Node24.22.0/npm11.19.1 (portable, system unchanged).
+npm run test:run -- tests/unit/mocker-security.test.ts --disableConsoleIntercept EXIT0 (5pass)
+npm audit --registry=https://registry.npmjs.org --json EXIT0 (0)
+npm audit --omit=dev --registry=https://registry.npmjs.org --json EXIT0 (0)
+npm ls vitest @vitest/mocker --all EXIT0 (4.1.12->4.1.12)
+Same-HEAD full local587pass/2opt-in-skip/App35 and Linux CI39732363220/security39732363190 reused as exact-SHA valid evidence.
+
+PR18 UPDATE
+Original HEAD6d05073618eb86f218f47ed52c962f341584a771.
+Normal git merge origin/main integrated PR19 without conflicts; original handbook/samples/capture retained.
+Changed current primary material links to main and structured Issue form; historical failure/audit records preserved as history.
+Added precise old-preview CLI-vs-source impact note to README/quickstart/App handbook/announcement draft.
+npm ci --ignore-scripts --engine-strict --registry=https://registry.npmjs.org EXIT0
+npm audit --registry=https://registry.npmjs.org --json EXIT0 (0)
+npm audit --omit=dev --registry=https://registry.npmjs.org --json EXIT0 (0)
+npm run test:run -- tests/unit/mocker-security.test.ts --disableConsoleIntercept EXIT0 (5pass)
+Document verifier EXIT0:90 local links/anchors,3 inline sample matches,5 feedback fields,38 actual-capture frames/10 exits verified, fences/credential checks passed.
+All5 PowerShell tutorial blocks byte-equal (after LF normalization) to the previously literally executed version; parser recheck passed.
+Actual released installed CLI rescanned docs safe/vulnerable/fixed:1file each,0/1CG-003critical line3/0 findings, expected0/1/0 exits, zero skipped/LLM/cost.
+git diff --check passed. No unrelated source changes or protected files included.
+Final updated PR18 SHA/remote checks and final main acceptance are linked in PR18 handoff/local ignored report after runs complete.
+
+OLD PUBLIC PREVIEW ASSESSMENT
+Release419048125/tag selfhosted-preview-20261021.1 remains fixed at045d4073; assets not changed.
+Fresh anonymous large-asset re-download encountered curl56/reset then curl28/connect timeouts.
+For tgz/sourceZIP reused prior anonymous published downloads; SHA256 matched both reviewed baseline and freshly fetched GitHub asset digests.
+SHA256SUMS freshly anonymously downloaded and checked. Do not describe failed large-asset fetches as newly successful anonymous downloads.
+Current registry audit of original sourceZIP lock: full EXIT1/2moderate, production EXIT0/0.
+Fresh isolated install of original CLI tgz --omit=dev --ignore-scripts --engine-strict:EXIT0; production auditEXIT0/0; no Vitest/mocker in actual installed tree.
+Installed original CLI/library/7wasm smoke:EXIT0; safe8files/0findings/exit0; vulnerable14files/97findings/expectedexit1; zero skipped/LLM/cost.
+Development mocker vulnerabilities require reachable public Vite mock WS registration; ordinary Node tests/build do not automatically register it.
+Old Docker build stage installs dev dependencies while final runtime omits them; that limits runtime exposure, not source/build toolchain risk.
+Historical2026-10-20/21 audit0 remains valid as dated pre-advisory evidence, not a current claim for the old sourceZIP.
+Current main patches4.1.12. A new source preview is warranted; prepare only a new draft/tag from final accepted main, never overwrite old assets or publish this round.
+
+No npm/image publication, online deployment, App registration, paid API or outreach. Real App/paid provider/other Node patches unverified.
+ROADMAP.md/SECURITY.md unchanged/untracked/excluded. No force push or direct main push.

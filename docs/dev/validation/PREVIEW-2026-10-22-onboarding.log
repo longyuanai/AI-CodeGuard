@@ -1,0 +1,215 @@
+AI-CodeGuard public preview onboarding | 2026-10-22 Asia/Shanghai
+Release: selfhosted-preview-20261021.1 | ID 419048125
+Runtime source: 045d4073ec8dd3a3c347b30bb2c61edfd35e2ae3 (unchanged)
+Node: 24.22.0 / npm: 11.19.1 / Windows PowerShell
+Portable project Node selected only for this process. System Node unchanged.
+
+ANONYMOUS DOWNLOADS
+curl.exe -q --no-netrc --header 'Authorization:' --header 'Cookie:' --proto '=https' --proto-redir '=https' --location --fail --silent --show-error
+https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261021.1/ai-codeguard-0.4.0.tgz
+HTTP=200 EXIT=0
+https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261021.1/SHA256SUMS
+HTTP=200 EXIT=0
+Get-FileHash -Algorithm SHA256 ai-codeguard-0.4.0.tgz
+74ef827fe8204ab5ab621389f1f116b43bb68b836e2e81c918bf241facfb79d2
+MATCH: downloaded SHA256SUMS entry and reviewed release artifact digest.
+No gh credentials/netrc/login cookie supplied to curl.
+
+TUTORIAL VERIFICATION
+All 5 powershell fences in docs/QUICKSTART.md extracted verbatim to ignored run-tutorial.ps1.
+PowerShell Parser.ParseFile: 0 parse errors. Execution completed successfully.
+Separate temporary project under codeguard-preview-<ID>; no parent repository node_modules used.
+Commands in the guide include npm init -y, npm install local tgz --ignore-scripts --omit=dev --engine-strict --registry=https://registry.npmjs.org;
+version/help; safe/vulnerable/fixed scans with --dry-run and JSON reports; missing-config error demonstration.
+Installation/version/help exit 0; safe/vulnerable/fixed expected exits 0/1/0; missing config exit 2.
+Initial separate package install also passed. A raw sample-host request failed with curl 56 (connection reset);
+the tutorial was revised to generate the exact existing synthetic samples locally, avoiding that additional network dependency.
+Only text was parsed; vulnerable functions were never called.
+
+BEGIN ACTUAL TUTORIAL OUTPUT (temporary path/name redacted only)
+v24.22.0
+11.19.1
+SHA256 OK: 74ef827fe8204ab5ab621389f1f116b43bb68b836e2e81c918bf241facfb79d2
+Wrote to <DEMO>\package.json:
+
+{
+  "name": "codeguard-preview-<ID>",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
+
+
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 73 packages, and audited 74 packages in 13s
+
+15 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+0.4.0
+Usage: ai-codeguard [options] [command]
+
+AI-powered code security scanner
+
+Options:
+  -V, --version              output the version number
+  -h, --help                 display help for command
+
+Commands:
+  scan [options] [paths...]  Scan source code for security vulnerabilities
+  init [options]             Initialize a .codeguard.yml configuration file
+  rules [options]            List and manage detection rules
+  help [command]             display help for command
+safe exit=0
+vulnerable exit=1
+fixed exit=0
+safe files=1 findings=0 llmCalls=0 cost=0
+vulnerable files=1 findings=1 llmCalls=0 cost=0
+
+ruleId severity file     line
+------ -------- ----     ----
+CG-003 critical probe.ts    3
+fixed files=1 findings=0 llmCalls=0 cost=0
+Scan failed: ENOENT: no such file or directory, open '<DEMO>\missing-config.yml'
+runtime error exit=2
+
+
+END ACTUAL TUTORIAL OUTPUT
+
+BEGIN ACTUAL SCRIPTED TERMINAL CAPTURE
+AI-CodeGuard selfhosted-preview-20261021.1 | actual scripted terminal capture
+Windows / Node 24.22.0 / --dry-run only / synthetic source is parsed, never invoked
+
+$ node node_modules/ai-codeguard/dist/index.js --version
+0.4.0
+[exit=0]
+
+$ node node_modules/ai-codeguard/dist/index.js --help
+Usage: ai-codeguard [options] [command]
+
+AI-powered code security scanner
+
+Options:
+  -V, --version              output the version number
+  -h, --help                 display help for command
+
+Commands:
+  scan [options] [paths...]  Scan source code for security vulnerabilities
+  init [options]             Initialize a .codeguard.yml configuration file
+  rules [options]            List and manage detection rules
+  help [command]             display help for command
+[exit=0]
+
+# safe: actual probe.ts contents
+// Synthetic scan-only fixture. Do not invoke this function during rehearsal.
+export function parsePayload(input: string): unknown {
+  return JSON.parse(input);
+}
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output text --fail-on high
+
+  AI-CodeGuard Scan Results
+  ==================================================
+
+  ✓ No vulnerabilities found.
+
+  ==================================================
+  Summary: No findings
+  Files scanned: 1  |  Suspicious: 0  |  Duration: 0.0s
+[exit=0]
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output json --fail-on high --output-file safe-report.json
+[exit=0]
+{"stage":"safe","files":1,"findings":0,"exit":0,"rule":null,"line":null,"llmCalls":0,"estimatedCost":0,"skipped":0}
+
+# vulnerable: actual probe.ts contents
+// Synthetic scan-only fixture. Do not invoke this function during rehearsal.
+export function parsePayload(input: string): unknown {
+  return eval(input);
+}
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output text --fail-on high
+
+  AI-CodeGuard Scan Results
+  ==================================================
+
+  ✗ CRITICAL  CG-003 CWE-95  Code Injection (eval)
+    probe.ts:3-3
+
+    │ eval(input)
+  --------------------------------------------------
+
+  ==================================================
+  Summary: 1 findings (1 critical)
+  Files scanned: 1  |  Suspicious: 1  |  Duration: 0.0s
+[exit=1]
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output json --fail-on high --output-file vulnerable-report.json
+[exit=1]
+{"stage":"vulnerable","files":1,"findings":1,"exit":1,"rule":"CG-003","line":3,"llmCalls":0,"estimatedCost":0,"skipped":0}
+
+# fixed: actual probe.ts contents
+// Synthetic scan-only fixture. Do not invoke this function during rehearsal.
+export function parsePayload(input: string): unknown {
+  const payload: unknown = JSON.parse(input);
+  return payload;
+}
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output text --fail-on high
+
+  AI-CodeGuard Scan Results
+  ==================================================
+
+  ✓ No vulnerabilities found.
+
+  ==================================================
+  Summary: No findings
+  Files scanned: 1  |  Suspicious: 0  |  Duration: 0.0s
+[exit=0]
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output json --fail-on high --output-file fixed-report.json
+[exit=0]
+{"stage":"fixed","files":1,"findings":0,"exit":0,"rule":null,"line":null,"llmCalls":0,"estimatedCost":0,"skipped":0}
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --config missing-config.yml
+Scan failed: ENOENT: no such file or directory, open '<DEMO>\missing-config.yml'
+[exit=2]
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --unknown-option
+error: unknown option '--unknown-option'
+[exit=1]
+
+END ACTUAL CAPTURE
+Capture format: asciinema v2 JSON lines. Scripted prompts label commands; stdout/stderr and exit codes came from actual installed CLI child processes.
+Capture driver: ignored record-demo.mjs; node --check and execution exit 0. 10 actual commands; expected exits all matched.
+The safe/vulnerable/fixed stages each scanned one file; JSON assertions validated 0/1/0 findings, CG-003 critical at line 3, zero skips/LLM calls/cost.
+The missing-config example exited 2; Commander unknown-option exited 1. Numeric exit 1 alone does not distinguish findings from usage errors.
+No desktop video was recorded. No screenshots, user feedback or App integration were fabricated.
+
+VALIDATION BOUNDARY
+No runtime/dependency/build changes, no manual full root/App regression rerun on unchanged source.
+Historical 582+2 skipped / App35 / labeled-corpus precision95.8% recall92.0% / audit0 / same-source Linux container evidence remain dated historical results.
+Real App installation/HTTPS/signed webhook-to-real-PR, paid providers, other Node patches and macOS/Linux onboarding are NOT_RUN this round.
+No npm/image publication, deployment, App registration, social post or outreach message.
+Protected untracked root ROADMAP.md / SECURITY.md excluded.
+
+POST-PUSH ACTUAL CI / HANDOFF BLOCKER
+PR18 HEAD84f0e4e: https://github.com/longyuanai/AI-CodeGuard/actions/runs/39730914515
+Full audit failed with 2 moderate entries (@vitest/mocker + dependent vitest) for newly public GHSA-qxg6-89mg-rqv8 and GHSA-xp26-3454-mjgp.
+Other App/container/Action jobs and security-scan succeeded. Root check did not pass; no merge or audit-gate bypass performed.
+Separate source/dependency/test repair: https://github.com/longyuanai/AI-CodeGuard/pull/19
+Vitest4.1.12 patch branch local regression: root587/2skipped, App35, labeled corpus95.8%/92.0%, full/production audits0.
+Patch includes5 meaningful security cases; old4.1.11 negative control3failed/2passed, patched4.1.12 all5pass; source fix remains for human review.
+The onboarding PR does not include the dependency fix. Its main merge is blocked until the audit requirement is satisfied.
+To keep the prepared guide shareable now, use its public codex/github-app-rehearsal-prep branch URL.
+Feedback links use a prefilled GitHub Issue (no template deployment prerequisite, submission requires login); the structured YAML form activates after merge to main.
+No outreach message, Issue submission, social post, deployment or published-asset modification performed.
