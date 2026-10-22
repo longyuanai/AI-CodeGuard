@@ -10,7 +10,7 @@ AI-CodeGuard 帮开发者在提交代码前定位可疑安全模式，适合个�
 - **[快速上手：匿名下载 → 校验 → 安全/漏洞/修复复扫](docs/QUICKSTART.md)**，含可复制的完整 PowerShell 示例、实际结果和演示回放。
 - **[固定预发布 selfhosted-preview-20261021.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261021.1)**；[CLI 安装包](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261021.1/ai-codeguard-0.4.0.tgz) / [SHA256SUMS](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261021.1/SHA256SUMS)。包内版本仍为 `0.4.0`，源码固定在 `045d4073`；不要用注册表同版本替代这个附件。
 - **Node `^24.22.0`（>=24.22.0、<25）**；本轮 Windows 实测 24.22.0 / npm 11.19.1，其他补丁和平台见教程的验证边界。
-- [试用反馈](https://github.com/longyuanai/AI-CodeGuard/issues/new?template=preview-feedback.yml)：安装失败、误报、漏报或希望改进的流程；请脱敏，不提交密钥或私有源码。
+- [试用反馈](https://github.com/longyuanai/AI-CodeGuard/issues/new?title=%5BPreview%20feedback%5D&body=Release%3A%20selfhosted-preview-20261021.1%0AOS%20%2F%20Node%20%2F%20npm%3A%0AInstall%20success%3A%0AScan%20completed%20%2F%20exit%20code%3A%0AFalse%20positive%20or%20missed%20finding%20%28synthetic%20repro%20only%29%3A%0AImprovements%3A%0A%0ARedact%20keys%2C%20tokens%2C%20private%20source%20and%20customer%20data.)：安装失败、误报、漏报或希望改进的流程；请脱敏，不提交密钥或私有源码。
 
 CLI 是本机静态体验；[GitHub App](app/README.md) 是需要自行配置凭据、部署和安装的单实例 PR 服务，**真实 App 联调尚未完成**，没有在线托管服务。
 

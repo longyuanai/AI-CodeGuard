@@ -201,3 +201,15 @@ Historical 582+2 skipped / App35 / labeled-corpus precision95.8% recall92.0% / a
 Real App installation/HTTPS/signed webhook-to-real-PR, paid providers, other Node patches and macOS/Linux onboarding are NOT_RUN this round.
 No npm/image publication, deployment, App registration, social post or outreach message.
 Protected untracked root ROADMAP.md / SECURITY.md excluded.
+
+POST-PUSH ACTUAL CI / HANDOFF BLOCKER
+PR18 HEAD84f0e4e: https://github.com/longyuanai/AI-CodeGuard/actions/runs/39730914515
+Full audit failed with 2 moderate entries (@vitest/mocker + dependent vitest) for newly public GHSA-qxg6-89mg-rqv8 and GHSA-xp26-3454-mjgp.
+Other App/container/Action jobs and security-scan succeeded. Root check did not pass; no merge or audit-gate bypass performed.
+Separate source/dependency/test repair: https://github.com/longyuanai/AI-CodeGuard/pull/19
+Vitest4.1.12 patch branch local regression: root587/2skipped, App35, labeled corpus95.8%/92.0%, full/production audits0.
+Patch includes5 meaningful security cases; old4.1.11 negative control3failed/2passed, patched4.1.12 all5pass; source fix remains for human review.
+The onboarding PR does not include the dependency fix. Its main merge is blocked until the audit requirement is satisfied.
+To keep the prepared guide shareable now, use its public codex/github-app-rehearsal-prep branch URL.
+Feedback links use a prefilled GitHub Issue (no template deployment prerequisite, submission requires login); the structured YAML form activates after merge to main.
+No outreach message, Issue submission, social post, deployment or published-asset modification performed.

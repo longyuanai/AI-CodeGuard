@@ -81,7 +81,7 @@ npm install ./ai-codeguard-0.4.0.tgz --ignore-scripts --omit=dev --engine-strict
 
 想请首批 **3～5 位开发者**花几分钟跑通上述合成示例，再尝试自己有权检查的代码。
 最希望知道：能否顺利安装、退出码是否清楚、报告是否容易理解，以及遇到哪些误报或漏报。
-请通过[试用反馈 Issue](https://github.com/longyuanai/AI-CodeGuard/issues/new?template=preview-feedback.yml)记录环境、结果和改进建议。
+请通过[试用反馈 Issue](https://github.com/longyuanai/AI-CodeGuard/issues/new?title=%5BPreview%20feedback%5D&body=Release%3A%20selfhosted-preview-20261021.1%0AOS%20%2F%20Node%20%2F%20npm%3A%0AInstall%20success%3A%0AScan%20completed%20%2F%20exit%20code%3A%0AFalse%20positive%20or%20missed%20finding%20%28synthetic%20repro%20only%29%3A%0AImprovements%3A%0A%0ARedact%20keys%2C%20tokens%2C%20private%20source%20and%20customer%20data.)记录环境、结果和改进建议。
 只提供脱敏命令或最小合成复现，**不要上传密钥、Token、私钥、私有源码或客户数据**。
 提交 Issue 需要 GitHub 登录，没有收集用户信息的额外表单或后台。
 
@@ -89,6 +89,6 @@ npm install ./ai-codeguard-0.4.0.tgz --ignore-scripts --omit=dev --engine-strict
 
 > 我在做 AI-CodeGuard 的自部署预览版，想邀请 3～5 位开发者试用本地静态 CLI。
 > 用 Node ^24.22.0 跑一遍“eval 告警→修复→复扫”，不需要 LLM key。
-> 上手：https://github.com/longyuanai/AI-CodeGuard/blob/main/docs/QUICKSTART.md 。
+> 上手：https://github.com/longyuanai/AI-CodeGuard/blob/codex/github-app-rehearsal-prep/docs/QUICKSTART.md 。
 > 如果安装卡住、报告看不懂，或发现误报/漏报，欢迎提交脱敏反馈；不要上传私有源码或凭据。
 > 这是预览工具，真实 GitHub App 联调还未完成，也不替代人工安全审计。

@@ -186,8 +186,9 @@ App 是另一个需要自部署、HTTPS webhook、仓库白名单和最小权限
 及[现有 App 手册](../app/README.md)。它没有在线托管服务，**真实安装、签名投递到真实 PR、评论和 Check Run 联调尚未完成**。
 Linux CI 容器通过和 mock API 测试不代表真实 App 联调通过。
 
-请用 [预览版试用反馈](https://github.com/longyuanai/AI-CodeGuard/issues/new?template=preview-feedback.yml)（提交需要 GitHub 登录），
-或[查看已有 Issues](https://github.com/longyuanai/AI-CodeGuard/issues)。提供 OS、Node/npm/Release 版本、安装/扫描是否完成、
+请用 [预览版试用反馈](https://github.com/longyuanai/AI-CodeGuard/issues/new?title=%5BPreview%20feedback%5D&body=Release%3A%20selfhosted-preview-20261021.1%0AOS%20%2F%20Node%20%2F%20npm%3A%0AInstall%20success%3A%0AScan%20completed%20%2F%20exit%20code%3A%0AFalse%20positive%20or%20missed%20finding%20%28synthetic%20repro%20only%29%3A%0AImprovements%3A%0A%0ARedact%20keys%2C%20tokens%2C%20private%20source%20and%20customer%20data.)（提交需要 GitHub 登录），
+这个预填 Issue 链接不依赖模板先合并；[结构化反馈模板入口](https://github.com/longyuanai/AI-CodeGuard/issues/new?template=preview-feedback.yml)
+从 main 读取表单，模板尚未合并时使用上述预填入口即可。也可[查看已有 Issues](https://github.com/longyuanai/AI-CodeGuard/issues)。提供 OS、Node/npm/Release 版本、安装/扫描是否完成、
 脱敏命令/退出码、误报或漏报的最小合成复现及希望改进的内容。
 **不要上传 API key、Token、私钥、webhook secret、私有源码、客户数据或完整环境变量。**
 无法公开的复现可仅描述规则和现象，不要为了填表泄露信息。

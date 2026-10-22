@@ -21,6 +21,16 @@ SHA256SUMS，校验、安装、版本/帮助均通过。将教程全部 5 个 Po
 宣传中的 95.8%/92.0% 明确来自项目标注语料，不是任意真实项目的准确率。
 没有发送邀请或发布自媒体，也未部署服务；ROADMAP.md / SECURITY.md 保持原样且不提交。
 
+本轮新 HEAD `84f0e4e` 的 [PR CI](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39730914515)
+在完整 audit 步骤阻塞：新公开的
+[manual mock 注入](https://github.com/advisories/GHSA-qxg6-89mg-rqv8) 与
+[Windows 路径绕过](https://github.com/advisories/GHSA-xp26-3454-mjgp) 使开发链 Vitest/mocker 4.1.11
+报告 2 moderate；生产审计仍为 0。App、容器、Action smoke 和 security-scan 已通过，不能据此忽略根 CI 失败。
+独立 [修复 PR #19](https://github.com/longyuanai/AI-CodeGuard/pull/19) 最小更新至 4.1.12 并增加 5 项回归，
+留待人工审阅；不混入本文档 PR 或自动合并。PR #18 在审计条件满足前不合并，不改变原 audit 门槛。
+因此提供可直接分享的 [分支上手文档](https://github.com/longyuanai/AI-CodeGuard/blob/codex/github-app-rehearsal-prep/docs/QUICKSTART.md)
+和不依赖模板部署的预填 Issue 入口；结构化模板须合入 main 后生效。
+
 ## 历史准备：2026-10-21 真实 GitHub App 联调资料（未执行外部联调）
 
 基线为已合并、已验收 main **`045d4073ec8dd3a3c347b30bb2c61edfd35e2ae3`**，
