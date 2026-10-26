@@ -307,6 +307,13 @@ output:
 
 ### Config and Environment Variables
 
+Configuration arrays (`scan.include`, `scan.exclude`, `rules.disable`) and each
+custom-rule collection are limited to **1,024 entries**. Oversized collections
+fail validation before their elements are validated. This bound accompanies the
+Zod 4 security migration; split larger custom-rule sets across YAML files.
+Existing nested defaults and optional provider settings are preserved. This is
+not a general input-memory limit: configuration and custom rules must still be trusted.
+
 The loader supports:
 - `.codeguard.yml`
 - `.codeguard.yaml`

@@ -3,6 +3,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { z, ZodError } from 'zod';
+import { MAX_CONFIG_ITEMS } from '../config/schema.js';
 import type { ASTNode, Language, Pattern, PatternArgument, RuleDefinition, Severity, SuspiciousNode } from '../types/index.js';
 import type { BuiltInRule, RuleCheckContext } from './engine.js';
 
@@ -37,14 +38,14 @@ const PatternArgumentSchema = z.object({
 });
 
 const FunctionPatternSchema = z.object({
-  match: z.array(z.string().min(1)).min(1),
-  on: z.array(z.string().min(1)).min(1).optional(),
+  match: z.array(z.string().min(1)).max(MAX_CONFIG_ITEMS).min(1),
+  on: z.array(z.string().min(1)).max(MAX_CONFIG_ITEMS).min(1).optional(),
 });
 
 const PatternSchema = z.object({
   type: z.enum(NODE_TYPE_VALUES).optional(),
   function: FunctionPatternSchema.optional(),
-  arguments: z.array(PatternArgumentSchema).min(1).optional(),
+  arguments: z.array(PatternArgumentSchema).max(MAX_CONFIG_ITEMS).min(1).optional(),
   operator: z.string().optional(),
   hasExpressions: z.boolean().optional(),
 }).superRefine((pattern, ctx) => {
@@ -56,7 +57,7 @@ const PatternSchema = z.object({
     && pattern.hasExpressions === undefined
   ) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       message: 'Pattern must define at least one matcher',
     });
   }
@@ -67,17 +68,17 @@ const RuleDefinitionSchema = z.object({
   name: z.string().min(1),
   severity: z.enum(SEVERITY_VALUES),
   category: z.enum(CATEGORY_VALUES),
-  languages: z.array(z.enum(LANGUAGE_VALUES)).min(1),
+  languages: z.array(z.enum(LANGUAGE_VALUES)).max(MAX_CONFIG_ITEMS).min(1),
   description: z.string().min(1),
-  patterns: z.array(PatternSchema).min(1),
-  exclude: z.array(PatternSchema).min(1).optional(),
+  patterns: z.array(PatternSchema).max(MAX_CONFIG_ITEMS).min(1),
+  exclude: z.array(PatternSchema).max(MAX_CONFIG_ITEMS).min(1).optional(),
 });
 
 const RuleFileSchema = z.union([
   RuleDefinitionSchema,
-  z.array(RuleDefinitionSchema).min(1),
+  z.array(RuleDefinitionSchema).max(MAX_CONFIG_ITEMS).min(1),
   z.object({
-    rules: z.array(RuleDefinitionSchema).min(1),
+    rules: z.array(RuleDefinitionSchema).max(MAX_CONFIG_ITEMS).min(1),
   }),
 ]);
 

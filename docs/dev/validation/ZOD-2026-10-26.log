@@ -1,0 +1,324 @@
+AI-CodeGuard Zod remediation | 2026-10-26 Asia/Shanghai
+Baseline main 9b949df555ea1e215accf7659359bba358ebbeb1; tutorial PR #20 originally 90d236a.
+Node24.22.0 / npm11.19.1 / Windows; CODEGUARD_E2E=0, no paid API.
+Official advisory GHSA-mrhx-c7xc-m3w5: affected <4.6.6, first patched 4.6.6.
+Before: full/production audit2high each; zod3.25.76/openai4.104.0.
+Selected zod4.6.6/openai6.0.0; no compatible published v3 Zod / v4-v5 SDK patch.
+Security regression before fix: exit1, 10 failed / 4 passed (14).
+Targeted after fix: exit0, 96 passed across5 files.
+
+=== ACTUAL FINAL CHECK EXITS ===[
+  {
+    "command": "npm ci --ignore-scripts --engine-strict --registry=https://registry.npmjs.org",
+    "exit": 0,
+    "name": "install-clean"
+  },
+  {
+    "command": "npm run build",
+    "exit": 0,
+    "name": "build"
+  },
+  {
+    "command": "npm run test:run",
+    "exit": 0,
+    "name": "test"
+  },
+  {
+    "command": "npm run precision",
+    "exit": 0,
+    "name": "precision"
+  },
+  {
+    "command": "npm run typecheck",
+    "exit": 0,
+    "name": "typecheck"
+  },
+  {
+    "command": "npm run lint",
+    "exit": 0,
+    "name": "lint"
+  },
+  {
+    "command": "npm run build -w app",
+    "exit": 0,
+    "name": "app-build"
+  },
+  {
+    "command": "npm test -w app",
+    "exit": 0,
+    "name": "app-test"
+  },
+  {
+    "command": "npm run typecheck -w app",
+    "exit": 0,
+    "name": "app-typecheck"
+  },
+  {
+    "command": "npm run lint -w app",
+    "exit": 0,
+    "name": "app-lint"
+  },
+  {
+    "command": "npm audit --json --registry=https://registry.npmjs.org",
+    "exit": 0,
+    "name": "audit-full"
+  },
+  {
+    "command": "npm audit --omit=dev --json --registry=https://registry.npmjs.org",
+    "exit": 0,
+    "name": "audit-production"
+  }
+]
+
+=== test ACTUAL OUTPUT TAIL ===
+
+> ai-codeguard@0.4.0 test:run
+> vitest run
+
+
+ RUN  v4.1.12 <REPO>
+
+
+ Test Files  21 passed | 1 skipped (22)
+      Tests  605 passed | 2 skipped (607)
+   Start at  09:18:03
+   Duration  1.80s (transform 5.28s, setup 0ms, import 12.83s, tests 3.30s, environment 3ms)
+
+=== precision ACTUAL OUTPUT TAIL ===
+> ai-codeguard@0.4.0 precision
+> vitest run tests/precision --disableConsoleIntercept
+
+
+ RUN  v4.1.12 <REPO>
+
+
+── precision corpus report ──
+expected: 25  reported: 24
+TP: 23  FN: 2  FP: 1
+precision: 95.8%  recall: 92.0%
+missed (FN): handler.go:33:CG-002, webapp.ts:41:CG-001
+spurious (FP): service.py:42:CG-024
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  09:18:06
+   Duration  519ms (transform 181ms, setup 0ms, import 316ms, tests 63ms, environment 0ms)
+
+=== app-test ACTUAL OUTPUT TAIL ===
+
+> @ai-codeguard/github-app@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.12 <REPO>/app
+
+
+ Test Files  9 passed (9)
+      Tests  35 passed (35)
+   Start at  09:18:12
+   Duration  750ms (transform 674ms, setup 0ms, import 2.31s, tests 1.32s, environment 1ms)
+
+=== audit-full (exit0) ===
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {},
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 108,
+      "dev": 275,
+      "optional": 104,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 382
+    }
+  }
+}
+
+=== audit-production (exit0) ===
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {},
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 108,
+      "dev": 275,
+      "optional": 104,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 382
+    }
+  }
+}
+
+=== ISOLATED NEW PACKAGE SMOKE (exit0) ===
+{
+  "node": "v24.22.0",
+  "packageVersion": "0.4.0",
+  "engines": "^24.22.0",
+  "wasm": [
+    {
+      "file": "tree-sitter-go.wasm",
+      "bytes": 217182
+    },
+    {
+      "file": "tree-sitter-java.wasm",
+      "bytes": 414641
+    },
+    {
+      "file": "tree-sitter-javascript.wasm",
+      "bytes": 411770
+    },
+    {
+      "file": "tree-sitter-php.wasm",
+      "bytes": 1058041
+    },
+    {
+      "file": "tree-sitter-python.wasm",
+      "bytes": 457883
+    },
+    {
+      "file": "tree-sitter-tsx.wasm",
+      "bytes": 1445638
+    },
+    {
+      "file": "web-tree-sitter.wasm",
+      "bytes": 196763
+    }
+  ],
+  "devTools": "absent",
+  "versionAndHelp": "passed",
+  "cli": [
+    {
+      "fixture": "safe",
+      "files": 8,
+      "findings": 0,
+      "exit": 0,
+      "llmCalls": 0,
+      "skipped": 0
+    },
+    {
+      "fixture": "vulnerable",
+      "files": 14,
+      "findings": 97,
+      "exit": 1,
+      "llmCalls": 0,
+      "skipped": 0
+    }
+  ],
+  "library": {
+    "files": 14,
+    "findings": 97,
+    "skipped": 0,
+    "llmCalls": 0
+  },
+  "synthetic": {
+    "files": 4,
+    "findings": 3,
+    "skipped": 0,
+    "llmCalls": 0
+  }
+}
+
+=== OLD PUBLISHED PACKAGE FRESH INSTALL PRODUCTION AUDIT (exit1) ===
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "ai-codeguard": {
+      "name": "ai-codeguard",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "openai",
+        "zod"
+      ],
+      "effects": [],
+      "range": "",
+      "nodes": [
+        "node_modules/ai-codeguard"
+      ],
+      "fixAvailable": false
+    },
+    "openai": {
+      "name": "openai",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "zod"
+      ],
+      "effects": [
+        "ai-codeguard"
+      ],
+      "range": "4.55.0 - 5.23.2",
+      "nodes": [
+        "node_modules/openai"
+      ],
+      "fixAvailable": false
+    },
+    "zod": {
+      "name": "zod",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1243066,
+          "name": "zod",
+          "dependency": "zod",
+          "title": "Zod can exhaust memory while validating oversized constrained collections",
+          "url": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+          "severity": "high",
+          "cwe": [
+            "CWE-770"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<4.6.6"
+        }
+      ],
+      "effects": [
+        "ai-codeguard",
+        "openai"
+      ],
+      "range": "<4.6.6",
+      "nodes": [
+        "node_modules/zod"
+      ],
+      "fixAvailable": false
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 3,
+      "critical": 0,
+      "total": 3
+    },
+    "dependencies": {
+      "prod": 74,
+      "dev": 0,
+      "optional": 0,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 73
+    }
+  }
+}
