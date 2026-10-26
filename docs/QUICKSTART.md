@@ -7,6 +7,8 @@
 
 ## 固定下载与环境
 
+**2026-10-26 修复与发行范围：** [PR #21](https://github.com/longyuanai/AI-CodeGuard/pull/21) 已修复 main（`1c7cc64e`）：Zod 4.6.6/OpenAI 6.0.0，配置/规则集合每个最多 1,024 项；源码及新打包消费者审计 0。下列公开附件仍固定在 `9b949df5`，全新 CLI 安装仍报告 3 high，源码 ZIP 锁审计仍为 2 high。**main 修复不等于历史附件修复**；本页固定包示例用于小型合成演示，使用修复请按 [main 源码构建步骤](../README.md#what-works-today) 构建。新预览仅准备草稿，不能据其标签匿名安装。下方 2026-10-25 的记录和动图保持原样，不描述为修复后安装。
+
 - [公开预发布 selfhosted-preview-20261022.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261022.1)
 - [CLI 安装包 ai-codeguard-0.4.0.tgz](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261022.1/ai-codeguard-0.4.0.tgz)
 - [SHA256SUMS](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261022.1/SHA256SUMS) / [发行清单](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261022.1/MANIFEST.json)
@@ -34,7 +36,7 @@ Zod `<4.6.6` 校验过大的受限集合时可能耗尽内存，公告修补版�
 本页小型合成 `--dry-run` 只验证演示流程，不是该漏洞的利用验证，也不证明安装树无风险。
 本轮没有升级依赖或绕过 CI；2026-10-22 的历史审计 0 不能当作当前结论，动图保留真实的 `3 high` 安装提示。
 本轮实际安装 Zod `3.25.76` / OpenAI `4.104.0`；即使 `--dry-run` 仍会加载并校验配置，不可信配置及自定义规则 YAML 是需要界定的输入面。
-当前 OpenAI peer 支持 Zod 3，需独立进行兼容整改，不能直接把公告的 `4.6.6` 当作可替换版本；该补丁针对有边界集合，不是通用资源耗尽防护。
+该公开包的 OpenAI peer 仅支持 Zod 3，2026-10-25 时需要独立兼容整改；现已由 PR #21 修复 main，旧包未随之更新。该补丁针对有边界集合，不是通用资源耗尽防护。
 
 ## 第一个完整示例（Windows PowerShell）
 
@@ -58,7 +60,7 @@ Set-Location -LiteralPath $demoRoot
 ```powershell
 $release = 'https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261022.1'
 foreach ($name in @('ai-codeguard-0.4.0.tgz', 'SHA256SUMS')) {
-  curl.exe -q --no-netrc --header 'Authorization:' --header 'Cookie:' --proto '=https' --proto-redir '=https' --fail --location --silent --show-error --retry 2 --max-time 90 --output $name "$release/$name"
+  curl.exe -q --no-netrc --header 'Authorization:' --header 'Cookie:' --proto '=https' --proto-redir '=https' --fail --location --silent --show-error --retry 2 --retry-all-errors --connect-timeout 20 --max-time 90 --output $name "$release/$name"
   if ($LASTEXITCODE -ne 0) { throw "下载失败：$name" }
 }
 $checksumLine = @(Get-Content -LiteralPath './SHA256SUMS' | Where-Object { $_ -match '^[0-9a-f]{64}  ai-codeguard-0\.4\.0\.tgz$' })

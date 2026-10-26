@@ -4,6 +4,8 @@
 
 ## 先试用：自部署预览版
 
+**2026-10-26 修复状态：** [PR #21](https://github.com/longyuanai/AI-CodeGuard/pull/21) 已合并到 main（`1c7cc64e`），使用 Zod 4.6.6/OpenAI 6.0.0、配置集合上限 1,024；本轮源码及新打包消费者完整/生产审计为 0，605 根测试和 35 App 测试通过。下方已公开 `20261022.1` 附件没有改变：CLI 全新安装仍为 3 high，源码 ZIP 锁审计仍为 2 high。使用修复需从 main 构建；后续新预览仅准备草稿，尚未公开。旧回放的安装告警属于其真实历史输出。
+
 AI-CodeGuard 帮开发者在提交代码前定位可疑安全模式，适合个人项目维护者和希望在 CI 中增加静态检查的团队。
 本地 CLI 的 `--dry-run` 不需要 LLM key，也不会执行被扫描代码。
 
@@ -79,7 +81,7 @@ Current truth: the repository is still in **Phase 1**, and `scan()` now supports
 
 ```bash
 # Build the CLI
-npm install
+npm ci --ignore-scripts --engine-strict
 npm run build
 
 # Initialize config in the current project

@@ -3,7 +3,7 @@
 ## 当前整改：2026-10-26 Zod 集合校验
 
 基线 main `9b949df555ea1e215accf7659359bba358ebbeb1`；教程 PR #20 原 HEAD `90d236a` 保持独立。
-本轮完整/生产审计均为 **2 high**（zod/openai），对应同一 [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)：Zod `<4.6.6`，首次修补 `4.6.6`。
+整改前完整/生产审计均为 **2 high**（zod/openai），对应同一 [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)：Zod `<4.6.6`，首次修补 `4.6.6`。
 实际链为直接 Zod 3.25.76 及 OpenAI 4.104.0 的 Zod peer；这是确认的依赖告警，未证明本项目的远程可利用性。
 `--dry-run` 仍解析配置；普通 provider 使用 chat.completions.create，没有使用 Zod response/tool helpers。
 
@@ -30,6 +30,15 @@ Node 24.22.0/npm 11.19.1 下按锁文件干净安装后，根 build/test:run/pre
 回滚需要独立 revert PR 同时恢复依赖、锁文件和 schema/custom 改动，不能只降低依赖版本（Zod 3 不支持 prefault）。
 合并前回滚点为 `9b949df5`；合并后以修复 PR 的 merge SHA 为 `git revert -m 1 <merge-sha>` 目标，不直接推 main。
 回滚会重新引入已知告警，不能视为安全生产版本。Node 政策仍为 `^24.22.0`；真实 App、付费 provider、其它 Node 补丁未验证。
+
+[PR #21](https://github.com/longyuanai/AI-CodeGuard/pull/21) 已正常合并为 `1c7cc64eba7a7fe11d240d862be675c8dc0fdb6e`；最终修复 HEAD `e075952` 的 [Linux CI](https://github.com/longyuanai/AI-CodeGuard/actions/runs/40254152915) 和 [security-scan](https://github.com/longyuanai/AI-CodeGuard/actions/runs/40254152946) 全部通过，包括真实容器。
+2026-10-26 另行匿名下载公开 GIF，HTTP 200，SHA256 `23013112a7462fea64cea56245e71633685b84d1b1ae2af56e3e3f490d41860e`，与制作记录及 `90d236a` 的 Git blob 一致；完整解码43帧，76,570ms、1274×778，可循环播放。
+GitHub 原始直链在本机曾 ECONNRESET，公开文件 API 下载成功；不隐瞒网络失败，也没有覆盖 GIF。
+
+已把修复 main 正常合入 PR #20，保留并重排唯一的验收记录冲突；教程与 Release 说明须区分 main 审计0和旧附件3/2 high。
+本轮逐字重跑当前教程5个PowerShell块（含下载重试），匿名下载/校验/安装/版本/帮助通过，安全/危险/修复1文件各0/1/0发现、退出0/1/0、零LLM，运行错误退出2。
+本地文档链接/锚点、3样本、反馈模板、原回放逐字比对和敏感标记检查通过。见[本轮教程/GIF证据](validation/PREVIEW-2026-10-26-delivery.log)。
+修复后的 main `1c7cc64e` 对应 [CI](https://github.com/longyuanai/AI-CodeGuard/actions/runs/40254343251) 与 [security-scan](https://github.com/longyuanai/AI-CodeGuard/actions/runs/40254343176) 已通过；PR #20 最终提交的检查单独核对，不沿用原90d236a的失败结果。
 
 ## 历史交付：2026-10-25 新版教程与真实安装演示
 

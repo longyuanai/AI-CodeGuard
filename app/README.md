@@ -18,9 +18,17 @@ is retained in Git history and [historical acceptance](../docs/dev/M8-VALIDATION
 Real GitHub App integration, paid providers and other Node 24 patches remain
 **unverified**. The [rehearsal below](#真实-github-app-联调手册待外部授权执行) prepares that work only.
 
-Source download update (2026-10-25): use the published
-[selfhosted-preview-20261022.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261022.1),
-fixed at `9b949df555ea1e215accf7659359bba358ebbeb1`, for source development/builds.
+**2026-10-26 source fix:** [PR #21](https://github.com/longyuanai/AI-CodeGuard/pull/21)
+merged as `1c7cc64e`: Zod 4.6.6/OpenAI 6.0.0, bounded configuration collections,
+605 root passes/2 opt-in skips, 35 App passes and zero complete/production audit alerts.
+Build from fixed main for this remediation. The published 20261022.1 source ZIP
+still locks affected dependencies (2 high); its CLI's fresh production install
+still reports 3 high. These attachments were not replaced. A later preview may be
+prepared as a draft only; live App and paid-provider integration remain unverified.
+
+Historical source download update (2026-10-25): the published
+[selfhosted-preview-20261022.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261022.1)
+is fixed at `9b949df555ea1e215accf7659359bba358ebbeb1`.
 It includes the Vitest/mocker 4.1.12 fix from [PR #19](https://github.com/longyuanai/AI-CodeGuard/pull/19).
 The historical `selfhosted-preview-20261021.1` source ZIP retains the 4.1.11
 development chain assessed on 2026-10-22; production CLI/App installs omit that

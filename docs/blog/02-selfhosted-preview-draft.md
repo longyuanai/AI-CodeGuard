@@ -93,6 +93,7 @@ npm install ./ai-codeguard-0.4.0.tgz --ignore-scripts --omit=dev --engine-strict
 
 ## 当前边界
 
+- **2026-10-26 更新：** [PR #21](https://github.com/longyuanai/AI-CodeGuard/pull/21) 已合并，main 的 Zod 4.6.6/OpenAI 6.0.0 和集合上限已验证，源码/新打包消费者审计 0；本页公开 `20261022.1` 包和真实回放没有改变，旧包全新安装仍 3 high，源码 ZIP 仍 2 high。修复需从 main 构建，后续预览仅为待审阅草稿，未公开。不能将 main 的修复状态套到本页旧附件。
 - **2026-10-25 当前依赖风险：** 公开 CLI 隔离生产安装审计报告 **3 个 high 包条目**（ai-codeguard/openai/zod 对同一 [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5) 的聚合）。Zod `<4.6.6` 校验过大的受限集合时可能耗尽内存，公告修补版本为 `4.6.6`；动图保留了真实 `3 high` 安装提示。本轮小型合成 `--dry-run` 不是该漏洞的利用验证或无风险证明，未升级依赖、未绕过 CI，历史审计 0 不是当前结论。
   实装 Zod `3.25.76` / OpenAI `4.104.0`，`--dry-run` 仍会校验配置；不可信配置/规则 YAML 的输入边界及 Zod 3 peer 的兼容迁移需独立整改。公告补丁针对有边界集合，并非彻底消除所有资源耗尽问题。
 - 支持 JS/TS、Python、Go、Java、PHP；不同语言的规则覆盖不同，见[项目规则表](../../README.md#supported-languages)。
