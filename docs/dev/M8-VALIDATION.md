@@ -1,6 +1,37 @@
 # M8 本地交付与验收记录
 
-## 当前交付：2026-10-25 新版教程与真实安装演示
+## 当前整改：2026-10-26 Zod 集合校验
+
+基线 main `9b949df555ea1e215accf7659359bba358ebbeb1`；教程 PR #20 原 HEAD `90d236a` 保持独立。
+本轮完整/生产审计均为 **2 high**（zod/openai），对应同一 [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)：Zod `<4.6.6`，首次修补 `4.6.6`。
+实际链为直接 Zod 3.25.76 及 OpenAI 4.104.0 的 Zod peer；这是确认的依赖告警，未证明本项目的远程可利用性。
+`--dry-run` 仍解析配置；普通 provider 使用 chat.completions.create，没有使用 Zod response/tool helpers。
+
+已核实最新 Zod 3 为 3.25.76、SDK 4 为 4.104.0、SDK 5 为 5.23.2，均无可用兼容补丁；5.23.3 查询返回 E404。
+因此精确固定 **Zod 4.6.6 / OpenAI 6.0.0**，后者是首个支持 Zod 4 peer 的正式版本。
+依据：[Zod 迁移说明](https://zod.dev/v4/changelog)、[SDK 6.0.0](https://github.com/openai/openai-node/releases/tag/v6.0.0)。
+SDK 5 的 fetch/exports 调整与 SDK 6 的 Responses tool-output 类型变化不改变本项目 chat API；实际 SDK 加替身 fetch 验证请求、鉴权、零重试、响应内容和 token 计数，不是付费 provider 联调。
+
+将五个配置段改为 `prefault({})` 保留嵌套默认值；ConfigSchema 导出现在是 Zod 4 schema。
+配置 include/exclude/disable 及自定义规则的每个集合上限 **1,024**；超限先拒绝，再做元素校验。
+[上游修补](https://github.com/colinhacks/zod/pull/6652)只保护有上界的集合，因此不能仅升级而保留无限数组。
+这不是通用输入内存上限：YAML 解码、配置读取及多层集合仍需可信输入；不要执行陌生 JS/TS 配置。
+
+Node 24.22.0/npm 11.19.1 下按锁文件干净安装后，根 build/test:run/precision/typecheck/lint、App build/test/typecheck/lint 全部退出 0：
+**605 根通过、2 原有付费 opt-in 跳过；35 App 通过；语料 precision 95.8% / recall 92.0%**。
+新增安全回归在旧实现上 10 失败/4 通过，修复后通过；验证超限数组不读取元素、YAML 多层集合拒绝、默认值/错误路径、provider 失败保留静态发现。
+完整/生产审计均 **0**；锁文件仅更新 SDK/Zod 两个节点并移除 SDK 下两个多余类型节点，无新增 overrides 或生产包。
+隔离消费者生产审计 0，CLI version/help、7 wasm、开发工具裁剪、CLI 安全 8文件/0发现与漏洞14文件/97发现（退出0/1）、库入口及 JS/PHP/字面glob实扫通过；零 LLM、零跳过。
+实际摘要见 [ZOD-2026-10-26.log](validation/ZOD-2026-10-26.log)，原始 JSON/日志保存在本地忽略目录 `.artifacts/zod-remediation-2026-10-26/`。
+
+**旧发行物没有因此修复。** `selfhosted-preview-20261022.1` tgz 哈希仍为 `d8fadbef…cc7a82`；全新消费者安装仍得到 Zod 3.25.76/OpenAI 4.104.0，生产审计 **3 high**（额外包含 ai-codeguard 传播条目）。
+固定源码 ZIP 哈希 `13d87abe…df931`、锁定版本不变，本日完整/生产锁审计各 **2 high**。历史零告警只代表当日；新制品须从最终验收 main 另行准备新标签草稿，不覆盖旧附件或公开新版本。
+
+回滚需要独立 revert PR 同时恢复依赖、锁文件和 schema/custom 改动，不能只降低依赖版本（Zod 3 不支持 prefault）。
+合并前回滚点为 `9b949df5`；合并后以修复 PR 的 merge SHA 为 `git revert -m 1 <merge-sha>` 目标，不直接推 main。
+回滚会重新引入已知告警，不能视为安全生产版本。Node 政策仍为 `^24.22.0`；真实 App、付费 provider、其它 Node 补丁未验证。
+
+## 历史交付：2026-10-25 新版教程与真实安装演示
 
 默认入口统一为已公开的 [selfhosted-preview-20261022.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261022.1)，
 固定发行源码 `9b949df555ea1e215accf7659359bba358ebbeb1`，CLI组件仍为0.4.0，Node要求仍为^24.22.0。
