@@ -74,6 +74,20 @@ function makeConfirmedResponse(overrides: Record<string, unknown> = {}): string 
 }
 
 describe('analyzeFindings', () => {
+  it.each(['not JSON', '{"confirmed":true,"reasoning":""}'])(
+    'keeps the Stage 1 finding when an OpenAI result is invalid: %s', async text => {
+      const finding = makeFinding();
+      const result = await analyzeFindings({ findings: [finding], suspiciousNodes: [makeSuspiciousNode()],
+        llm: makeLLM({ provider: 'openai' }), fix: false }, {
+        providers: { openai: async () => ({ text, inputTokens: 10, outputTokens: 4 }) },
+      });
+      expect(result.findings).toEqual([finding]);
+      expect(result.dismissed).toEqual([]);
+      expect(result.findings[0].llmAnalysis).toBeUndefined();
+      expect(result.llmCalls).toBe(1);
+    },
+  );
+
   it('uses the configured provider', async () => {
     let usedProvider = '';
 
