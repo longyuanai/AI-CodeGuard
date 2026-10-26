@@ -1,0 +1,513 @@
+AI-CodeGuard new-preview onboarding | 2026-10-25 Asia/Shanghai
+Release selfhosted-preview-20261022.1 | source9b949df555ea1e215accf7659359bba358ebbeb1
+CLI0.4.0 / portableNode24.22.0 / npm11.19.1 / Windows PowerShell
+This is fresh public-asset onboarding, not a complete source regression or real App integration.
+Actual5 PowerShell blocks extracted verbatim from docs/QUICKSTART.md, parser passed, execution exit0.
+Expected scan exits0/1/0; actual JSON files1 each, findings0/1CG-003critical line3/0, skips0, LLM0, cost0.
+A missing-config example actually exits2; finding exit1 is not an installation error.
+Temporary paths are redacted as <DEMO>; terminal output otherwise preserved.
+
+=== ACTUAL TUTORIAL COMMANDS ===
+$ErrorActionPreference = 'Stop'
+# 扫描发现时退出 1 是预期情况，不让 PowerShell 把它当作脚本异常。
+$PSNativeCommandUseErrorActionPreference = $false
+node -e "const [major,minor]=process.versions.node.split('.').map(Number);if(major!==24||minor<22)throw new Error('Require Node ^24.22.0')"
+if ($LASTEXITCODE -ne 0) { throw '请先切换当前终端到 Node ^24.22.0' }
+node --version
+npm.cmd --version
+$demoRoot = Join-Path ([IO.Path]::GetTempPath()) ('codeguard-preview-' + [guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $demoRoot | Out-Null
+Set-Location -LiteralPath $demoRoot
+
+
+$release = 'https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261022.1'
+foreach ($name in @('ai-codeguard-0.4.0.tgz', 'SHA256SUMS')) {
+  curl.exe -q --no-netrc --header 'Authorization:' --header 'Cookie:' --proto '=https' --proto-redir '=https' --fail --location --silent --show-error --retry 2 --max-time 90 --output $name "$release/$name"
+  if ($LASTEXITCODE -ne 0) { throw "下载失败：$name" }
+}
+$checksumLine = @(Get-Content -LiteralPath './SHA256SUMS' | Where-Object { $_ -match '^[0-9a-f]{64}  ai-codeguard-0\.4\.0\.tgz$' })
+if ($checksumLine.Count -ne 1) { throw '缺失或重复的安装包校验项' }
+$expectedHash = ($checksumLine[0] -split '  ', 2)[0]
+$actualHash = (Get-FileHash -Algorithm SHA256 -LiteralPath './ai-codeguard-0.4.0.tgz').Hash.ToLowerInvariant()
+if ($actualHash -cne $expectedHash) { throw 'SHA256 不一致，请停止安装' }
+"SHA256 OK: $actualHash"
+npm.cmd init -y
+if ($LASTEXITCODE -ne 0) { throw 'npm init 失败' }
+npm.cmd install ./ai-codeguard-0.4.0.tgz --ignore-scripts --omit=dev --engine-strict --registry=https://registry.npmjs.org
+if ($LASTEXITCODE -ne 0) { throw '安装失败，请保留脱敏错误信息' }
+& .\node_modules\.bin\ai-codeguard.cmd --version
+if ($LASTEXITCODE -ne 0) { throw 'CLI 版本检查失败' }
+& .\node_modules\.bin\ai-codeguard.cmd --help
+if ($LASTEXITCODE -ne 0) { throw 'CLI 帮助检查失败' }
+
+
+$samples = @{
+  'safe.ts' = @'
+// Synthetic scan-only fixture. Do not invoke this function during rehearsal.
+export function parsePayload(input: string): unknown {
+  return JSON.parse(input);
+}
+'@
+  'vulnerable.ts' = @'
+// Synthetic scan-only fixture. Do not invoke this function during rehearsal.
+export function parsePayload(input: string): unknown {
+  return eval(input);
+}
+'@
+  'fixed.ts' = @'
+// Synthetic scan-only fixture. Do not invoke this function during rehearsal.
+export function parsePayload(input: string): unknown {
+  const payload: unknown = JSON.parse(input);
+  return payload;
+}
+'@
+}
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+foreach ($name in $samples.Keys) {
+  [IO.File]::WriteAllText((Join-Path $demoRoot $name), $samples[$name] + "`n", $utf8)
+}
+
+
+Copy-Item -LiteralPath ./safe.ts -Destination ./probe.ts
+& .\node_modules\.bin\ai-codeguard.cmd scan ./probe.ts --dry-run --output json --output-file ./safe-report.json --fail-on high
+"safe exit=$LASTEXITCODE"
+
+Copy-Item -LiteralPath ./vulnerable.ts -Destination ./probe.ts
+& .\node_modules\.bin\ai-codeguard.cmd scan ./probe.ts --dry-run --output json --output-file ./vulnerable-report.json --fail-on high
+"vulnerable exit=$LASTEXITCODE"
+
+Copy-Item -LiteralPath ./fixed.ts -Destination ./probe.ts
+& .\node_modules\.bin\ai-codeguard.cmd scan ./probe.ts --dry-run --output json --output-file ./fixed-report.json --fail-on high
+"fixed exit=$LASTEXITCODE"
+
+foreach ($stage in @('safe', 'vulnerable', 'fixed')) {
+  $report = Get-Content -LiteralPath "./$stage-report.json" -Raw | ConvertFrom-Json
+  "$stage files=$($report.scan.files) findings=$($report.scan.totalFindings) llmCalls=$($report.scan.llmCalls) cost=$($report.scan.estimatedCost)"
+  $report.findings | Select-Object ruleId, severity, file, @{Name='line'; Expression={$_.location.start.line}}
+}
+
+
+& .\node_modules\.bin\ai-codeguard.cmd scan ./probe.ts --dry-run --config ./missing-config.yml
+"runtime error exit=$LASTEXITCODE"
+
+=== ACTUAL TUTORIAL STDOUT/STDERR ===
+v24.22.0
+11.19.1
+SHA256 OK: d8fadbef81e01f257956f3cea5251e70feea9040570fb8e0b2ce830331cc7a82
+Wrote to <DEMO>\package.json:
+
+{
+  "name": "codeguard-preview-28fb83ec21774ff5b4df1d33d2335cbb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
+
+
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 73 packages, and audited 74 packages in 37s
+
+15 packages are looking for funding
+  run `npm fund` for details
+
+3 high severity vulnerabilities
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+0.4.0
+Usage: ai-codeguard [options] [command]
+
+AI-powered code security scanner
+
+Options:
+  -V, --version              output the version number
+  -h, --help                 display help for command
+
+Commands:
+  scan [options] [paths...]  Scan source code for security vulnerabilities
+  init [options]             Initialize a .codeguard.yml configuration file
+  rules [options]            List and manage detection rules
+  help [command]             display help for command
+safe exit=0
+vulnerable exit=1
+fixed exit=0
+safe files=1 findings=0 llmCalls=0 cost=0
+vulnerable files=1 findings=1 llmCalls=0 cost=0
+
+Scan failed: ENOENT: no such file or directory, open '<DEMO>\missing-config.yml'
+ruleId severity file     line
+------ -------- ----     ----
+CG-003 critical probe.ts    3
+fixed files=1 findings=0 llmCalls=0 cost=0
+runtime error exit=2
+
+
+=== ACTUAL INSTALLATION CAPTURE (2026-10-25) ===
+The five tutorial blocks above downloaded the public release anonymously and succeeded.
+Two later recording attempts hit curl56/reset and curl28/timeout; partial failures remain ignored evidence.
+The successful capture uses those same previously downloaded files, rechecks SHA256, and performs
+another real npm install in a new temporary directory. It does not claim a new download.
+CLI package SHA256=d8fadbef81e01f257956f3cea5251e70feea9040570fb8e0b2ce830331cc7a82
+Prompts, sample headings and exit-code stamps are scripted; child output and relative times are real.
+GIF renders the cast, retaining timing to 10ms precision, plus a 2.5-second end hold; not desktop video.
+AI-CodeGuard selfhosted-preview-20261022.1 | real scripted terminal-output capture
+Prompts, sample headings and exit stamps are scripted; child output and timing are real.
+Synthetic samples are parsed, never invoked. --dry-run only; no LLM key or paid calls.
+
+$ node --version
+v24.22.0
+[exit=0]
+
+$ npm --version
+11.19.1
+[exit=0]
+# Using local files previously downloaded anonymously; this capture does not claim a new download.
+# Copied previously downloaded ai-codeguard-0.4.0.tgz; SHA256 verification follows.
+# Copied previously downloaded SHA256SUMS; SHA256 verification follows.
+
+$ node verify-sha256.mjs
+SHA256 OK: d8fadbef81e01f257956f3cea5251e70feea9040570fb8e0b2ce830331cc7a82
+[exit=0]
+
+$ npm init -y
+Wrote to <DEMO>\package.json:
+
+{
+  "name": "codeguard-demo-yp5laz",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
+
+
+[exit=0]
+
+$ npm install ./ai-codeguard-0.4.0.tgz --ignore-scripts --omit=dev --engine-strict --registry=https://registry.npmjs.org
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 73 packages, and audited 74 packages in 1m
+
+15 packages are looking for funding
+  run `npm fund` for details
+
+3 high severity vulnerabilities
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+[exit=0]
+
+$ node node_modules/ai-codeguard/dist/index.js --version
+0.4.0
+[exit=0]
+
+$ node node_modules/ai-codeguard/dist/index.js --help
+Usage: ai-codeguard [options] [command]
+
+AI-powered code security scanner
+
+Options:
+  -V, --version              output the version number
+  -h, --help                 display help for command
+
+Commands:
+  scan [options] [paths...]  Scan source code for security vulnerabilities
+  init [options]             Initialize a .codeguard.yml configuration file
+  rules [options]            List and manage detection rules
+  help [command]             display help for command
+[exit=0]
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --config missing-config.yml
+Scan failed: ENOENT: no such file or directory, open '<DEMO>\missing-config.yml'
+[exit=2]
+
+# safe: actual probe.ts contents (copied from safe.ts)
+// Synthetic scan-only fixture. Do not invoke this function during rehearsal.
+export function parsePayload(input: string): unknown {
+  return JSON.parse(input);
+}
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output text --fail-on high
+
+  AI-CodeGuard Scan Results
+  ==================================================
+
+  ✓ No vulnerabilities found.
+
+  ==================================================
+  Summary: No findings
+  Files scanned: 1  |  Suspicious: 0  |  Duration: 0.0s
+[exit=0]
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output json --fail-on high --output-file safe-report.json
+[exit=0]
+{"stage":"safe","files":1,"findings":0,"exit":0,"llmCalls":0,"estimatedCost":0,"skipped":0}
+
+# vulnerable: actual probe.ts contents (copied from vulnerable.ts)
+// Synthetic scan-only fixture. Do not invoke this function during rehearsal.
+export function parsePayload(input: string): unknown {
+  return eval(input);
+}
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output text --fail-on high
+
+  AI-CodeGuard Scan Results
+  ==================================================
+
+  ✗ CRITICAL  CG-003 CWE-95  Code Injection (eval)
+    probe.ts:3-3
+
+    │ eval(input)
+  --------------------------------------------------
+
+  ==================================================
+  Summary: 1 findings (1 critical)
+  Files scanned: 1  |  Suspicious: 1  |  Duration: 0.0s
+[exit=1]
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output json --fail-on high --output-file vulnerable-report.json
+[exit=1]
+{"stage":"vulnerable","files":1,"findings":1,"exit":1,"llmCalls":0,"estimatedCost":0,"skipped":0}
+
+# fixed: actual probe.ts contents (copied from fixed.ts)
+// Synthetic scan-only fixture. Do not invoke this function during rehearsal.
+export function parsePayload(input: string): unknown {
+  const payload: unknown = JSON.parse(input);
+  return payload;
+}
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output text --fail-on high
+
+  AI-CodeGuard Scan Results
+  ==================================================
+
+  ✓ No vulnerabilities found.
+
+  ==================================================
+  Summary: No findings
+  Files scanned: 1  |  Suspicious: 0  |  Duration: 0.0s
+[exit=0]
+
+$ node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output json --fail-on high --output-file fixed-report.json
+[exit=0]
+{"stage":"fixed","files":1,"findings":0,"exit":0,"llmCalls":0,"estimatedCost":0,"skipped":0}
+
+=== CAPTURE ASSERTIONS ===
+{
+  "succeeded": true,
+  "release": "selfhosted-preview-20261022.1",
+  "node": "v24.22.0",
+  "expectedHash": "d8fadbef81e01f257956f3cea5251e70feea9040570fb8e0b2ce830331cc7a82",
+  "downloadSource": "previously downloaded files; reverified in this capture",
+  "checks": [
+    {
+      "command": "node --version",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "command": "npm --version",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "command": "node verify-sha256.mjs",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "command": "npm init -y",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "command": "npm install ./ai-codeguard-0.4.0.tgz --ignore-scripts --omit=dev --engine-strict --registry=https://registry.npmjs.org",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "command": "node node_modules/ai-codeguard/dist/index.js --version",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "command": "node node_modules/ai-codeguard/dist/index.js --help",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "command": "node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --config missing-config.yml",
+      "exit": 2,
+      "expected": 2
+    },
+    {
+      "command": "node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output text --fail-on high",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "command": "node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output json --fail-on high --output-file safe-report.json",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "command": "node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output text --fail-on high",
+      "exit": 1,
+      "expected": 1
+    },
+    {
+      "command": "node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output json --fail-on high --output-file vulnerable-report.json",
+      "exit": 1,
+      "expected": 1
+    },
+    {
+      "command": "node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output text --fail-on high",
+      "exit": 0,
+      "expected": 0
+    },
+    {
+      "command": "node node_modules/ai-codeguard/dist/index.js scan probe.ts --dry-run --output json --fail-on high --output-file fixed-report.json",
+      "exit": 0,
+      "expected": 0
+    }
+  ],
+  "stages": [
+    {
+      "stage": "safe",
+      "files": 1,
+      "findings": 0,
+      "exit": 0,
+      "llmCalls": 0,
+      "estimatedCost": 0,
+      "skipped": 0
+    },
+    {
+      "stage": "vulnerable",
+      "files": 1,
+      "findings": 1,
+      "exit": 1,
+      "llmCalls": 0,
+      "estimatedCost": 0,
+      "skipped": 0
+    },
+    {
+      "stage": "fixed",
+      "files": 1,
+      "findings": 0,
+      "exit": 0,
+      "llmCalls": 0,
+      "estimatedCost": 0,
+      "skipped": 0
+    }
+  ],
+  "sourceExecuted": false,
+  "llmCalls": 0
+}
+
+=== CURRENT CONSUMER PRODUCTION AUDIT (2026-10-25) ===
+Command: npm audit --omit=dev --json --registry=https://registry.npmjs.org
+Exit: 1 (3 high package entries; one Zod advisory). Historical audit zero is not current.
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "ai-codeguard": {
+      "name": "ai-codeguard",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "openai",
+        "zod"
+      ],
+      "effects": [],
+      "range": "",
+      "nodes": [
+        "node_modules/ai-codeguard"
+      ],
+      "fixAvailable": false
+    },
+    "openai": {
+      "name": "openai",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "zod"
+      ],
+      "effects": [
+        "ai-codeguard"
+      ],
+      "range": "4.55.0 - 5.23.2",
+      "nodes": [
+        "node_modules/openai"
+      ],
+      "fixAvailable": false
+    },
+    "zod": {
+      "name": "zod",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1243066,
+          "name": "zod",
+          "dependency": "zod",
+          "title": "Zod can exhaust memory while validating oversized constrained collections",
+          "url": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+          "severity": "high",
+          "cwe": [
+            "CWE-770"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<4.6.6"
+        }
+      ],
+      "effects": [
+        "ai-codeguard",
+        "openai"
+      ],
+      "range": "<4.6.6",
+      "nodes": [
+        "node_modules/zod"
+      ],
+      "fixAvailable": false
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 3,
+      "critical": 0,
+      "total": 3
+    },
+    "dependencies": {
+      "prod": 74,
+      "dev": 0,
+      "optional": 0,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 73
+    }
+  }
+}

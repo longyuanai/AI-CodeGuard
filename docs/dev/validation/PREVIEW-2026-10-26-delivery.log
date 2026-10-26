@@ -1,0 +1,131 @@
+AI-CodeGuard tutorial delivery follow-up | 2026-10-26 Asia/Shanghai
+Fixed source PR21 merged as 1c7cc64eba7a7fe11d240d862be675c8dc0fdb6e; published artifacts unchanged.
+Actual current5 PowerShell blocks: syntax0/execution0; anonymous fixed release downloads, SHA256 verification, installation, version/help passed.
+The published package remains affected: install reports3high; this is not the new fixed package.
+Only synthetic --dry-run samples, zero LLM calls/cost.
+
+=== ACTUAL TUTORIAL OUTPUT ===
+v24.22.0
+11.19.1
+SHA256 OK: d8fadbef81e01f257956f3cea5251e70feea9040570fb8e0b2ce830331cc7a82
+Wrote to <DEMO>\package.json:
+
+{
+  "name": "codeguard-preview-82a7d87e050d499783dcedd87e2e59c9",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
+
+
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 73 packages, and audited 74 packages in 45s
+
+15 packages are looking for funding
+  run `npm fund` for details
+
+3 high severity vulnerabilities
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+0.4.0
+Usage: ai-codeguard [options] [command]
+
+AI-powered code security scanner
+
+Options:
+  -V, --version              output the version number
+  -h, --help                 display help for command
+
+Commands:
+  scan [options] [paths...]  Scan source code for security vulnerabilities
+  init [options]             Initialize a .codeguard.yml configuration file
+  rules [options]            List and manage detection rules
+  help [command]             display help for command
+safe exit=0
+vulnerable exit=1
+fixed exit=0
+safe files=1 findings=0 llmCalls=0 cost=0
+vulnerable files=1 findings=1 llmCalls=0 cost=0
+
+Scan failed: ENOENT: no such file or directory, open '<DEMO>\missing-config.yml'
+ruleId severity file     line
+------ -------- ----     ----
+CG-003 critical probe.ts    3
+fixed files=1 findings=0 llmCalls=0 cost=0
+runtime error exit=2
+
+
+=== ASSERTED SCAN REPORTS ===
+[
+  {
+    "files": 1,
+    "findings": 0,
+    "cost": 0,
+    "stage": "safe",
+    "llmCalls": 0,
+    "skipped": 0
+  },
+  {
+    "files": 1,
+    "findings": 1,
+    "cost": 0,
+    "stage": "vulnerable",
+    "llmCalls": 0,
+    "skipped": 0
+  },
+  {
+    "files": 1,
+    "findings": 0,
+    "cost": 0,
+    "stage": "fixed",
+    "llmCalls": 0,
+    "skipped": 0
+  }
+]
+=== ANONYMOUS GIF DOWNLOAD AND PLAYBACK DECODE ===
+[
+  {
+    "kind": "raw",
+    "url": "https://raw.githubusercontent.com/longyuanai/AI-CodeGuard/90d236ab4ceaadf152ec0d6c2a5a86e6261e945a/docs/examples/preview-install-demo.gif?preview=20261025",
+    "error": "fetch failed",
+    "cause": "read ECONNRESET",
+    "code": "ECONNRESET",
+    "authorization": false,
+    "cookies": false
+  },
+  {
+    "kind": "api",
+    "url": "https://api.github.com/repos/longyuanai/AI-CodeGuard/contents/docs/examples/preview-install-demo.gif?ref=90d236ab4ceaadf152ec0d6c2a5a86e6261e945a",
+    "status": 200,
+    "bytes": 1925495,
+    "sha256": "23013112a7462fea64cea56245e71633685b84d1b1ae2af56e3e3f490d41860e",
+    "authorization": false,
+    "cookies": false
+  }
+]
+{
+  "date": "2026-10-26",
+  "anonymousDownload": "HTTP200 via public GitHub contents API",
+  "sha256": "23013112a7462fea64cea56245e71633685b84d1b1ae2af56e3e3f490d41860e",
+  "matchesCreationAndGitUpload": true,
+  "bytes": 1925495,
+  "decodedAllFrames": 43,
+  "durationMs": 76570,
+  "dimensions": [
+    1274,
+    778
+  ],
+  "animation": true,
+  "rawRetry": "ECONNRESET recorded separately; file API anonymous download succeeded"
+}

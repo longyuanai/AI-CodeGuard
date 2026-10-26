@@ -4,15 +4,21 @@
 
 ## 先试用：自部署预览版
 
+**2026-10-26 修复状态：** [PR #21](https://github.com/longyuanai/AI-CodeGuard/pull/21) 已合并到 main（`1c7cc64e`），使用 Zod 4.6.6/OpenAI 6.0.0、配置集合上限 1,024；本轮源码及新打包消费者完整/生产审计为 0，605 根测试和 35 App 测试通过。下方已公开 `20261022.1` 附件没有改变：CLI 全新安装仍为 3 high，源码 ZIP 锁审计仍为 2 high。使用修复需从 main 构建；后续新预览仅准备草稿，尚未公开。旧回放的安装告警属于其真实历史输出。
+
 AI-CodeGuard 帮开发者在提交代码前定位可疑安全模式，适合个人项目维护者和希望在 CI 中增加静态检查的团队。
 本地 CLI 的 `--dry-run` 不需要 LLM key，也不会执行被扫描代码。
 
 - **[快速上手：匿名下载 → 校验 → 安全/漏洞/修复复扫](docs/QUICKSTART.md)**，含可复制的完整 PowerShell 示例、实际结果和演示回放。
-- **[固定预发布 selfhosted-preview-20261021.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261021.1)**；[CLI 安装包](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261021.1/ai-codeguard-0.4.0.tgz) / [SHA256SUMS](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261021.1/SHA256SUMS)。包内版本仍为 `0.4.0`，源码固定在 `045d4073`；不要用注册表同版本替代这个附件。
+- **[固定预发布 selfhosted-preview-20261022.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261022.1)**；[CLI 安装包](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261022.1/ai-codeguard-0.4.0.tgz) / [同批 SHA256SUMS](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261022.1/SHA256SUMS)。包内版本仍为 `0.4.0`，源码固定在 `9b949df5`；不要用注册表同版本替代这个附件，也不要混用旧批次校验文件。
+- [真实演示：安装 → 告警 → 修复 → 复扫](docs/blog/02-selfhosted-preview-draft.md)，使用上述固定预发布安装包。
 - **Node `^24.22.0`（>=24.22.0、<25）**；本轮 Windows 实测 24.22.0 / npm 11.19.1，其他补丁和平台见教程的验证边界。
 - [试用反馈](https://github.com/longyuanai/AI-CodeGuard/issues/new?template=preview-feedback.yml)：安装失败、误报、漏报或希望改进的流程；请脱敏，不提交密钥或私有源码。
 
-旧源码 ZIP 的 Vitest/mocker 开发链告警已在 main 修补，CLI 安装包不含该链；[影响与源码构建说明](docs/QUICKSTART.md#固定下载与环境)。
+**2026-10-25 依赖风险提醒：** 本轮公开 CLI 的隔离生产安装审计报告 **3 个 high 包条目**（ai-codeguard/openai/zod 聚合，来自同一 [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)）。Zod `<4.6.6` 在校验过大的受限集合时可能耗尽内存，公告修补版本为 `4.6.6`。本轮小型合成 `--dry-run` 演示不是该漏洞的利用验证，不能证明无风险；本轮未升级依赖或绕过 CI，历史审计 0 不代表当前结果。
+实际安装为 Zod `3.25.76` / OpenAI `4.104.0`；`--dry-run` 仍会校验配置，不能视为免疫。不可信配置/规则 YAML 的输入边界与 Zod 3 peer 兼容迁移需独立整改，见[当前影响记录](docs/dev/M8-VALIDATION.md)；公告补丁也不是通用资源耗尽防护。
+
+历史批次 `selfhosted-preview-20261021.1` 源码 ZIP 的 Vitest/mocker 开发链告警已在新公开预览中修补，CLI 安装包不含该链；[影响与源码构建说明](docs/QUICKSTART.md#固定下载与环境)。
 
 CLI 是本机静态体验；[GitHub App](app/README.md) 是需要自行配置凭据、部署和安装的单实例 PR 服务，**真实 App 联调尚未完成**，没有在线托管服务。
 
@@ -75,7 +81,7 @@ Current truth: the repository is still in **Phase 1**, and `scan()` now supports
 
 ```bash
 # Build the CLI
-npm install
+npm ci --ignore-scripts --engine-strict
 npm run build
 
 # Initialize config in the current project

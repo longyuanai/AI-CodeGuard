@@ -3,7 +3,7 @@
 ## 当前整改：2026-10-26 Zod 集合校验
 
 基线 main `9b949df555ea1e215accf7659359bba358ebbeb1`；教程 PR #20 原 HEAD `90d236a` 保持独立。
-本轮完整/生产审计均为 **2 high**（zod/openai），对应同一 [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)：Zod `<4.6.6`，首次修补 `4.6.6`。
+整改前完整/生产审计均为 **2 high**（zod/openai），对应同一 [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)：Zod `<4.6.6`，首次修补 `4.6.6`。
 实际链为直接 Zod 3.25.76 及 OpenAI 4.104.0 的 Zod peer；这是确认的依赖告警，未证明本项目的远程可利用性。
 `--dry-run` 仍解析配置；普通 provider 使用 chat.completions.create，没有使用 Zod response/tool helpers。
 
@@ -31,6 +31,47 @@ Node 24.22.0/npm 11.19.1 下按锁文件干净安装后，根 build/test:run/pre
 合并前回滚点为 `9b949df5`；合并后以修复 PR 的 merge SHA 为 `git revert -m 1 <merge-sha>` 目标，不直接推 main。
 回滚会重新引入已知告警，不能视为安全生产版本。Node 政策仍为 `^24.22.0`；真实 App、付费 provider、其它 Node 补丁未验证。
 
+[PR #21](https://github.com/longyuanai/AI-CodeGuard/pull/21) 已正常合并为 `1c7cc64eba7a7fe11d240d862be675c8dc0fdb6e`；最终修复 HEAD `e075952` 的 [Linux CI](https://github.com/longyuanai/AI-CodeGuard/actions/runs/40254152915) 和 [security-scan](https://github.com/longyuanai/AI-CodeGuard/actions/runs/40254152946) 全部通过，包括真实容器。
+2026-10-26 另行匿名下载公开 GIF，HTTP 200，SHA256 `23013112a7462fea64cea56245e71633685b84d1b1ae2af56e3e3f490d41860e`，与制作记录及 `90d236a` 的 Git blob 一致；完整解码43帧，76,570ms、1274×778，可循环播放。
+GitHub 原始直链在本机曾 ECONNRESET，公开文件 API 下载成功；不隐瞒网络失败，也没有覆盖 GIF。
+
+已把修复 main 正常合入 PR #20，保留并重排唯一的验收记录冲突；教程与 Release 说明须区分 main 审计0和旧附件3/2 high。
+本轮逐字重跑当前教程5个PowerShell块（含下载重试），匿名下载/校验/安装/版本/帮助通过，安全/危险/修复1文件各0/1/0发现、退出0/1/0、零LLM，运行错误退出2。
+本地文档链接/锚点、3样本、反馈模板、原回放逐字比对和敏感标记检查通过。见[本轮教程/GIF证据](validation/PREVIEW-2026-10-26-delivery.log)。
+修复后的 main `1c7cc64e` 对应 [CI](https://github.com/longyuanai/AI-CodeGuard/actions/runs/40254343251) 与 [security-scan](https://github.com/longyuanai/AI-CodeGuard/actions/runs/40254343176) 已通过；PR #20 最终提交的检查单独核对，不沿用原90d236a的失败结果。
+
+## 历史交付：2026-10-25 新版教程与真实安装演示
+
+默认入口统一为已公开的 [selfhosted-preview-20261022.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261022.1)，
+固定发行源码 `9b949df555ea1e215accf7659359bba358ebbeb1`，CLI组件仍为0.4.0，Node要求仍为^24.22.0。
+README、[快速上手](../QUICKSTART.md)、反馈模板、[GitHub演示介绍](../blog/02-selfhosted-preview-draft.md)和部署入口使用新版附件与同批SHA256SUMS。
+旧批次安装/回放明确标为历史，旧Release标签和附件不变。
+
+Windows/便携Node24.22.0/npm11.19.1下，将更新后的5个PowerShell块逐字提取、语法检查并在独立临时目录执行：
+匿名下载、校验、npm安装、版本/帮助通过；安全/危险/修复各1文件，0/1CG-003critical第3行/0发现，
+退出0/1/0，零跳过/LLM/费用；缺失配置运行错误退出2。[实际命令与输出](validation/PREVIEW-2026-10-25-demo.log)。
+最终录制时CDN连接重置，因此新版[完整回放](../examples/preview-install-demo.cast)复用本日已匿名下载的相同tgz和SHA256SUMS，
+重新校验后记录真实npm安装与修复复扫，不声称cast录下了新下载；教程逐字执行的下载证据单独保留于上述日志。
+录制脚本默认匿名下载，可选`previously-downloaded-assets-directory`参数明确复用已下载文件并重新校验。
+[动图](../examples/preview-install-demo.gif)按真实时间渲染自相同终端输出，末尾增加2.5秒停留；命令提示/阶段标题/退出码为脚本标注，
+未伪造扫描结果，不是桌面录屏或真实App联调。
+
+**2026-10-25 当前生产依赖告警：** 本轮公开CLI隔离生产安装审计报告 **3个high包条目**，
+ai-codeguard/openai/zod聚合自同一[GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)，不是3个独立公告。
+Zod `<4.6.6` 在校验过大的受限集合时可能耗尽内存，公告修补版本为 `4.6.6`。
+GIF保留真实的3high安装提示；小型合成`--dry-run`演示不是该漏洞的利用验证，也不证明无风险。
+本轮未升级依赖、未降低或绕过CI审计门槛；下述2026-10-22审计0仅为历史，不是本轮当前结果。
+实装Zod `3.25.76` / OpenAI `4.104.0`；`--dry-run`仍经过`loadConfig`/`ConfigSchema.parse`，不可信配置及custom-rule YAML有实际输入面，不能宣称静态模式免疫。
+普通`chat.completions.create`未使用Zod helpers，不能据此声称provider路径已可远程触发；本轮未做公告利用验证。
+OpenAI当前peer仅支持Zod 3，需后续独立兼容整改；官方`4.6.6`补丁针对有边界集合，不是消除所有资源耗尽的保证。
+录制脚本仅验证了Windows官方便携Node24.22.0/npm布局，其它布局未验证。
+
+本轮只改教程、反馈模板与可复现演示脚本/产物，不改扫描器/依赖/构建配置；不手动重复未变化源码的完整回归。
+发行源码9b949df的587根通过/2原有跳过、35App通过、语料95.8%/92.0%和0审计仍是2026-10-22的同SHA证据，
+见[main CI](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39736980004)及[security](https://github.com/longyuanai/AI-CodeGuard/actions/runs/39736980074)，不描述为本轮重跑。
+新文档提交的自动PR/main检查及发布链接记录于本次PR和本地忽略目录，不能与真实App验收混同。
+真实App/付费provider/其它Node补丁未验证，不部署、不发布npm或镜像，不向个人或其它平台发送内容。
+
 ## 历史审阅：2026-10-22 PR #19 与 #18 条件合并
 
 [PR #19](https://github.com/longyuanai/AI-CodeGuard/pull/19) 经依赖/锁文件/新增回归审查后，
@@ -48,8 +89,8 @@ Node 24.22.0/npm 11.19.1 下按锁文件干净安装后，根 build/test:run/pre
 最终 main SHA、合并后检查及草稿交接见 [PR #18](https://github.com/longyuanai/AI-CodeGuard/pull/18)；
 原始本地日志保存在忽略目录，避免为补合并日志直接推送 main。
 
-旧预览的历史审计/验收不覆盖新公告：CLI tgz 不含 Vitest/mocker，当前生产审计 0；
-旧源码 ZIP 完整开发链当前 2 moderate，生产审计 0。可达 Vite 公共 mock WebSocket 是利用前提，
+旧预览的历史审计/验收不覆盖新公告：CLI tgz 不含 Vitest/mocker，2026-10-22 当时生产审计 0；
+旧源码 ZIP 完整开发链在 2026-10-22 当时为 2 moderate，生产审计 0。可达 Vite 公共 mock WebSocket 是利用前提，
 标准 Node 测试/构建不会自动启用；Docker 构建阶段会安装开发依赖，不能仅凭最终镜像裁剪就忽略源码构建风险。
 当前 main 已修补，旧标签/附件/校验文件保留原样；需要面向源码用户的新预览，另行准备草稿，不公开发布。
 

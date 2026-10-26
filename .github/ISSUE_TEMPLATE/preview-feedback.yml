@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        感谢试用 selfhosted-preview-20261021.1！请先看 [快速上手](https://github.com/longyuanai/AI-CodeGuard/blob/main/docs/QUICKSTART.md)。
+        感谢试用 selfhosted-preview-20261022.1！请先看 [快速上手](https://github.com/longyuanai/AI-CodeGuard/blob/main/docs/QUICKSTART.md)。
         只提供脱敏信息或最小合成代码。不要上传 API key、Token、私钥、webhook secret、私有源码、客户数据或完整环境变量。
         无法公开的情况仅描述规则与现象即可；静态发现需人工核实。
   - type: textarea
@@ -13,7 +13,7 @@ body:
     attributes:
       label: 环境与版本
       description: OS/终端、node --version、npm --version、Release tag、CLI --version
-      placeholder: "Windows / PowerShell；Node 24.22.0；npm 11.19.1；selfhosted-preview-20261021.1；CLI 0.4.0"
+      placeholder: "Windows / PowerShell；Node 24.22.0；npm 11.19.1；selfhosted-preview-20261022.1；CLI 0.4.0"
     validations:
       required: true
   - type: dropdown

@@ -18,7 +18,7 @@
 |---|---|
 | 总览、安装、CLI 和配置示例 | [README](../README.md) |
 | 固定预发布安装、危险代码→修复复扫、退出码与反馈 | [QUICKSTART](./QUICKSTART.md) |
-| 预览版发布介绍与首批试用邀请（仅草稿） | [发布介绍草稿](./blog/02-selfhosted-preview-draft.md) |
+| 新预览版真实安装、告警、修复与复扫演示 | [真实安装与修复演示](./blog/02-selfhosted-preview-draft.md) |
 | 模块、库入口、wasm、App 数据流 | [ARCHITECTURE](../ARCHITECTURE.md) |
 | 实际验证与未验证项 | [M8 验收记录](./dev/M8-VALIDATION.md) |
 | App 环境变量、权限、真实联调步骤/证据模板、合成样本、清理与回滚 | [app/README](../app/README.md) |

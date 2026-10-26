@@ -18,12 +18,35 @@ is retained in Git history and [historical acceptance](../docs/dev/M8-VALIDATION
 Real GitHub App integration, paid providers and other Node 24 patches remain
 **unverified**. The [rehearsal below](#真实-github-app-联调手册待外部授权执行) prepares that work only.
 
-Source archive update (2026-10-22): the published `selfhosted-preview-20261021.1`
-source ZIP still locks the now-advised Vitest/mocker 4.1.11 development chain.
-[PR #19](https://github.com/longyuanai/AI-CodeGuard/pull/19) patches main to 4.1.12;
-use patched main for source development/builds. Production CLI/App installs omit
-this test chain. The dated zero-audit result above remains historical; current
-source/production assessments are recorded in [M8 acceptance](../docs/dev/M8-VALIDATION.md).
+**2026-10-26 source fix:** [PR #21](https://github.com/longyuanai/AI-CodeGuard/pull/21)
+merged as `1c7cc64e`: Zod 4.6.6/OpenAI 6.0.0, bounded configuration collections,
+605 root passes/2 opt-in skips, 35 App passes and zero complete/production audit alerts.
+Build from fixed main for this remediation. The published 20261022.1 source ZIP
+still locks affected dependencies (2 high); its CLI's fresh production install
+still reports 3 high. These attachments were not replaced. A later preview may be
+prepared as a draft only; live App and paid-provider integration remain unverified.
+
+Historical source download update (2026-10-25): the published
+[selfhosted-preview-20261022.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261022.1)
+is fixed at `9b949df555ea1e215accf7659359bba358ebbeb1`.
+It includes the Vitest/mocker 4.1.12 fix from [PR #19](https://github.com/longyuanai/AI-CodeGuard/pull/19).
+The historical `selfhosted-preview-20261021.1` source ZIP retains the 4.1.11
+development chain assessed on 2026-10-22; production CLI/App installs omit that
+test chain. The dated audit results remain historical in
+[M8 acceptance](../docs/dev/M8-VALIDATION.md). This download-entry update is not a
+new regression or audit run.
+
+**Current dependency warning (2026-10-25):** the public CLI's isolated production
+install audit reports **3 high package entries** (ai-codeguard/openai/zod,
+aggregated from one [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)).
+Zod `<4.6.6` can exhaust memory while validating oversized constrained collections;
+the advisory's patched version is `4.6.6`. The small synthetic `--dry-run` demo is
+not an exploit validation or proof of no risk. Dependencies were not upgraded and
+CI audit gates were not bypassed; historical zero-audit results are not current.
+The installed versions are Zod `3.25.76` and OpenAI `4.104.0`. CLI `--dry-run`
+still parses configuration; untrusted config/custom-rule YAML needs bounded inputs.
+The current OpenAI peer supports Zod 3, so migration needs a separate compatibility
+fix. The advisory patch addresses bounded collections, not every resource-exhaustion case.
 
 ## Run locally
 
