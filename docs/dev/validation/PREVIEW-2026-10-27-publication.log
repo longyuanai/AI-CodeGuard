@@ -1,0 +1,108 @@
+AI-CodeGuard preview publication | 2026-10-27 Asia/Shanghai
+Release ID: 423789327
+Public URL: https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261026.1
+Tag: selfhosted-preview-20261026.1
+Target/resolved tag commit: d5d474cf5d4d27fd103171276afc5967949708ed
+Status: draft=false, prerelease=true; explicit make_latest=false
+Stable latest: v0.4.0 (unchanged)
+Approved RELEASE-BODY-PROPOSED.md used; reviewed attachments not replaced.
+
+=== Authenticated prepublication recheck ===
+All seven assets re-downloaded; ID, bytes, SHA256 and remote digest match review.
+No working-tree files archived. Target, MANIFEST and source ZIP remain unchanged.
+
+=== Anonymous postpublication checks ===
+curl.exe -q --no-netrc --header 'Authorization:' --header 'Cookie:'
+  --proto '=https' --proto-redir '=https' --fail --location
+  --connect-timeout 20 --max-time 90 --output <file> <public URL>
+No Authorization, cookies, curlrc or netrc. Release page HTTP200; public release
+API and tag API HTTP200. Tag resolves to the full target commit above.
+Source ZIP attempts 1/2 timed out (second had partial HTTP200 transfer); third
+completed and its entire SHA256 matches. No partial file was accepted.
+
+ai-codeguard-0.4.0.tgz
+  HTTP=200 bytes=668279
+  SHA256=6e87a2a39af605a1184b600a71a9476d92d26cb8615baa252dd4f190d88bf3f4
+  remote digest / reviewed / anonymous bytes: MATCH
+ai-codeguard-selfhosted-preview-20261026-source.zip
+  HTTP=200 bytes=2286249
+  SHA256=5485789b38813a1bd245aa955e4ec56892a6c9a14079880423f477d8abdcf246
+  remote digest / reviewed / anonymous bytes: MATCH
+DEPLOYMENT.md
+  HTTP=200 bytes=31978
+  SHA256=4d6de79222c9875cef5041c8ac329c8735e33ef248b0a9962c6fe375e17ada53
+  remote digest / reviewed / anonymous bytes: MATCH
+MANIFEST.json
+  HTTP=200 bytes=3827
+  SHA256=7692ddbada15c51ed3a9f9d349d8b6525389ee5a770fe68b1a2c87f9788e033f
+  remote digest / reviewed / anonymous bytes: MATCH
+RELEASE-NOTES.md
+  HTTP=200 bytes=4716
+  SHA256=f8e86312dd711b8095b6d6a533b19272b82ce39329575386c2641a969185c4b3
+  remote digest / reviewed / anonymous bytes: MATCH
+SHA256SUMS
+  HTTP=200 bytes=530
+  SHA256=6f85091c80809819a7a26252a3bdee484fdbd4175fda3f21c567629a94762aed
+  remote digest / reviewed / anonymous bytes: MATCH
+VALIDATION.md
+  HTTP=200 bytes=3570
+  SHA256=0d2154a66d955bf59f52ce058d47dd9fb33b11ee0bf42271efbdd61db86171c9
+  remote digest / reviewed / anonymous bytes: MATCH
+
+SHA256SUMS: 6/6 referenced files passed. The checksum file's own SHA256 is
+checked independently against the prior reviewed digest, not against itself.
+
+=== Old releases ===
+20261022.1 (ID420399629) and 20261021.1 (ID419048125): dated 2026-10-27
+upgrade notice prepended. Entire original body retained as exact suffix;
+all original asset IDs/bytes/digests and tag refs unchanged.
+Old20261022 CLI fresh install3high / source lock2high are dated2026-10-26
+observations for one Zod advisory and propagation, not new27day installs.
+No confirmed real remote exploit demonstrated; old artifacts remain unchanged.
+
+=== Current-batch isolated installation and static tutorial ===
+Runtime: portable Node v24.22.0 / npm11.19.1; system Node unchanged.
+All five tutorial PowerShell blocks parsed successfully.
+Two literal repeated-download attempts failed with curl56 reset / curl28
+connect timeout; both original logs retained. A direct checksum diagnosis
+also timed out. These do not negate the successful seven-asset anonymous
+verification above, and are not falsely described as a successful repeat.
+
+Installation/scans reused this run's anonymously downloaded and SHA256-verified
+20261026.1 tgz and SHA256SUMS in a new isolated consumer. Transfer-note emitted
+explicitly in the log; this install capture did not claim a new HTTP transfer.
+Checksum/install/version/help/sample/error-handling commands used the tutorial
+recipe. No old artifact or authenticated download was substituted.
+
+npm init -y -> 0
+npm install ./ai-codeguard-0.4.0.tgz --ignore-scripts --omit=dev --engine-strict
+  --registry=https://registry.npmjs.org -> 0
+local ai-codeguard --version -> 0, version0.4.0
+local ai-codeguard --help -> 0
+npm ls zod openai --all --json -> 0
+  ai-codeguard@0.4.0 -> zod@4.6.6; openai@6.0.0 -> peer zod@4.6.6
+npm audit --omit=dev --json --registry=https://registry.npmjs.org -> 0
+  vulnerabilities total0
+
+scan ./probe.ts --dry-run --output json --output-file ./<stage>-report.json
+  --fail-on high:
+safe        exit0 files1 findings0 llmCalls0 estimatedCost0 skipped0
+vulnerable  exit1 files1 findings1 CG-003 critical probe.ts:3 llmCalls0 cost0 skipped0
+fixed       exit0 files1 findings0 llmCalls0 estimatedCost0 skipped0
+scan ./probe.ts --dry-run --config ./missing-config.yml
+  stderr: Scan failed: ENOENT <isolated-temp>/missing-config.yml
+  runtime error exit2
+Supplementary report assertions and production audit all passed; wrapper exit0.
+Finding exit1 is expected threshold behavior; execution error2 is not a clean scan.
+No LLM, paid call, target code execution or service deployment.
+
+=== Scope and retained history ===
+This is a documentation-only PR. No full unchanged-source local suite repeated.
+Fixed release SHA valid CI: https://github.com/longyuanai/AI-CodeGuard/actions/runs/40255230312
+Security: https://github.com/longyuanai/AI-CodeGuard/actions/runs/40255230394
+605root passed/2 original paid opt-in skipped,35App; labeled corpus95.8%/92.0%.
+Container job121355533840 is real same-SHA Linux evidence, not a new local run.
+Existing GIF/cast/recorder stay fixed to historical20261022.1; no media replaced.
+Unverified: live App installation/signed PR writes, paid provider, other Node
+patches and full consumer platform matrix. These are not claims of hosted service.
+Raw evidence: ignored .artifacts/preview-publication-2026-10-27/.
