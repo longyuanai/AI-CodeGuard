@@ -18,13 +18,23 @@ is retained in Git history and [historical acceptance](../docs/dev/M8-VALIDATION
 Real GitHub App integration, paid providers and other Node 24 patches remain
 **unverified**. The [rehearsal below](#真实-github-app-联调手册待外部授权执行) prepares that work only.
 
-**2026-10-26 source fix:** [PR #21](https://github.com/longyuanai/AI-CodeGuard/pull/21)
+**Published preview (2026-10-27):**
+[selfhosted-preview-20261026.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261026.1)
+is fixed at `d5d474cf5d4d27fd103171276afc5967949708ed` and contains the Zod 4.6.6/OpenAI 6.0.0 remediation.
+Use its [source ZIP](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261026.1/ai-codeguard-selfhosted-preview-20261026-source.zip),
+[same-batch checksums](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261026.1/SHA256SUMS)
+and [deployment snapshot](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261026.1/DEPLOYMENT.md).
+Prepublication source-lock and clean consumer audits were zero. The hosted App pins
+official provider origins and disables retries; the CLI retains trusted operator
+endpoint configuration and SDK defaults. Live App and paid-provider integration remain unverified.
+
+**Historical source fix (2026-10-26, before publication):** [PR #21](https://github.com/longyuanai/AI-CodeGuard/pull/21)
 merged as `1c7cc64e`: Zod 4.6.6/OpenAI 6.0.0, bounded configuration collections,
 605 root passes/2 opt-in skips, 35 App passes and zero complete/production audit alerts.
-Build from fixed main for this remediation. The published 20261022.1 source ZIP
+At that time, building fixed main was the available remediation. The old 20261022.1 source ZIP
 still locks affected dependencies (2 high); its CLI's fresh production install
-still reports 3 high. These attachments were not replaced. A later preview may be
-prepared as a draft only; live App and paid-provider integration remain unverified.
+still reports 3 high in the dated assessment. Those attachments were not replaced;
+the new batch was then a draft. This is not proof of exploitability in a real deployment.
 
 Historical source download update (2026-10-25): the published
 [selfhosted-preview-20261022.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261022.1)
@@ -36,7 +46,7 @@ test chain. The dated audit results remain historical in
 [M8 acceptance](../docs/dev/M8-VALIDATION.md). This download-entry update is not a
 new regression or audit run.
 
-**Current dependency warning (2026-10-25):** the public CLI's isolated production
+**Historical dependency warning (2026-10-25, 20261022.1):** that CLI's isolated production
 install audit reports **3 high package entries** (ai-codeguard/openai/zod,
 aggregated from one [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)).
 Zod `<4.6.6` can exhaust memory while validating oversized constrained collections;
@@ -45,8 +55,8 @@ not an exploit validation or proof of no risk. Dependencies were not upgraded an
 CI audit gates were not bypassed; historical zero-audit results are not current.
 The installed versions are Zod `3.25.76` and OpenAI `4.104.0`. CLI `--dry-run`
 still parses configuration; untrusted config/custom-rule YAML needs bounded inputs.
-The current OpenAI peer supports Zod 3, so migration needs a separate compatibility
-fix. The advisory patch addresses bounded collections, not every resource-exhaustion case.
+The SDK4 peer then supported Zod 3; PR #21 later completed the compatibility migration.
+The advisory patch addresses bounded collections, not every resource-exhaustion case.
 
 ## Run locally
 

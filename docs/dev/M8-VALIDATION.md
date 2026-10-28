@@ -1,6 +1,19 @@
 # M8 本地交付与验收记录
 
-## 当前整改：2026-10-26 Zod 集合校验
+## 当前公开预览：2026-10-27
+
+[selfhosted-preview-20261026.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261026.1)
+已从草稿 423789327 公开，标签解析到 `d5d474cf5d4d27fd103171276afc5967949708ed`。
+保持预发布、非稳定最新版；稳定 latest 仍为 `v0.4.0`。7 个附件的认证复核与公开后匿名下载、远程 digest、SHA256SUMS 均通过，源码与附件未重打包。
+两个旧预览仅追加带日期的升级风险提示，原正文、标签和附件完整保留；旧包没有随 main 或本次新发行获得修复。
+
+便携 Node 24.22.0/npm 11.19.1 下实际检查新版 CLI 版本/帮助、隔离生产树 Zod4.6.6/OpenAI6.0.0、生产审计0、安全/漏洞/修复扫描0/1/0（退出0/1/0），非法配置退出2；零LLM与费用。
+匿名下载验证已完成；逐字重复教程下载时另外两轮受网络重置/超时阻断，安装和扫描明确复用本轮已匿名验证的同批文件。
+纯教程修改没有重跑未变化源码的本地全套回归；605根通过/2原opt-in跳过、35App通过及Linux容器结论来自固定源码同SHA的2026-10-26 CI。
+真实App、付费provider、其他Node补丁仍未验证；历史GIF/cast仍为20261022.1。
+实际命令、退出码与7个完整哈希见[本批发布日志](validation/PREVIEW-2026-10-27-publication.log)。教程入口更新通过独立PR交付，不直接推送main。
+
+## 历史整改：2026-10-26 Zod 集合校验
 
 基线 main `9b949df555ea1e215accf7659359bba358ebbeb1`；教程 PR #20 原 HEAD `90d236a` 保持独立。
 整改前完整/生产审计均为 **2 high**（zod/openai），对应同一 [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)：Zod `<4.6.6`，首次修补 `4.6.6`。

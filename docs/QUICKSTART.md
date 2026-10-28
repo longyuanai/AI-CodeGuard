@@ -7,13 +7,13 @@
 
 ## 固定下载与环境
 
-**2026-10-26 修复与发行范围：** [PR #21](https://github.com/longyuanai/AI-CodeGuard/pull/21) 已修复 main（`1c7cc64e`）：Zod 4.6.6/OpenAI 6.0.0，配置/规则集合每个最多 1,024 项；源码及新打包消费者审计 0。下列公开附件仍固定在 `9b949df5`，全新 CLI 安装仍报告 3 high，源码 ZIP 锁审计仍为 2 high。**main 修复不等于历史附件修复**；本页固定包示例用于小型合成演示，使用修复请按 [main 源码构建步骤](../README.md#what-works-today) 构建。新预览仅准备草稿，不能据其标签匿名安装。下方 2026-10-25 的记录和动图保持原样，不描述为修复后安装。
+**2026-10-27 新预览状态：** 下列 `selfhosted-preview-20261026.1` 附件已公开，包含 [PR #21](https://github.com/longyuanai/AI-CodeGuard/pull/21) 的 Zod 4.6.6/OpenAI 6.0.0 整改和配置/规则集合 1,024 项上限。发布前审阅的固定源码锁与全新 CLI 消费者审计为 0；同 SHA Linux CI 为 605 根通过、2 项原付费 opt-in 跳过、35 App 通过。旧 `20261022.1` 在 2026-10-26 的新安装/源码锁仍分别为 3/2 个 high 聚合条目，**新包修复不等于历史附件修复**，尚未证明真实远程可利用。下方 2026-10-25 的动图与日志仍是旧批次历史输出。
 
-- [公开预发布 selfhosted-preview-20261022.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261022.1)
-- [CLI 安装包 ai-codeguard-0.4.0.tgz](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261022.1/ai-codeguard-0.4.0.tgz)
-- [SHA256SUMS](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261022.1/SHA256SUMS) / [发行清单](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261022.1/MANIFEST.json)
+- [公开预发布 selfhosted-preview-20261026.1](https://github.com/longyuanai/AI-CodeGuard/releases/tag/selfhosted-preview-20261026.1)
+- [CLI 安装包 ai-codeguard-0.4.0.tgz](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261026.1/ai-codeguard-0.4.0.tgz)
+- [SHA256SUMS](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261026.1/SHA256SUMS) / [发行清单](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261026.1/MANIFEST.json)
 
-CLI 版本是 **0.4.0**，本批源码固定为 **`9b949df555ea1e215accf7659359bba358ebbeb1`**。
+CLI 版本是 **0.4.0**，本批源码固定为 **`d5d474cf5d4d27fd103171276afc5967949708ed`**。
 这些链接固定到预发布，不使用 `releases/latest`，也不安装 npm 注册表上的同名历史版本。
 已发布标签及附件没有因本教程而改变。
 
@@ -30,12 +30,12 @@ Node 24.22.0 / npm 11.19.1；不是其它 Node 补丁或 macOS/Linux 安装矩�
 仅在当前终端把该目录加入 PATH，或使用已有版本管理器；不要用 `--force` 绕过 engines，也无需替换系统 Node。
 安装阶段需要联网从 npm 下载生产依赖，tgz 不包含 node_modules。
 
-**2026-10-25 当前依赖风险：** 本轮公开 CLI 的隔离生产安装审计为 **3 个 high 包条目**，
+**2026-10-25 历史 `20261022.1` 风险：** 当日公开 CLI 的隔离生产安装审计为 **3 个 high 包条目**，
 即 ai-codeguard/openai/zod 对同一 [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5) 的聚合报告，并非 3 个独立公告。
 Zod `<4.6.6` 校验过大的受限集合时可能耗尽内存，公告修补版本为 `4.6.6`。
 本页小型合成 `--dry-run` 只验证演示流程，不是该漏洞的利用验证，也不证明安装树无风险。
-本轮没有升级依赖或绕过 CI；2026-10-22 的历史审计 0 不能当作当前结论，动图保留真实的 `3 high` 安装提示。
-本轮实际安装 Zod `3.25.76` / OpenAI `4.104.0`；即使 `--dry-run` 仍会加载并校验配置，不可信配置及自定义规则 YAML 是需要界定的输入面。
+当日没有升级依赖或绕过 CI；2026-10-22 的历史审计 0 不能当作当前结论，动图保留真实的 `3 high` 安装提示。
+当日实际安装 Zod `3.25.76` / OpenAI `4.104.0`；即使 `--dry-run` 仍会加载并校验配置，不可信配置及自定义规则 YAML 是需要界定的输入面。
 该公开包的 OpenAI peer 仅支持 Zod 3，2026-10-25 时需要独立兼容整改；现已由 PR #21 修复 main，旧包未随之更新。该补丁针对有边界集合，不是通用资源耗尽防护。
 
 ## 第一个完整示例（Windows PowerShell）
@@ -58,7 +58,7 @@ Set-Location -LiteralPath $demoRoot
 匿名下载、校验后安装。这里 `curl.exe -q` 不读取 curlrc，且不发送登录 Cookie 或 Authorization：
 
 ```powershell
-$release = 'https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261022.1'
+$release = 'https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261026.1'
 foreach ($name in @('ai-codeguard-0.4.0.tgz', 'SHA256SUMS')) {
   curl.exe -q --no-netrc --header 'Authorization:' --header 'Cookie:' --proto '=https' --proto-redir '=https' --fail --location --silent --show-error --retry 2 --retry-all-errors --connect-timeout 20 --max-time 90 --output $name "$release/$name"
   if ($LASTEXITCODE -ne 0) { throw "下载失败：$name" }
@@ -80,7 +80,7 @@ if ($LASTEXITCODE -ne 0) { throw 'CLI 帮助检查失败' }
 ```
 
 版本应为 `0.4.0`。校验文件用于下载一致性检查，不是独立数字签名；
-本批安装包 SHA256 是 `d8fadbef81e01f257956f3cea5251e70feea9040570fb8e0b2ce830331cc7a82`。
+本批安装包 SHA256 是 `6e87a2a39af605a1184b600a71a9476d92d26cb8615baa252dd4f190d88bf3f4`。
 
 下面本地生成已有的 [safe](examples/github-app/safe.ts)、[vulnerable](examples/github-app/vulnerable.ts)、
 [fixed](examples/github-app/fixed.ts) 三份合成样本。无需克隆项目或额外下载 raw 文件；这些样本也已包含在本批源码 ZIP 中。
@@ -135,7 +135,7 @@ foreach ($stage in @('safe', 'vulnerable', 'fixed')) {
 }
 ```
 
-2026-10-25 用新版公开附件在隔离目录实际得到：
+2026-10-27 使用 `20261026.1` 在隔离目录实际得到以下结果。本轮已匿名下载并校验全部 7 个附件；随后逐字重复教程下载遇到连接重置/超时，安装与扫描复用本轮已验证的相同包，不声称这次安装又完成了一次 HTTP 下载。见[本批发布验收日志](dev/validation/PREVIEW-2026-10-27-publication.log)。
 
 | 版本 | 文件数 | 发现 | 退出码 |
 |---|---:|---|---:|
@@ -144,7 +144,7 @@ foreach ($stage in @('safe', 'vulnerable', 'fixed')) {
 | 修复 | 1 | 0 | 0 |
 
 三次均 `llmCalls=0`、`estimatedCost=0`、`skipped=[]`。完整实际命令与输出见
-[试用验证日志](dev/validation/PREVIEW-2026-10-25-demo.log)。本例约定输入是 JSON，修复是避免把输入当 JavaScript 执行；
+[历史 20261022.1 试用日志](dev/validation/PREVIEW-2026-10-25-demo.log)。本例约定输入是 JSON，修复是避免把输入当 JavaScript 执行；
 实际项目仍需校验解析后数据结构和权限，不能把“静态无告警”等同于安全保证。
 
 ### 退出 1 与运行错误怎么区分
@@ -170,8 +170,8 @@ foreach ($stage in @('safe', 'vulnerable', 'fixed')) {
 | 下载/安装连接失败 | 保留 HTTP/错误码，检查 GitHub 与 npm 网络访问，重试固定 URL；不跳过哈希校验 |
 | SHA256 不一致 | 停止安装，重新匿名下载包和校验文件，附脱敏哈希/URL反馈 |
 | 找不到命令 | 保持在刚创建的目录，使用 `node_modules/.bin` 下的本地命令；不要调用其它全局版本 |
-| node-domexception deprecated | 当前依赖的弃用提示，不等同于安装失败；结合最终退出码与 npm audit，不能宣称所有告警都无风险 |
-| npm 安装显示 3 high | 2026-10-25 核对为同一 Zod 公告的 3 个聚合包条目，见本页当前依赖风险；安装成功或小样本复扫通过都不代表风险已修复，不能跳过 CI 审计 |
+| node-domexception deprecated | 历史 SDK4 安装曾有此弃用提示；不要当作 SDK6 必然输出，结合实际安装树、退出码与 npm audit 判断 |
+| npm 安装显示 high | 先核对 tag、同批哈希和实际安装树；旧 20261022.1 的 3 high 来自同一 Zod 公告，需迁移修复批次，不能跳过审计或仅凭小样本复扫判断安全 |
 | 扫描自己的陌生仓库 | CLI 可加载受信 JS/TS 配置/自定义规则；先审查配置，不执行陌生仓库脚本或安装钩子 |
 
 示例生成的文件都在 `$demoRoot`，完成后可保留用于反馈；如需清理，先打印并核对该精确路径，再删除本轮目录，避免通配批量删除。
@@ -180,9 +180,9 @@ macOS/Linux 使用同一 tgz 和 Node 要求，可用 `sha256sum` / `shasum -a 2
 
 ## 真实安装与修复演示
 
-![新版真实终端输出回放：校验、安装、告警、修复和复扫](examples/preview-install-demo.gif)
+![历史 20261022.1 真实终端输出回放：校验、安装、告警、修复和复扫](examples/preview-install-demo.gif)
 
-2026-10-25 逐字执行上述教程时，已完成新版 tgz 与同批 SHA256SUMS 的实际匿名下载、校验、安装和扫描。
+**历史真实回放（2026-10-25，20261022.1）**：当时完成了旧批次 tgz 与同批 SHA256SUMS 的实际匿名下载、校验、安装和扫描，保留真实 `3 high`。这不是当前 `20261026.1` 包的新录制证据；安装当前批次请用本页默认链接与同批校验文件。
 最终回放录制时 CDN 连接重置，因此复用本日已匿名下载的相同文件，重新校验后记录隔离 npm 安装、
 CLI 版本/帮助和安全→危险→修复扫描；回放不声称录下了一次新下载。
 [完整终端记录](examples/preview-install-demo.cast) 保留真实相对时间；
@@ -191,7 +191,7 @@ CLI 版本/帮助和安全→危险→修复扫描；回放不声称录下了一
 没有模拟扫描结果，也没有执行漏洞函数。动图只作浏览，完整输出以 cast 和日志为准。
 
 已安装 asciinema 时可下载后运行 `asciinema play preview-install-demo.cast`。
-以下录制命令针对本轮验证的 Windows 官方便携 Node 24.22.0/npm 布局，从项目根目录执行；其它平台与 Node 安装布局未验证：
+以下录制脚本固定为历史 `20261022.1` 的 tag 与哈希，不适用于新批附件。命令针对当时验证的 Windows 官方便携 Node 24.22.0/npm 布局，从项目根目录执行；其它平台与 Node 安装布局未验证：
 
 ```sh
 node docs/examples/record-preview-demo.mjs .artifacts/my-preview-recording
@@ -210,7 +210,7 @@ node docs/examples/record-preview-demo.mjs .artifacts/my-preview-recording /abso
 
 | 镜头 | 操作 | 应展示内容 |
 |---|---|---|
-| 1，安装 | 校验同批已下载附件、npm 安装、--version；匿名下载另见日志 | 新版 tag、同批 SHA256、Node24.22.0、CLI0.4.0 |
+| 1，安装 | 校验同批已下载附件、npm 安装、--version；匿名下载另见日志 | 历史 20261022.1 tag、同批 SHA256、Node24.22.0、CLI0.4.0 |
 | 2，危险代码 | 把 vulnerable.ts 复制为 probe.ts，打开第 3 行 | `return eval(input)`，不执行函数 |
 | 3，告警 | `scan probe.ts --dry-run --fail-on high` | CG-003 critical，退出 1；说明只是静态候选 |
 | 4，修复 | 把 fixed.ts 复制为同一 probe.ts | JSON.parse 替代 eval |
@@ -230,12 +230,12 @@ node docs/examples/record-preview-demo.mjs .artifacts/my-preview-recording /abso
 
 CLI 静态体验到此完成；不需要创建 GitHub App 或部署服务。
 App 是另一个需要自部署、HTTPS webhook、仓库白名单和最小权限安装的入口，
-见[固定发行部署附件](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261022.1/DEPLOYMENT.md)
+见[固定发行部署附件](https://github.com/longyuanai/AI-CodeGuard/releases/download/selfhosted-preview-20261026.1/DEPLOYMENT.md)
 及[现有 App 手册](../app/README.md)。它没有在线托管服务，**真实安装、签名投递到真实 PR、评论和 Check Run 联调尚未完成**。
 Linux CI 容器通过和 mock API 测试不代表真实 App 联调通过。
 
 请用 [预览版试用反馈表](https://github.com/longyuanai/AI-CodeGuard/issues/new?template=preview-feedback.yml)（提交需要 GitHub 登录），
-也可使用[预填普通 Issue](https://github.com/longyuanai/AI-CodeGuard/issues/new?title=%5BPreview%20feedback%5D&body=Release%3A%20selfhosted-preview-20261022.1%0AOS%20%2F%20Node%20%2F%20npm%3A%0AInstall%20success%3A%0AScan%20completed%20%2F%20exit%20code%3A%0AFalse%20positive%20or%20missed%20finding%20%28synthetic%20repro%20only%29%3A%0AImprovements%3A%0A%0ARedact%20keys%2C%20tokens%2C%20private%20source%20and%20customer%20data.)或[查看已有 Issues](https://github.com/longyuanai/AI-CodeGuard/issues)。提供 OS、Node/npm/Release 版本、安装/扫描是否完成、
+也可使用[预填普通 Issue](https://github.com/longyuanai/AI-CodeGuard/issues/new?title=%5BPreview%20feedback%5D&body=Release%3A%20selfhosted-preview-20261026.1%0AOS%20%2F%20Node%20%2F%20npm%3A%0AInstall%20success%3A%0AScan%20completed%20%2F%20exit%20code%3A%0AFalse%20positive%20or%20missed%20finding%20%28synthetic%20repro%20only%29%3A%0AImprovements%3A%0A%0ARedact%20keys%2C%20tokens%2C%20private%20source%20and%20customer%20data.)或[查看已有 Issues](https://github.com/longyuanai/AI-CodeGuard/issues)。提供 OS、Node/npm/Release 版本、安装/扫描是否完成、
 脱敏命令/退出码、误报或漏报的最小合成复现及希望改进的内容。
 **不要上传 API key、Token、私钥、webhook secret、私有源码、客户数据或完整环境变量。**
 无法公开的复现可仅描述规则和现象，不要为了填表泄露信息。
