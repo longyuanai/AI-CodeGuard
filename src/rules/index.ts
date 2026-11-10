@@ -29,9 +29,10 @@ export async function loadRules(options?: {
   preset?: string;
   custom?: string;
   disable?: string[];
+  baseDir?: string;
 }): Promise<BuiltInRule[]> {
   const builtIn = getRules({ preset: options?.preset });
-  const customRules = await loadCustomRules(options?.custom, getAllRuleIds());
+  const customRules = await loadCustomRules(options?.custom, getAllRuleIds(), options?.baseDir);
   const merged = [...builtIn, ...customRules];
 
   if (options?.disable?.length) {

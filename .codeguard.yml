@@ -1,0 +1,21 @@
+# AI-CodeGuard Configuration
+# See: https://github.com/longyuanai/AI-CodeGuard
+
+scan:
+  include:
+    - "src/**/*.{ts,js,py,go,java,php}"
+    - "tests/fixtures/**/*.{ts,js,py,go,java,php}"
+  exclude:
+    - "node_modules"
+    - "dist"
+    - "build"
+
+rules:
+  preset: owasp-top-10
+  custom: ./rules/
+
+cache:
+  enabled: false
+
+output:
+  format: text

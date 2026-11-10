@@ -82,8 +82,12 @@ const RuleFileSchema = z.union([
   }),
 ]);
 
-export async function validateCustomRules(customPath: string, existingRuleIds: string[] = []): Promise<ValidatedCustomRules> {
-  const files = await resolveCustomRuleFiles(customPath);
+export async function validateCustomRules(
+  customPath: string,
+  existingRuleIds: string[] = [],
+  baseDir?: string,
+): Promise<ValidatedCustomRules> {
+  const files = await resolveCustomRuleFiles(customPath, baseDir);
   const seenIds = new Map<string, string>(
     existingRuleIds.map(id => [id, 'built-in rules']),
   );
@@ -110,17 +114,21 @@ export async function validateCustomRules(customPath: string, existingRuleIds: s
   return { files, definitions, sources };
 }
 
-export async function loadCustomRules(customPath: string | undefined, existingRuleIds: string[] = []): Promise<BuiltInRule[]> {
+export async function loadCustomRules(
+  customPath: string | undefined,
+  existingRuleIds: string[] = [],
+  baseDir?: string,
+): Promise<BuiltInRule[]> {
   if (!customPath) {
     return [];
   }
 
-  const validated = await validateCustomRules(customPath, existingRuleIds);
+  const validated = await validateCustomRules(customPath, existingRuleIds, baseDir);
   return validated.definitions.map(definition => compileRule(definition, validated.sources[definition.id]));
 }
 
-async function resolveCustomRuleFiles(customPath: string): Promise<string[]> {
-  const resolvedPath = resolve(customPath);
+async function resolveCustomRuleFiles(customPath: string, baseDir?: string): Promise<string[]> {
+  const resolvedPath = baseDir ? resolve(baseDir, customPath) : resolve(customPath);
   const entry = await stat(resolvedPath).catch(() => null);
 
   if (!entry) {

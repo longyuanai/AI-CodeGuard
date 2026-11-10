@@ -1,3 +1,4 @@
+import { dirname, isAbsolute, resolve } from 'node:path';
 import { cosmiconfig } from 'cosmiconfig';
 import { ConfigSchema } from './schema.js';
 import type { CodeGuardConfig } from '../types/index.js';
@@ -16,31 +17,46 @@ export async function loadConfig(configPath?: string): Promise<CodeGuardConfig> 
   });
 
   let rawConfig: Record<string, unknown> = {};
+  let configDir: string | undefined;
 
   if (configPath) {
     const result = await explorer.load(configPath);
     if (result) {
       rawConfig = result.config as Record<string, unknown>;
+      if (result.filepath) {
+        configDir = dirname(resolve(result.filepath));
+      }
     }
   } else {
     const result = await explorer.search();
     if (result) {
       rawConfig = result.config as Record<string, unknown>;
+      if (result.filepath) {
+        configDir = dirname(resolve(result.filepath));
+      }
     }
   }
 
-  return resolveConfig(rawConfig);
+  return resolveConfig(rawConfig, process.env, configDir);
 }
 
 /** Parse data-only configuration; callers choose the trusted environment. */
-export function resolveConfig(raw: Record<string, unknown> = {}, env: NodeJS.ProcessEnv = process.env): CodeGuardConfig {
+export function resolveConfig(
+  raw: Record<string, unknown> = {},
+  env: NodeJS.ProcessEnv = process.env,
+  baseDir?: string,
+): CodeGuardConfig {
   const rawConfig = structuredClone(raw);
   applyEnvOverrides(rawConfig, env);
 
   // Validate and apply defaults via Zod
-  const parsed = ConfigSchema.parse(rawConfig);
+  const parsed = ConfigSchema.parse(rawConfig) as CodeGuardConfig;
 
-  return parsed as CodeGuardConfig;
+  if (baseDir && parsed.rules.custom && !isAbsolute(parsed.rules.custom)) {
+    parsed.rules.custom = resolve(baseDir, parsed.rules.custom);
+  }
+
+  return parsed;
 }
 
 function applyEnvOverrides(config: Record<string, unknown>, env: NodeJS.ProcessEnv): void {

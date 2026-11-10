@@ -117,10 +117,16 @@ describe('loadConfig env overrides', () => {
     expect(config.llm.model).toBe('claude-opus-4-6');
   });
 
-  it('returns defaults when no config file found', async () => {
-    const { loadConfig } = await import('../../src/config/loader.js');
-    const config = await loadConfig();
-    expect(config.rules.preset).toBe('owasp-top-10');
-    expect(config.output.format).toBe('text');
+  it('resolves relative custom rules path against baseDir in resolveConfig', async () => {
+    const { resolveConfig } = await import('../../src/config/loader.js');
+    const config = resolveConfig({ rules: { custom: './rules/' } }, process.env, 'C:/project');
+    expect(config.rules.custom).toMatch(/[/\\]project[/\\]rules/);
+  });
+
+  it('preserves absolute custom rules path in resolveConfig', async () => {
+    const { resolveConfig } = await import('../../src/config/loader.js');
+    const absolutePath = 'C:/custom/rules';
+    const config = resolveConfig({ rules: { custom: absolutePath } }, process.env, 'C:/project');
+    expect(config.rules.custom).toBe(absolutePath);
   });
 });

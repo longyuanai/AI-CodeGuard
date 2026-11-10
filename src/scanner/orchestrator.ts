@@ -1,6 +1,6 @@
 import { glob, escapePath } from 'tinyglobby';
 import { readFile, stat } from 'node:fs/promises';
-import { relative, resolve } from 'node:path';
+import { isAbsolute, relative, resolve } from 'node:path';
 import type { CodeGuardConfig, ScanResult, Finding, SuspiciousNode, SkippedFile, OutputFormat, Severity } from '../types/index.js';
 import { SEVERITY_RANK } from '../types/index.js';
 import { parse, detectLanguage, getSupportedExtensions } from '../parser/index.js';
@@ -48,10 +48,17 @@ export async function scan(
 
   const files = await discoverFiles(options.paths, options.config, rootDir);
 
+  const customPath = options.config.rules.custom
+    ? (isAbsolute(options.config.rules.custom)
+        ? options.config.rules.custom
+        : resolve(rootDir, options.config.rules.custom))
+    : undefined;
+
   const rules = await loadRules({
     preset: options.config.rules.preset,
-    custom: options.config.rules.custom,
+    custom: customPath,
     disable: options.config.rules.disable,
+    baseDir: rootDir,
   });
 
   const allSuspicious: SuspiciousNode[] = [];
