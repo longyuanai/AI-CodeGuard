@@ -1,0 +1,42 @@
+id: CR-LLM-001
+name: LLM Prompt Injection via Dynamic Concatenation
+severity: high
+category: injection
+languages:
+  - javascript
+  - typescript
+  - python
+description: Detects direct string concatenation or template literal interpolation into LLM API calls, risking prompt injection (OWASP LLM01).
+patterns:
+  - type: function_call
+    function:
+      match:
+        - create
+        - complete
+        - generateContent
+        - invoke
+        - chat
+      on:
+        - openai
+        - anthropic
+        - client
+        - llm
+        - model
+    arguments:
+      - type: string_concat
+  - type: function_call
+    function:
+      match:
+        - create
+        - complete
+        - generateContent
+        - invoke
+        - chat
+      on:
+        - openai
+        - anthropic
+        - client
+        - llm
+        - model
+    arguments:
+      - type: template_string

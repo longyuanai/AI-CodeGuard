@@ -1,0 +1,15 @@
+id: CR-LLM-002
+name: Insecure LLM Output Dynamic Execution
+severity: critical
+category: injection
+languages:
+  - javascript
+  - typescript
+  - python
+description: Detects direct execution of dynamic code via eval or exec without sandbox isolation (OWASP LLM02).
+patterns:
+  - type: function_call
+    function:
+      match:
+        - eval
+        - exec
